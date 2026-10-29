@@ -1,11 +1,12 @@
-# Knight Chess v0.4 — Godot 4.6.3
+# Knight Chess v0.5 — Godot 4.6.3
 
-**Ready-to-play package:** download [the complete v0.4 ZIP](dist/Knight-Chess-v0.4-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
+**Ready-to-play package:** download [the complete v0.5 ZIP](dist/Knight-Chess-v0.5-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
-This release adds dragging, a move chronicle and material tracking. The inactive
-ability-state foundation remains unchanged; no powers or progression are enabled.
+This release adds a pre-game board editor, material-odds presets and inactive
+per-side ability checkboxes. Dragging, the move chronicle and material tracking
+remain available. No powers, progression or nonstandard gameplay rules are enabled.
 
 ## Windows: extract, import, play
 
@@ -30,6 +31,54 @@ Linux x64 binary is also included and tested. After extraction, if execute
 permissions were lost, run `chmod +x native/bin/linux-x64/KnightEngine`.
 Mac binaries are not included; build the matching osx-arm64/osx-x64 target using
 `native/build.sh` and the official .NET 10 SDK. Mac execution is unverified.
+
+## Set up a material advantage
+
+Choose **New game / Setup** to edit a separate draft. Your current game pauses
+and remains untouched until **Start this position** replaces it. **Cancel**
+returns to the exact live game or historical view; pending AI work resumes only
+when appropriate. Opening Setup starts from the standard board, not the current
+midgame position. Reset standard board affects the draft only.
+
+1. Choose engine/local mode, human side, search budget and side to move.
+2. For odds, select a preset to remove the opposing f-pawn, b-knight, a-rook or
+   queen. Each preset resets the board first; removals do not stack. The opposing
+   army is shown explicitly. Choose your human side **before** applying a preset;
+   changing that choice later does not automatically alter the edited board.
+3. Use **Move pieces** to drag or click source/destination; use the White/Black
+   piece palette to place or replace a piece. **Erase** or right-click removes a
+   piece. Editing can temporarily produce an invalid board; Start explains errors.
+4. Any board edit disables castling and clears en passant. To permit castling,
+   explicitly check **Allow castling from home king / rook** after editing.
+   Only matching home-square king/rook pairs receive rights; normal occupancy and
+   attacked-square rules still apply during play. Reset standard restores its
+   known starting castling rights. En passant always starts absent, halfmove
+   clock at 0 and move number at 1, including a Black-to-move start.
+5. Start creates a fresh FEN and repetition/move history. Missing starting pieces
+   affect material balance but are **not captures**. The engine searches the
+   asymmetric position normally; its evaluation and search strength are unchanged.
+
+Setup supports at most a standard army per side: **8 pawns, 2 knights, 2 bishops,
+2 rooks, 1 queen and exactly 1 king**. It does not support unlimited extra armies.
+Promotions during normal play still work. A same-color bishop pair needs a
+missing pawn to account for promotion. Validation requires nonadjacent kings,
+no pawns on ranks 1/8, neither both kings nor the side not to move in check.
+The side to move **may** be in check if it has a legal response. Already
+checkmated, stalemated or recognized insufficient-material setups are rejected
+with an explanation. These are structural/playability checks, not an exhaustive
+proof that every position is reachable from the standard opening.
+
+White and Black each have **Pawn Dash, Bishop Sidestep and Queen Exchange**
+checkboxes, explicitly labelled **planned / no gameplay effect**. Selections
+record session-only configuration intent; they change no legal moves, attacks,
+captures, evaluation, hash or native runtime ability state. Intent is kept apart
+from `ChessRules.ability_state`, which stays empty, and the native protocol still
+rejects active/unknown ability state. No ability code or save system is enabled.
+
+Changing mode or human side using the regular play controls starts a fresh
+**standard** game (the existing behavior), clearing setup intent. To choose
+custom odds again, use New game / Setup. The internal restart method and normal
+regression tests also reset to standard; history browsing is never a takeback.
 
 ## Controls
 
@@ -62,7 +111,8 @@ Mac binaries are not included; build the matching osx-arm64/osx-x64 target using
   an inspection destination alone never executes a move.
 - Inspection remains responsive while the engine thinks and after game end.
   Right-click the same piece again, or Esc, to clear.
-- Play as Black rotates the board. New game, side, or mode changes reset play.
+- Play as Black rotates the board, including the setup editor. Mode or side
+  changes reset to a standard game; New game / Setup opens an isolated draft.
   Changing the time budget keeps the position and cancels/replaces pending work.
 - Narrow windows stack the board and scrollable controls. Local mode supports
   two players and agreed draws. Claim draw appears for qualifying current positions.
@@ -118,6 +168,8 @@ not a complete tournament adjudicator. Internal FEN loading is for trusted tests
   SAN chronicle, capture ledger, material display and AI lifecycle controls.
 - `rules.gd`: Godot standard rules and inspection, history transport and empty
   ability-state placeholder.
+- `setup.gd`: isolated draft, standard-inventory validation, safe FEN/rights and
+  inactive ability intentions.
 - `engine.gd`: nonblocking UCI bridge; no GDScript search.
 - `native/engine/src/Core`: optimized compiled upstream core with targeted fixes.
 - `native/engine/src/Extensions/AbilityState.cs`: inactive masks/state hooks.
@@ -146,6 +198,7 @@ godot --headless --path . --script res://tests/test_ui_engine.gd
 godot --headless --path . --script res://tests/test_bridge.gd
 godot --headless --path . --script res://tests/test_ui_native.gd
 godot --headless --path . --script res://tests/test_ux.gd
+godot --headless --path . --script res://tests/test_setup.gd
 native/bin/win-x64/KnightEngine.exe --selftest
 ```
 

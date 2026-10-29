@@ -1,3 +1,53 @@
+# v0.5 validation — 2026-10-29
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64. The compiled engine,
+standard chess rules, Windows/Linux binaries, native sources and licenses remain
+unchanged. No strength, evaluation or movement changes.
+
+## v0.5 coverage
+
+**400 explicit checks**: the previous 288 plus 112 setup checks. All passed
+again after clean ZIP extraction and fresh Godot import; see
+`validation/v0.5/clean-extraction.txt`. The final package differs from that tested
+extraction only in documentation and validation evidence. New tests cover
+missing/duplicate/adjacent kings, pawn ranks, both-check and wrong-side check,
+legal check evasions, terminal/dead positions, inventory/promotion accounting,
+castling and en-passant reset, safe FEN creation, all four odds presets for both
+human colors, actual editor inputs, invalid Start, Cancel preserving live/history
+state, fresh capture/history ledgers, promotion, arbitrary-start SAN, inactive
+ability configuration, rotated/narrow layout and search cancellation/replacement.
+
+Eight short material-odds games cover pawn/knight/rook/queen odds with both human
+colors. Each starts with the engine to move from the asymmetric FEN, receives a
+legal engine move, applies a legal human move, then receives a second engine
+reply using the full custom-start history. These verify integration and normal
+play, not handicap strength calibration or a new Elo estimate.
+
+Setup scope deliberately caps each side at its standard inventory. Same-color
+bishop pairs require a missing pawn. Validation is structural, not a complete
+retrograde reachability proof. Invalid, checkmated, stalemated and recognized
+insufficient-material drafts cannot start. The side to move can be checked if
+legal replies exist. Missing starting material is never recorded as captures.
+
+Opening Setup cancels AI work and pauses the live game. Cancel restores the exact
+live game or history review; Start replaces it with a fresh validated FEN, empty
+move/capture history and one repetition entry. Edits clear castling/EP; explicit
+home king/rook castling is opt-in. Planned abilities are session configuration
+only; native runtime ability state stays empty and protocol fail-closed tests
+remain unchanged.
+
+Graphical Linux: all 112 setup checks and all 62 previous UX checks passed with
+virtual Xorg + Mesa llvmpipe OpenGL rendering. Reviewed screenshots of invalid-position feedback, queen odds,
+White/Black inactive ability checkboxes and the rotated 600px-wide layout.
+Standalone X11 mouse input also verified opening Setup, erasing the opponent's
+queen, toggling both sides' planned abilities, starting at +9 with an empty
+capture ledger, dragging e2–e4 and receiving a native reply. Screenshots and logs
+are in `validation/v0.5/`; previous validation is preserved.
+Windows/Mac execution was not performed here. The included Windows x64 engine
+is the same self-contained cross-built binary tested in previous releases.
+
+## Historical v0.4 validation (preserved)
+
 # v0.4 validation — 2026-10-29
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64. The compiled C# engine,

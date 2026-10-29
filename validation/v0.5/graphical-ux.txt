@@ -1,0 +1,68 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:364)
+OpenGL API 4.5 (Core Profile) Mesa 25.0.7-2+deb13u1 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 19.1.7, 256 bits)
+
+PASS: SAN e1g1 = O-O
+PASS: SAN leaves position/history unchanged
+PASS: SAN e8c8 = O-O-O
+PASS: SAN leaves position/history unchanged
+PASS: SAN e5d6 = exd6
+PASS: SAN leaves position/history unchanged
+PASS: SAN b1d2 = Nbd2
+PASS: SAN leaves position/history unchanged
+PASS: SAN a1a2 = R1a2
+PASS: SAN leaves position/history unchanged
+PASS: SAN b1d2 = Nb1d2
+PASS: SAN leaves position/history unchanged
+PASS: SAN b1d2 = Nd2
+PASS: SAN leaves position/history unchanged
+PASS: SAN a7a8q = a8=Q+
+PASS: SAN leaves position/history unchanged
+PASS: SAN a7a8r = a8=R+
+PASS: SAN leaves position/history unchanged
+PASS: SAN a7a8b = a8=B
+PASS: SAN leaves position/history unchanged
+PASS: SAN a7a8n = a8=N
+PASS: SAN leaves position/history unchanged
+PASS: SAN a7b8q = axb8=Q+
+PASS: SAN leaves position/history unchanged
+PASS: Drag commits exactly one move and SAN entry
+PASS: Illegal drop does not move or record
+PASS: Off-board drop clears drag without moving
+PASS: Escape cancels a dragged move
+PASS: Right click cancels drag
+PASS: Resize cancels drag
+PASS: Sidebar release cancels drag
+PASS: Capture ledger and material balance use actual captured piece
+PASS: Historical board, turn and material match selected ply
+PASS: Historical captures and review status
+PASS: History blocks both drag and direct move execution
+PASS: Right-click history inspection uses displayed snapshot
+PASS: Return to live restores current position unchanged
+PASS: History shortcut works while move list has focus
+PASS: Starting position is browsable
+PASS: Restart clears chronicle and review
+PASS: En passant ledger counts removed pawn behind destination
+PASS: Dragged promotion waits for choice without history entry
+PASS: Canceled promotion leaves position and ledger untouched
+PASS: Promotion changes material but does not count promoted pawn as captured
+PASS: Pre-promotion material preserved in history
+PASS: Captured promoted queen counts as queen; Black material lead
+PASS: Black capture display records promoted piece, no imaginary pawn
+PASS: Terminal move records SAN mate
+PASS: Terminal history preserves result
+PASS: No moves in terminal history
+PASS: No moves after live game ends
+PASS: Draw result preserved without adding a move
+PASS: Rotated board drag maps to correct engine squares
+PASS: AI starts after dragged human move
+PASS: Human drag blocked during AI turn
+PASS: Browsing cancels pending AI result without changing live state
+PASS: Return to live resumes AI exactly once
+PASS: Side change clears drag and history
+PASS: Mode change clears drag and history
+PASS: Difficulty change cancels drag
+PASS: Restart during drag cancels release
+PASS: Narrow layout keeps history below board
+UX: 62 checks, 0 failures

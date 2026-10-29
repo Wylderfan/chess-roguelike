@@ -1,5 +1,14 @@
 # Changes
 
+## v0.5 — 2026-10-29
+
+- Added a pre-game editor with move/place/erase tools, side-to-move selection and material-odds presets for either human color.
+- Validate standard inventory, kings, pawn ranks, checks and terminal positions before starting; edits clear castling/EP, with explicit home-square castling opt-in.
+- Start uses a fresh FEN/history; Cancel preserves the live game. Captures start empty and material reflects the edited board.
+- Added separate White/Black planned ability checkboxes with no gameplay effect or nonempty native ability state.
+- Kept native engine/source/binaries and v0.4 play/inspection/history behavior unchanged.
+- Added 112 setup checks including eight three-ply native odds games and lifecycle tests.
+
 ## v0.4 — 2026-10-29
 
 - Added drag-and-drop while retaining click-to-move, promotion choice and illegal-drop cancellation.
