@@ -5,8 +5,27 @@
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
 This release supports extra pieces in the pre-game editor, fixes castling setup
-rights and stabilizes the inactive ability checkboxes. Dragging, the move chronicle and material tracking
+rights and stabilizes the inactive ability checkboxes. A selectable conservative
+engine profile provides a working standard-rule compatibility fallback. Dragging, the move chronicle and material tracking
 remain available. No powers, progression or nonstandard gameplay rules are enabled.
+
+## Engine compatibility profiles
+
+**Standard engine** is the default and retains fast legal generation, Sebastian's
+positional evaluation, late-move reductions (LMR) and transposition cache.
+**Conservative · experimental** keeps bitboards, iterative deepening, alpha-beta
+and move ordering, but uses geometric candidate moves followed by simulated king
+safety, material-only evaluation (P100/N300/B320/R500/Q900), no LMR and no cache
+probes/stores. It will usually search less deeply and may play more weakly.
+The option is in **Your game**, independent of the setup ability checkboxes.
+Changing profiles cancels the current search and rejects its stale result.
+
+Both currently play exactly the same standard rules. This is a tested fallback
+for developing future rules, **not support for arbitrary abilities**. Nonempty
+runtime ability state, unknown schemas and unknown profiles fail closed. Planned
+checkboxes still do nothing. Each future contract needs candidates, geometric
+threats, reversible execution and complete state/hash/repetition semantics before
+it can be registered; enabling a profile alone cannot make an ability correct.
 
 ## Windows: extract, import, play
 

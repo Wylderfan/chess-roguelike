@@ -15,6 +15,8 @@ namespace CodingAdventureBot;
 public sealed class EngineUCI : IDisposable
 {
     Board board = Board.CreateBoard();
+    RuleProfile profile = RuleProfile.Standard;
+    MoveGenerator Generator() => new MoveGenerator { Profile=profile };
     Task? work;
     CancellationTokenSource? cancellation;
     readonly object outputGate = new();
@@ -43,7 +45,13 @@ public sealed class EngineUCI : IDisposable
                 case "uci":
                     Respond("id name Knight Chess v0.6 / SebLague V2 f346d2d");
                     Respond("id author Sebastian Lague; Knight Chess integration");
+                    Respond("option name RulesProfile type combo default standard var standard var conservative");
                     Respond("uciok"); break;
+                case "setoption":
+                    StopJoin(true);
+                    if(words.Length==5 && words[1]=="name" && words[2]=="RulesProfile" && words[3]=="value") profile=RuleProfile.Parse(words[4]);
+                    else throw new ArgumentException("Unsupported option");
+                    break;
                 case "isready": Respond("readyok"); break;
                 case "stop": StopJoin(false); break;
                 case "quit": StopJoin(true); QuitRequested = true; break;
@@ -52,7 +60,8 @@ public sealed class EngineUCI : IDisposable
                 case "go": Start(words); break;
                 case "knight":
                     StopJoin(true);
-                    if (words.Length > 1 && words[1] == "snapshot") Snapshot();
+                    if (words.Length > 1 && words[1] == "profile") Respond("profile " + JsonSerializer.Serialize(profile));
+                    else if (words.Length > 1 && words[1] == "snapshot") Snapshot();
                     else if (words.Length > 2 && words[1] == "divide") Divide(Math.Clamp(int.Parse(words[2]),1,4));
                     break;
             }
@@ -71,7 +80,7 @@ public sealed class EngineUCI : IDisposable
         if (split >= 0)
             foreach (string text in words.Skip(split + 1))
             {
-                var candidates = new MoveGenerator().GenerateMoves(next).ToArray();
+                var candidates = Generator().GenerateMoves(next).ToArray();
                 Move m = candidates.FirstOrDefault(m => Name(m) == text);
                 if (m.IsNull) throw new ArgumentException("Illegal position move " + text);
                 next.MakeMove(m);
@@ -104,14 +113,17 @@ public sealed class EngineUCI : IDisposable
             var watch = Stopwatch.StartNew();
             try
             {
-                var legal = new MoveGenerator().GenerateMoves(board).ToArray();
+                var legal = Generator().GenerateMoves(board).ToArray();
                 Move chosen = Move.NullMove;
                 if (legal.Length > 0)
                 {
-                    var search = new Searcher(board);
+                    var search = new Searcher(board,profile);
                     search.StartSearch(time, token, depth);
                     chosen = search.BestMoveSoFar;
                     if (!legal.Any(m => Move.SameMove(m, chosen))) throw new InvalidOperationException("Search returned illegal move");
+                    lock (outputGate)
+                        if (id == generation)
+                            Console.WriteLine($"info string profile {profile.Name} lmr {search.Reductions} tt_probes {search.CacheProbes} tt_stores {search.CacheStores} material_evals {search.MaterialEvaluations} positional_evals {search.PositionalEvaluations}");
                     lock (outputGate)
                         if (id == generation)
                             Console.WriteLine($"info depth {search.CurrentDepth} nodes {search.Nodes} time {watch.ElapsedMilliseconds} score cp {search.BestEvalSoFar}");
@@ -130,7 +142,7 @@ public sealed class EngineUCI : IDisposable
         });
     }
     public static string Name(Move m) => MoveUtility.GetMoveNameUCI(m).Replace("=", "").ToLowerInvariant();
-    static string[] Legal(Board b) => new MoveGenerator().GenerateMoves(b).ToArray().Where(m => Piece.PieceType(b.Square[m.TargetSquare]) != Piece.King).Select(Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+    string[] Legal(Board b) => Generator().GenerateMoves(b).ToArray().Where(m => Piece.PieceType(b.Square[m.TargetSquare]) != Piece.King).Select(Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
     void Snapshot()
     {
         var fen = FenUtility.CurrentFen(board).Split(' ');
@@ -146,17 +158,17 @@ public sealed class EngineUCI : IDisposable
             threats[BoardHelper.SquareNameFromIndex(s)] = squares.OrderBy(x => x, StringComparer.Ordinal).ToArray();
         }
         Respond("knight " + JsonSerializer.Serialize(new {
-            schema = AbilityState.SchemaVersion, legal = Legal(board), other_legal = Legal(other), threats,
+            profile = profile.Name, schema = AbilityState.SchemaVersion, legal = Legal(board), other_legal = Legal(other), threats,
             hash = board.ZobristKey.ToString("x16"), history_count = board.RepetitionPositionHistory.Count,
             repetition_count = board.RepetitionPositionHistory.Count(k => k == board.ZobristKey),
             fen = FenUtility.CurrentFen(board), abilities_empty = board.Abilities.IsEmpty
         }, json));
     }
-    static long Perft(Board b, int depth)
+    long Perft(Board b, int depth)
     {
         if(depth==0) return 1;
         long nodes=0;
-        foreach(var m in new MoveGenerator().GenerateMoves(b).ToArray())
+        foreach(var m in Generator().GenerateMoves(b).ToArray())
         {
             b.MakeMove(m,true);
             try { nodes += Perft(b,depth-1); }
@@ -168,7 +180,7 @@ public sealed class EngineUCI : IDisposable
     {
         var copy=Board.CreateBoard(board);
         var counts=new SortedDictionary<string,long>();
-        foreach(var m in new MoveGenerator().GenerateMoves(copy).ToArray())
+        foreach(var m in Generator().GenerateMoves(copy).ToArray())
         {
             copy.MakeMove(m,true);
             try { counts[Name(m)]=Perft(copy,depth-1); }

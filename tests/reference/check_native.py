@@ -18,6 +18,7 @@ def check(ok,label):
  checks+=1
  assert ok,label
 try:
+ if len(sys.argv)>2:send('setoption name RulesProfile value '+sys.argv[2])
  data=json.loads(pathlib.Path(__file__).with_name('positions.json').read_text())
  for i,f in enumerate(data['positions']):
   send('position fen '+f['fen']);send('knight snapshot');actual=json.loads(get('knight '))
@@ -29,6 +30,7 @@ try:
  # Invalid commands must leave live position unchanged and process usable.
  send('position startpos');send('knight snapshot');before=json.loads(get('knight '))
  invalid=['4k3/8/8/8/8/8/8/4K3 w K - 0 1','4k3/8/8/8/8/8/4K3/7R w K - 0 1','9/8/8/8/8/8/8/4K2k w - - 0 1','4k3/8/8/8/8/8/8/K3R3 w - - 0 1','4k3/8/8/8/8/8/8/4K3 z - - 0 1']
+ invalid += data['invalid_ep']
  for fen in invalid:
   send('position fen '+fen)
   s=lines.get(timeout=5);check(s.startswith('info string error'), 'malformed FEN rejected: '+s)

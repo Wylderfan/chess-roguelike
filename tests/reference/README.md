@@ -1,7 +1,7 @@
 # Independent move-generation regression
 
 `positions.json` was generated with python-chess **1.11.2**, seed **6062026**.
-It holds 541 positions: 480 deterministic plies across eight standard games,
+It holds 545 positions: 480 deterministic plies across eight standard games,
 crafted rule/extra-army fixtures and deterministic extra-army walks. All have
 structurally valid kings/pawns/turn/check state. Only python-chess's orthodox
 piece/pawn-count status flags are waived for intentionally extra armies. Their
@@ -18,7 +18,7 @@ Sources:
 - https://www.chessprogramming.org/Perft_Results (published lower-depth counts)
 - https://github.com/official-stockfish/Stockfish/blob/ff7cee4244ec96ea488c402669e3674c0574dce6/tests/perft.sh (published standard fixture selection; no Stockfish code bundled)
 
-Verified published matrix for both Godot and native (17 depth/divide cases):
+Verified published matrix for Godot and both native profiles (17 depth/divide cases):
 
 | Position | Depths and node counts |
 | --- | --- |
@@ -44,7 +44,8 @@ Run from the project root:
 
 ```sh
 godot --headless --path . --script tests/test_reference.gd
-python tests/reference/check_native.py native/bin/linux-x64/KnightEngine
+python tests/reference/check_native.py native/bin/linux-x64/KnightEngine standard
+python tests/reference/check_native.py native/bin/linux-x64/KnightEngine conservative
 ```
 
 Use `native/bin/win-x64/KnightEngine.exe` for native checks on Windows. To regenerate
@@ -55,3 +56,10 @@ is implied: this corpus is finite, seeded, and excludes Chess960 and active powe
 Future abilities must keep the default no-op/abilities-off path passing this
 orthodox matrix. Enabled custom movement needs its own expected positions/counts;
 see `native/INTEGRATION.md`. Current checkboxes remain inactive even when selected.
+
+The revision adds four valid EP fixtures (both turns, with and without a capturer)
+and eight malformed EP targets independently marked invalid by python-chess.
+Both native profiles must reject those targets without mutating the live board.
+Pinned/discovered-check EP remains in the valid comparison corpus. The first 541
+positions from the initial v0.6 corpus are retained; new fixtures do not replace
+previous random games or extra-army walks.

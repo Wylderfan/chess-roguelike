@@ -6,7 +6,7 @@ PASS full move sequence retains threefold history
 PASS isolated FEN correctly differs from repeated history
 PASS special legal set {'e1c1', 'e1g1'}
 PASS special legal set {'e5d6'}
-PASS special legal set {'a7a8r', 'a7a8q', 'a7a8n', 'a7a8b'}
+PASS special legal set {'a7a8r', 'a7a8q', 'a7a8b', 'a7a8n'}
 PASS rapid stop returns one legal move 0
 PASS new position cannot receive old result 0
 PASS rapid stop returns one legal move 1

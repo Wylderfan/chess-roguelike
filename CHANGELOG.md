@@ -1,5 +1,11 @@
 # Changes
 
+## v0.6 follow-up — compatibility profiles and EP input correction
+- Standard/conservative engine selector with real LMR/cache/evaluation controls.
+- Conservative standard-rule geometric candidates and simulate/check legality.
+- Profile/schema gates, search-generation cancellation and independent perft parity.
+- Reject inconsistent external EP targets while accepting targets without capturers.
+
 ## v0.6 — 2026-10-29
 
 - Simplified side choices to White/Black and fixed checkbox icon/padding geometry across all states.

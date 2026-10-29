@@ -32,6 +32,9 @@ var level_choice: OptionButton
 var mode = 1 # 0 = local, 1 = engine
 var human_side = 1
 var difficulty = 1
+var rules_profile = "standard"
+var profile_choice: OptionButton
+var profile_help: Label
 var generation = 0
 var worker: Thread
 var thinker: ChessEngine
@@ -128,6 +131,11 @@ func _ready() -> void:
 	level_choice = choice(["Quick · 0.3 s", "Balanced · 1.1 s", "Deep · 2.6 s"])
 	level_choice.select(difficulty)
 	level_choice.item_selected.connect(set_difficulty)
+	profile_choice = choice(["Standard engine", "Conservative · experimental"])
+	profile_choice.tooltip_text = "Conservative: simulated legality, no LMR or transposition cache, material-only evaluation. No abilities enabled."
+	profile_choice.item_selected.connect(set_profile)
+	profile_help = label("Standard: full evaluation, LMR and cache.\nConservative: simulated legality, material only,\nno LMR or cache. Neither enables abilities.", 13)
+	profile_help.modulate = Color("bdb09a")
 	planned_label = label("", 13)
 	planned_label.modulate = Color("c9ad72")
 	engine_status = label("", 13)
@@ -263,6 +271,14 @@ func set_difficulty(value: int) -> void:
 	invalidate_search()
 	refresh()
 
+func set_profile(value: int) -> void:
+	cancel_drag()
+	rules_profile = "standard" if value == 0 else "conservative"
+	profile_choice.select(value)
+	invalidate_search()
+	engine_fault = ""
+	refresh()
+
 func invalidate_search() -> void:
 	generation += 1
 	if search_active: thinker.cancel()
@@ -302,6 +318,7 @@ func _process(_delta: float) -> void:
 			else: refresh()
 	if not editing and history_index == -1 and not search_active and engine_fault == "" and mode == 1 and game.result == "" and game.turn != human_side:
 		thinker = EngineAI.new()
+		thinker.rules_profile = rules_profile
 		worker = Thread.new()
 		search_generation = generation
 		search_key = game.position_key()

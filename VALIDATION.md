@@ -1,4 +1,60 @@
-# v0.6 validation — 2026-10-29
+# Revised v0.6 validation — compatibility profiles and EP fix
+
+Godot 4.6.3 / Linux x86_64; .NET SDK 10.0.403. The revision changes native code
+and both platform binaries, plus the UI/bridge profile selection.
+
+- **565 core/UI/native/protocol checks passed** (previous 512, 12 EP validation
+  checks, 16 native profile controls/restoration checks, 9 UI profile lifecycle
+  checks and 16 profile protocol/deadline/cancellation checks).
+- **545 independent reference positions**: all original 541 retained unchanged,
+  plus four valid EP positions with/without capturers on both turns.
+- Godot **1,652 assertions**; native Standard **1,678**, Conservative **1,678**.
+  Both native profiles and Godot match all **17 published perft depth/divide cases**.
+- Eight malformed EP fixtures independently marked invalid by python-chess are
+  rejected by both native profiles, with previous live position preserved.
+- Conservative tests demonstrate nonzero material evaluations and zero LMR/TT
+  probes/stores/positional evaluations. Standard tests demonstrate the converse.
+  Both return legal moves and preserve board/hash after search/cancellation.
+- UI tests play both colors with Conservative, switch profiles while searching,
+  reject stale results, restart/switch local, and reject unknown profiles.
+
+Clean extraction passed all 549 core/UI/native checks; the additional 16-check
+profile protocol script also passed against the extracted binary. All three
+independent reference suites passed again from the extracted package. Its 300 ms
+searches returned legal moves within the 2 s wall-clock test bound; stop joined
+within 1 s, full snapshots were restored and stale profile results suppressed.
+
+Rendered Linux/Mesa runs passed all 9 profile UI checks and all 70 extra-army
+checks. Checkbox narrow/hover screenshots were captured again.
+
+Standard is the default. Conservative is an experimental ordinary-chess fallback,
+not an implemented ability ruleset or a rated strength setting. It retains
+bitboards and search, but simulated legality and disabling selective/cache
+optimizations reduce attainable depth; material-only evaluation is less informed.
+Nonempty runtime ability state and unknown schemas fail closed in both profiles.
+Planned checkbox intent remains inactive and separate from engine profile.
+
+Windows x64 self-contained binary cross-published and format checked, **not run
+on Windows**. Mac execution untested. Final revision awaits parent independent QA.
+
+## Independent QA of the earlier a0e3b67 package (not this revision)
+
+Parent verified the original ZIP, 541-position reference corpus and 17 perft
+cases. Initial regression run was **511/512**: one UI responsiveness assertion
+measured a 345 ms maximum frame gap against <250 ms. An isolated unchanged
+21-check rerun passed with 60 ms maximum gap. Thresholds have not been relaxed.
+Parent actual graphical QA passed extra queen/knight/ninth pawn material +13,
+empty starting captures, native play/history, f1/g1 removal then O-O with rook f1,
+selective castling rights and stable checked controls at normal/606px widths.
+The confirmed malformed external EP defect motivated this revision. Those QA
+results must not be represented as independent verification of the new profiles.
+
+Earlier developer records follow. Current regression logs are in validation/v0.6;
+revision-specific profile/reference/clean logs are named accordingly.
+
+---
+
+# Initial v0.6 validation — a0e3b67 (historical)
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64; .NET SDK 10.0.403.
 

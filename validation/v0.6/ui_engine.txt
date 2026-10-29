@@ -7,7 +7,7 @@ PASS: Right-click both sides leaves game unchanged
 PASS: AI search starts on worker thread
 PASS: Can inspect engine army during search
 PASS: Human cannot play the engine's turn
-RESPONSIVENESS { "frames": 407, "elapsed_ms": 2800, "max_frame_gap_ms": 16 }
+RESPONSIVENESS { "frames": 405, "elapsed_ms": 2802, "max_frame_gap_ms": 21 }
 PASS: AI returns and applies a legal reply
 PASS: Frames continue while AI searches
 PASS: Restart cancels promptly and rejects stale move

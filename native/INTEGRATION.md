@@ -183,3 +183,45 @@ Native perft tests check incremental hashes and complete make/unmake roundtrips
 at every traversed node, including castling, en passant and promotions. They also
 exercise inactive state, copying, null moves, reserved flags and terminal roots.
 See the root VALIDATION.md and `validation/` logs for measured results.
+
+## Functional compatibility profiles (v0.6 revision)
+
+UCI: `setoption name RulesProfile value standard` (default) or `conservative`.
+`knight profile` returns the active settings; snapshots include the profile name,
+which Godot verifies. Profile changes stop/join/suppress existing search before
+changing configuration. Diagnostics report actual LMR, TT probe/store and chosen
+evaluation counters. The UI exposes the same two profiles independently of
+inactive ability checkbox intent. Unknown profiles/options are errors.
+
+`Extensions/RuleProfile.cs` defines the registered capability combinations and
+`IRuleContract` candidate/threat/make/unmake seam. Only `OrthodoxContract` is
+registered. Conservative candidates come directly from bitboard geometry and
+pawn/castling rules, without the fast generator's pin/check pruning. Each is
+made, its mover's king checked against geometric opposing attacks, and unmade in
+`finally`. Castling checks origin and simulated transit separately from the final
+king/rook move; EP removes its victim before checking; promotions include all four
+choices; kings cannot be captured. The same contract is used in conservative
+search, snapshots, replay validation and perft. Current custom-state validation
+accepts only empty schema 0; the state foundation can still be unit-tested through
+explicit make/unmake without allowing it into playable search/generation.
+
+Standard retains the existing fast generator and search policy. Conservative
+bypasses all TT probes/stores and cached-move ordering, disables LMR, and evaluates
+only signed material P100/N300/B320/R500/Q900. It retains alpha-beta, iterative
+deepening, move ordering, ordinary check/pawn extensions and check-aware quiescence.
+These retained rules are standard-specific too: future contract authors must
+review extensions, tactical classification, evaluation and repetition before
+registering a new profile. Repetition/hashes remain active even with TT disabled.
+A fresh search owns its profile and table, so incompatible evaluations never share
+cached entries. A full custom contract needs state identity/serialization and move
+bounds audited; this does not claim arbitrary powers work today.
+
+External en-passant validation requires an empty target, opposing double-pushed
+pawn behind it, and empty vacated origin, with the correct side/rank. A capturer
+is **not** required: valid FENs retain EP targets even when no legal EP capture
+exists. Rejected commands preserve the previous live board. Off-turn snapshots
+continue clearing EP before constructing the hypothetical board.
+
+Profile protocol tests: `python tests/native/test_profiles.py native/bin/linux-x64/KnightEngine`.
+Use the Windows executable path on Windows. Native self-tests also assert profile
+control counters, legal results, cancellation and hash restoration.

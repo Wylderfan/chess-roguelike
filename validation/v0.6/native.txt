@@ -6,8 +6,8 @@ PASS promotion hash/unmake roundtrips
 PASS reserved flag 8 is neither promotion nor playable
 PASS empty ability state leaves standard hash unchanged
 PASS nonempty setup state contributes to identity
-PASS schema state has no active gameplay effect
-PASS ability snapshot make/unmake roundtrips
+PASS nonempty unregistered rule state fails closed
+PASS ability snapshot make/unmake roundtrips remain exact
 PASS copy retains state and hash
 PASS null move hash includes state
 PASS null unmake restores state/hash
@@ -55,4 +55,32 @@ PASS two knights not automatically dead
 PASS opposite-color bishops not dead
 PASS king capture rejected before mutation
 PASS native rejects over-cap inventory before piece-list construction
-NATIVE: 57 checks, 0 failures
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS profile generation restores board/hash
+PASS profile search returns legal move
+PASS profile search restores board/hash
+PASS LMR profile gate honored
+PASS TT profile gate honored
+PASS evaluation profile gate honored
+PASS profile cancellation retains legal fallback and original state
+PASS unregistered ability schema fails closed in both profiles
+PASS profile generation restores board/hash
+PASS profile search returns legal move
+PASS profile search restores board/hash
+PASS LMR profile gate honored
+PASS TT profile gate honored
+PASS evaluation profile gate honored
+PASS profile cancellation retains legal fallback and original state
+PASS unregistered ability schema fails closed in both profiles
+NATIVE: 85 checks, 0 failures

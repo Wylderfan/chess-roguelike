@@ -37,6 +37,17 @@ public static class PositionLimits
     // do not use this history/turn constraint.
     public static void ValidatePlayableTurn(Board board)
     {
+        // A FEN target records a just-completed double push, even if no pawn
+        // can capture it. Check the board evidence, not capturer availability.
+        int epFile = board.CurrentGameState.enPassantFile;
+        if (epFile != 0)
+        {
+            int target = (board.IsWhiteToMove ? 40 : 16) + epFile - 1;
+            int direction = board.IsWhiteToMove ? 8 : -8;
+            int pawn = Piece.MakePiece(Piece.Pawn, board.IsWhiteToMove ? Piece.Black : Piece.White);
+            if (board.Square[target] != 0 || board.Square[target - direction] != pawn || board.Square[target + direction] != 0)
+                throw new ArgumentException("En passant requires empty target/origin and the opposing double-pushed pawn");
+        }
         int king=board.KingSquare[1-board.MoveColourIndex];
         for(int square=0;square<64;square++)
             if(Piece.IsColour(board.Square[square],board.MoveColour) && ((AbilityRules.ThreatMask(board,square)>>king)&1)!=0)

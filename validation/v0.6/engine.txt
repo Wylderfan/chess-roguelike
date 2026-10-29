@@ -2,43 +2,43 @@ Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
 
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=g6g7 depth=1 nodes=47 elapsed_ms=215 score=99999
+BENCH move=g6g7 depth=1 nodes=47 elapsed_ms=204 score=99999
 PASS: Find mate in one
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=f6g6 depth=3 nodes=940 elapsed_ms=187 score=99997
+BENCH move=f6g6 depth=3 nodes=940 elapsed_ms=189 score=99997
 PASS: See forced mate in two
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=d2d4 depth=15 nodes=2373991 elapsed_ms=1269 score=662
+BENCH move=d2d4 depth=15 nodes=2477930 elapsed_ms=1261 score=662
 PASS: Capture hanging queen
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=d2e2 depth=10 nodes=2372729 elapsed_ms=1276 score=364
+BENCH move=d2e2 depth=10 nodes=2291026 elapsed_ms=1284 score=364
 PASS: Avoid poisoned pawn / immediate recapture
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=d8e7 depth=9 nodes=4391968 elapsed_ms=2792 score=20
+BENCH move=d8e7 depth=9 nodes=4676599 elapsed_ms=2843 score=20
 PASS: Avoid immediate mate when defense exists
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=a7a8q depth=12 nodes=2865599 elapsed_ms=1234 score=1126
+BENCH move=a7a8q depth=12 nodes=2848926 elapsed_ms=1263 score=1126
 PASS: Choose ordinary queen promotion
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=c7c8r depth=4 nodes=777 elapsed_ms=178 score=99997
+BENCH move=c7c8r depth=4 nodes=777 elapsed_ms=208 score=99997
 PASS: Rook underpromotion avoids stalemate and forces mate
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=g1f3 depth=7 nodes=81725 elapsed_ms=484 score=27
+BENCH move=g1f3 depth=7 nodes=115073 elapsed_ms=465 score=0
 PASS: Search respects budget with bounded node completion
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=e2e4 depth=10 nodes=1828676 elapsed_ms=1301 score=38
+BENCH move=e2e4 depth=10 nodes=1734752 elapsed_ms=1276 score=38
 PASS: Search respects budget with bounded node completion
 PASS: Search preserves all live position state
 PASS: Search returns a legal move
-BENCH move=e2e4 depth=10 nodes=4519701 elapsed_ms=2811 score=38
+BENCH move=e2e4 depth=10 nodes=4722272 elapsed_ms=2770 score=32
 PASS: Search respects budget with bounded node completion
 PASS: Pre-canceled search exits promptly
 PASS: Search preserves all live position state

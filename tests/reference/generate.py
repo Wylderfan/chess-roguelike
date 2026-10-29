@@ -16,6 +16,8 @@ def divide(b,d):
  for m in list(b.legal_moves):
   b.push(m);out[m.uci()]=perft(b,d-1);b.pop()
  return out
+invalid_ep=['7k/8/8/4P3/8/8/8/K7 w - d6 0 1', '7k/8/8/8/4p3/8/8/K7 b - d3 0 1', '7k/8/8/3PP3/8/8/8/K7 w - d6 0 1', '7k/8/8/8/3pp3/8/8/K7 b - d3 0 1', '7k/8/3N4/3pP3/8/8/8/K7 w - d6 0 1', '7k/8/8/8/3Pp3/3n4/8/K7 b - d3 0 1', '7k/3n4/8/3pP3/8/8/8/K7 w - d6 0 1', '7k/8/8/8/3Pp3/8/3N4/K7 b - d3 0 1']
+for fen in invalid_ep: assert chess.Board(fen).status() & chess.STATUS_INVALID_EP_SQUARE
 positions=[]
 def add(name,fen,counts=()):
  b=chess.Board(fen)
@@ -32,6 +34,11 @@ def add(name,fen,counts=()):
 known=[('start',chess.STARTING_FEN,[20,400,8902,197281]),('kiwipete','r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1',[48,2039,97862]),('ep-endgame','8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1',[14,191,2812,43238]),('promotions','r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1',[6,264,9467]),('check-evasions','rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8',[44,1486,62379])]
 for a in known:add(*a)
 fixtures=[
+('ep-no-capturer-white', '7k/8/8/3p4/8/8/8/K7 w - d6 0 1'),
+('ep-no-capturer-black', '7k/8/8/8/3P4/8/8/K7 b - d3 0 1'),
+('ep-capture-white', '7k/8/8/3pP3/8/8/8/K7 w - d6 0 1'),
+('ep-capture-black', '7k/8/8/8/3Pp3/8/8/K7 b - d3 0 1'),
+
 ('both-castles','r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1'),
 ('black-castles','r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1'),
 ('rook-attacked','k6r/8/8/8/8/8/8/4K2R w K - 0 1'),
@@ -69,11 +76,11 @@ for game in range(8):
   add(f'random-{game}-{ply+1}',b.fen(en_passant='fen'))
 # Keep extra-material positions, not adjudication, as oracle comparisons. Orthodox
 # inventory status is intentionally ignored; all structural/check flags are not.
-for start in [p for p in positions[:31] if p['name'] in ['221-legal-moves','129-captures','nine-isolated-pawns','max-32-queen']]:
+for start in [p for p in list(positions) if p['name'] in ['221-legal-moves','129-captures','nine-isolated-pawns','max-32-queen']]:
  b=chess.Board(start['fen'])
  for ply in range(12):
   moves=sorted(b.legal_moves,key=lambda m:m.uci())
   if not moves:break
   b.push(rng.choice(moves));add(start['name']+'-walk-'+str(ply+1),b.fen(en_passant='fen'))
-OUT.write_text(json.dumps({'reference':'chess 1.11.2 (separate test-only install)','seed':6062026,'sources':['https://www.chessprogramming.org/Perft_Results','https://github.com/official-stockfish/Stockfish/blob/ff7cee4244ec96ea488c402669e3674c0574dce6/tests/perft.sh'],'positions':positions},indent=2)+'\n')
+OUT.write_text(json.dumps({'reference':'chess 1.11.2 (separate test-only install)','seed':6062026,'sources':['https://www.chessprogramming.org/Perft_Results','https://github.com/official-stockfish/Stockfish/blob/ff7cee4244ec96ea488c402669e3674c0574dce6/tests/perft.sh'],'positions':positions,'invalid_ep':invalid_ep},indent=2)+'\n')
 print(len(positions),'positions;',sum(len(x['divide']) for x in positions),'published perft/divides')
