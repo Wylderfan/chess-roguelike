@@ -16,6 +16,9 @@ namespace Chess.Core
 		public event Action<Move>? OnSearchComplete;
 
 		// State
+		readonly Move[][] moveBuffers = new Move[PositionLimits.MaxSearchPly + 1][];
+		readonly System.Collections.Generic.HashSet<ulong> quiescencePath = new();
+		Span<Move> MoveBuffer(int ply) => moveBuffers[ply] ??= new Move[MoveGenerator.MaxMoves];
 		public int CurrentDepth;
 		public Move BestMoveSoFar => bestMove;
 		public int BestEvalSoFar => bestEval;
@@ -46,21 +49,52 @@ namespace Chess.Core
 		readonly MoveOrdering moveOrderer;
 		readonly Evaluation evaluation;
 		readonly Board board;
+        public RuleProfile Profile { get; }
+        public long Reductions { get; private set; }
+        public long CacheProbes { get; private set; }
+        public long CacheStores { get; private set; }
+        public long MaterialEvaluations { get; private set; }
+        public long PositionalEvaluations { get; private set; }
+        bool InCheck() => Profile.FastLegality ? board.IsInCheck() : SimulatedLegality.InCheck(board,board.MoveColourIndex,OrthodoxContract.Instance);
+        public int EvaluatePosition()
+        {
+            if(Profile.PositionalEvaluation){PositionalEvaluations++;return evaluation.Evaluate(board);}
+            MaterialEvaluations++;
+            int score=0;
+            for(int s=0;s<64;s++)
+            {
+                int p=board.Square[s];
+                int value=Piece.PieceType(p) switch {Piece.Pawn=>100,Piece.Knight=>300,Piece.Bishop=>320,Piece.Rook=>500,Piece.Queen=>900,_=>0};
+                score += Piece.IsWhite(p)?value:-value;
+            }
+            return board.IsWhiteToMove?score:-score;
+        }
+        int Probe(int depth,int ply,int alpha,int beta)
+        {
+            if(!Profile.TranspositionCache)return TranspositionTable.LookupFailed;
+            CacheProbes++;return transpositionTable.LookupEvaluation(depth,ply,alpha,beta);
+        }
+        void Store(int depth,int ply,int value,int bound,Move move)
+        {
+            if(!Profile.TranspositionCache)return;
+            CacheStores++;transpositionTable.StoreEvaluation(depth,ply,value,bound,move);
+        }
 
-		public Searcher(Board board)
+		public Searcher(Board board, RuleProfile? profile = null)
 		{
 			this.board = board;
+            Profile=profile ?? RuleProfile.Standard; Profile.Validate(board);
 
 			evaluation = new Evaluation();
-			moveGenerator = new MoveGenerator();
+			moveGenerator = new MoveGenerator { Profile=Profile };
 			transpositionTable = new TranspositionTable(board, transpositionTableSizeMB);
 			moveOrderer = new MoveOrdering(moveGenerator, transpositionTable);
 			repetitionTable = new RepetitionTable();
 
 			moveGenerator.promotionsToGenerate = MoveGenerator.PromotionMode.All;
 
-			// Run a depth 1 search so that JIT doesn't run during actual search (and mess up timing stats in editor)
-			Search(1, 0, negativeInfinity, positiveInfinity);
+			// No unbudgeted warm-up: StartSearch owns every searched node and cancellation.
+
 		}
 
 		public void StartSearch(int milliseconds = 1000, System.Threading.CancellationToken token = default, int maxDepth = 64)
@@ -70,6 +104,7 @@ namespace Chess.Core
 			deadline = System.Diagnostics.Stopwatch.GetTimestamp() + (long)(milliseconds / 1000.0 * System.Diagnostics.Stopwatch.Frequency);
 			depthLimit = maxDepth;
 			Nodes = 0;
+            Reductions=CacheProbes=CacheStores=MaterialEvaluations=PositionalEvaluations=0;
 			bestEvalThisIteration = bestEval = 0;
 			bestMoveThisIteration = bestMove = Move.NullMove;
 
@@ -214,7 +249,7 @@ namespace Chess.Core
 			// Try looking up the current position in the transposition table.
 			// If the same position has already been searched to at least an equal depth
 			// to the search we're doing now,we can just use the recorded evaluation.
-			int ttVal = transpositionTable.LookupEvaluation(plyRemaining, plyFromRoot, alpha, beta);
+			int ttVal = Probe(plyRemaining, plyFromRoot, alpha, beta);
 			if (ttVal != TranspositionTable.LookupFailed)
 			{
 				if (plyFromRoot == 0)
@@ -225,15 +260,15 @@ namespace Chess.Core
 				return ttVal;
 			}
 
-			if (plyRemaining == 0)
+			if (plyRemaining == 0 || plyFromRoot >= PositionLimits.MaxSearchPly)
 			{
-				int evaluation = QuiescenceSearch(alpha, beta);
+				int evaluation = QuiescenceSearch(alpha, beta, plyFromRoot);
 				return evaluation;
 			}
 
-			Span<Move> moves = stackalloc Move[256];
+			Span<Move> moves = MoveBuffer(plyFromRoot);
 			moveGenerator.GenerateMoves(board, ref moves, capturesOnly: false);
-			Move prevBestMove = plyFromRoot == 0 ? bestMove : transpositionTable.TryGetStoredMove();
+			Move prevBestMove = plyFromRoot == 0 ? bestMove : (Profile.TranspositionCache ? transpositionTable.TryGetStoredMove() : Move.NullMove);
 			moveOrderer.OrderMoves(prevBestMove, board, moves, moveGenerator.opponentAttackMap, moveGenerator.opponentPawnAttackMap, false, plyFromRoot);
 			// Detect checkmate and stalemate when no legal moves are available
 			if (moves.Length == 0)
@@ -271,7 +306,7 @@ namespace Chess.Core
 				{
 					int movedPieceType = Piece.PieceType(board.Square[move.TargetSquare]);
 					int targetRank = BoardHelper.RankIndex(move.TargetSquare);
-					if (board.IsInCheck())
+					if (InCheck())
 					{
 						extension = 1;
 					}
@@ -285,9 +320,10 @@ namespace Chess.Core
 				int eval = 0;
 				// Reduce the depth of the search for moves later in the move list as these are less likely to be good
 				// (assuming our move ordering isn't terrible)
-				if (extension == 0 && plyRemaining >= 3 && i >= 3 && !isCapture)
+				if (Profile.LateMoveReductions && extension == 0 && plyRemaining >= 3 && i >= 3 && !isCapture)
 				{
-					const int reduceDepth = 1;
+					Reductions++;
+                    const int reduceDepth = 1;
 					eval = -Search(plyRemaining - 1 - reduceDepth, plyFromRoot + 1, -alpha - 1, -alpha, numExtensions, move, isCapture);
 					// If the evaluation is better than expected, we'd better to a full-depth search to get a more accurate evaluation
 					needsFullSearch = eval > alpha;
@@ -310,7 +346,7 @@ namespace Chess.Core
 				{
 					// Store evaluation in transposition table. Note that since we're exiting the search early, there may be an
 					// even better move we haven't looked at yet, and so the current eval is a lower bound on the actual eval.
-					transpositionTable.StoreEvaluation(plyRemaining, plyFromRoot, beta, TranspositionTable.LowerBound, moves[i]);
+					Store(plyRemaining, plyFromRoot, beta, TranspositionTable.LowerBound, moves[i]);
 
 					// Update killer moves and history heuristic (note: don't include captures as theres are ranked highly anyway)
 					if (!isCapture)
@@ -352,56 +388,48 @@ namespace Chess.Core
 				repetitionTable.TryPop();
 			}
 
-			transpositionTable.StoreEvaluation(plyRemaining, plyFromRoot, alpha, evaluationBound, bestMoveInThisPosition);
+			Store(plyRemaining, plyFromRoot, alpha, evaluationBound, bestMoveInThisPosition);
 
 			return alpha;
 
 		}
 
 		// Search capture moves until a 'quiet' position is reached.
-		int QuiescenceSearch(int alpha, int beta)
+		int QuiescenceSearch(int alpha, int beta, int ply)
 		{
 			Nodes++;
-			if (ShouldStop())
+			if (ShouldStop()) return 0;
+			if (!quiescencePath.Add(board.ZobristKey)) return 0;
+			ulong key = board.ZobristKey;
+			try
 			{
-				return 0;
-			}
-			// A player isn't forced to make a capture (typically), so see what the evaluation is without capturing anything.
-			// This prevents situations where a player ony has bad captures available from being evaluated as bad,
-			// when the player might have good non-capture moves available.
-			int eval = evaluation.Evaluate(board);
-			searchDiagnostics.numPositionsEvaluated++;
-			if (eval >= beta)
-			{
-				searchDiagnostics.numCutOffs++;
-				return beta;
-			}
-			if (eval > alpha)
-			{
-				alpha = eval;
-			}
-
-			Span<Move> moves = stackalloc Move[128];
-			moveGenerator.GenerateMoves(board, ref moves, capturesOnly: true);
-			moveOrderer.OrderMoves(Move.NullMove, board, moves, moveGenerator.opponentAttackMap, moveGenerator.opponentPawnAttackMap, true, 0);
-			for (int i = 0; i < moves.Length; i++)
-			{
-				board.MakeMove(moves[i], true);
-				eval = -QuiescenceSearch(-beta, -alpha);
-				board.UnmakeMove(moves[i], true);
-
-				if (eval >= beta)
+				bool inCheck = InCheck();
+				Span<Move> moves = MoveBuffer(ply);
+				moveGenerator.GenerateMoves(board, ref moves, capturesOnly: !inCheck);
+				if (inCheck && moves.Length == 0) return -immediateMateScore + ply;
+				if (board.CurrentGameState.fiftyMoveCounter >= 100 || repetitionTable.Contains(key)) return 0;
+				int eval = EvaluatePosition();
+				searchDiagnostics.numPositionsEvaluated++;
+				// Explicit ceiling also bounds quiet check evasions. No stack move arrays.
+				if (ply >= PositionLimits.MaxSearchPly) return eval;
+				if (!inCheck)
 				{
-					searchDiagnostics.numCutOffs++;
-					return beta;
+					if (eval >= beta) return beta;
+					alpha = Max(alpha, eval);
 				}
-				if (eval > alpha)
+				moveOrderer.OrderMoves(Move.NullMove, board, moves, moveGenerator.opponentAttackMap, moveGenerator.opponentPawnAttackMap, true, ply);
+				for (int i = 0; i < moves.Length; i++)
 				{
-					alpha = eval;
+					board.MakeMove(moves[i], true);
+					try { eval = -QuiescenceSearch(-beta, -alpha, ply + 1); }
+					finally { board.UnmakeMove(moves[i], true); }
+					if (ShouldStop()) return 0;
+					if (eval >= beta) return beta;
+					alpha = Max(alpha, eval);
 				}
+				return alpha;
 			}
-
-			return alpha;
+			finally { quiescencePath.Remove(key); }
 		}
 
 

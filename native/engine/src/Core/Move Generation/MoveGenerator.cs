@@ -5,7 +5,8 @@ namespace Chess.Core
 
 	public class MoveGenerator
 	{
-		public const int MaxMoves = 218;
+		public const int MaxMoves = PositionLimits.MaxMoves;
+        public RuleProfile Profile = RuleProfile.Standard;
 		//public enum PromotionMode { All, QueenOnly, QueenAndKnight }
 		public enum PromotionMode { All, QueenOnly, QueenAndKnight }
 
@@ -57,6 +58,19 @@ namespace Chess.Core
 		// Quiet moves (non captures) can optionally be excluded. This is used in quiescence search.
 		public int GenerateMoves(Board board, ref Span<Move> moves, bool capturesOnly = false)
 		{
+            Profile.Validate(board);
+            if (!Profile.FastLegality)
+            {
+                var rules=OrthodoxContract.Instance;
+                inCheck=SimulatedLegality.InCheck(board,board.MoveColourIndex,rules);
+                opponentAttackMap=opponentPawnAttackMap=0;
+                for(int s=0;s<64;s++) if(Piece.IsColour(board.Square[s],board.OpponentColour))
+                {
+                    ulong mask=rules.Threats(board,s);opponentAttackMap|=mask;
+                    if(Piece.PieceType(board.Square[s])==Piece.Pawn)opponentPawnAttackMap|=mask;
+                }
+                return SimulatedLegality.Generate(board,ref moves,capturesOnly,rules);
+            }
 			this.board = board;
 			generateQuietMoves = !capturesOnly;
 

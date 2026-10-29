@@ -13,6 +13,7 @@ var buffer = ""
 var lines: Array = []
 var fault = ""
 var stderr_text = ""
+var rules_profile = "standard"
 
 func cancel() -> void:
 	mutex.lock()
@@ -70,6 +71,7 @@ func close_process() -> void:
 	process_id = -1
 
 func verify_snapshot(g: ChessRules, data: Dictionary) -> String:
+	if data.get("profile", "") != rules_profile: return "Engine rules profile mismatch."
 	if data.get("schema", -1) != 0 or not data.get("abilities_empty", false) or not g.ability_state.is_empty(): return "Unsupported ability schema; normal chess only."
 	var ours: Array = []
 	for m in g.legal_moves(): ours.append(Rules.uci_name(m))
@@ -95,6 +97,9 @@ func search(position: ChessRules, milliseconds: int, _max_depth: int = 64) -> Di
 	if is_canceled():
 		output.canceled = true
 		return output
+	if rules_profile not in ["standard", "conservative"]:
+		output.error = "Unsupported rules profile."
+		return output
 	if position.result != "" or position.legal_moves().is_empty(): return output
 	if not position.ability_state.is_empty():
 		output.error = "Abilities are not enabled in v0.3."
@@ -117,6 +122,7 @@ func search(position: ChessRules, milliseconds: int, _max_depth: int = 64) -> Di
 		ready = next_line(deadline) == "uciok"
 	if not ready and not is_canceled(): fault = "Engine startup failed. " + fault
 	if fault == "" and not is_canceled():
+		send("setoption name RulesProfile value " + rules_profile)
 		send("ucinewgame")
 		send(position.uci_position())
 		send("knight snapshot")

@@ -1,3 +1,105 @@
+# Revised v0.6 validation — compatibility profiles and EP fix
+
+Godot 4.6.3 / Linux x86_64; .NET SDK 10.0.403. The revision changes native code
+and both platform binaries, plus the UI/bridge profile selection.
+
+- **565 core/UI/native/protocol checks passed** (previous 512, 12 EP validation
+  checks, 16 native profile controls/restoration checks, 9 UI profile lifecycle
+  checks and 16 profile protocol/deadline/cancellation checks).
+- **545 independent reference positions**: all original 541 retained unchanged,
+  plus four valid EP positions with/without capturers on both turns.
+- Godot **1,652 assertions**; native Standard **1,678**, Conservative **1,678**.
+  Both native profiles and Godot match all **17 published perft depth/divide cases**.
+- Eight malformed EP fixtures independently marked invalid by python-chess are
+  rejected by both native profiles, with previous live position preserved.
+- Conservative tests demonstrate nonzero material evaluations and zero LMR/TT
+  probes/stores/positional evaluations. Standard tests demonstrate the converse.
+  Both return legal moves and preserve board/hash after search/cancellation.
+- UI tests play both colors with Conservative, switch profiles while searching,
+  reject stale results, restart/switch local, and reject unknown profiles.
+
+Clean extraction passed all 549 core/UI/native checks; the additional 16-check
+profile protocol script also passed against the extracted binary. All three
+independent reference suites passed again from the extracted package. Its 300 ms
+searches returned legal moves within the 2 s wall-clock test bound; stop joined
+within 1 s, full snapshots were restored and stale profile results suppressed.
+
+Rendered Linux/Mesa runs passed all 9 profile UI checks and all 70 extra-army
+checks. Checkbox narrow/hover screenshots were captured again.
+
+Standard is the default. Conservative is an experimental ordinary-chess fallback,
+not an implemented ability ruleset or a rated strength setting. It retains
+bitboards and search, but simulated legality and disabling selective/cache
+optimizations reduce attainable depth; material-only evaluation is less informed.
+Nonempty runtime ability state and unknown schemas fail closed in both profiles.
+Planned checkbox intent remains inactive and separate from engine profile.
+
+Windows x64 self-contained binary cross-published and format checked, **not run
+on Windows**. Mac execution untested. Final revision awaits parent independent QA.
+
+## Independent QA of the earlier a0e3b67 package (not this revision)
+
+Parent verified the original ZIP, 541-position reference corpus and 17 perft
+cases. Initial regression run was **511/512**: one UI responsiveness assertion
+measured a 345 ms maximum frame gap against <250 ms. An isolated unchanged
+21-check rerun passed with 60 ms maximum gap. Thresholds have not been relaxed.
+Parent actual graphical QA passed extra queen/knight/ninth pawn material +13,
+empty starting captures, native play/history, f1/g1 removal then O-O with rook f1,
+selective castling rights and stable checked controls at normal/606px widths.
+The confirmed malformed external EP defect motivated this revision. Those QA
+results must not be represented as independent verification of the new profiles.
+
+Earlier developer records follow. Current regression logs are in validation/v0.6;
+revision-specific profile/reference/clean logs are named accordingly.
+
+---
+
+# Initial v0.6 validation — a0e3b67 (historical)
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64; .NET SDK 10.0.403.
+
+- **512 core/UI/native checks passed**, including 70 new extra-army/editor checks.
+- Independent python-chess 1.11.2 fixture corpus: **541 positions**, full legal sets,
+  opposite-turn previews and per-piece threats. Godot **1,640 checks passed**;
+  native **1,650 checks passed** (also invalid-input/state-preservation checks).
+- Both implementations passed all **17 published perft depth cases**, with exact
+  root divides: initial through depth 4; Kiwipete through 3; EP endgame through 4;
+  promotion/check-evasion positions through 3. Matrix, pinned source and commands:
+  [tests/reference/README.md](tests/reference/README.md).
+- Rendered Linux/Mesa run: **70 extra-army checks passed**. Actual viewport mouse
+  and keyboard checkbox interaction, checked/unchecked/hover geometry and narrow
+  layout were exercised; screenshots inspected. Both human colors played extra
+  queen games against the native engine.
+- Stress includes 221 legal moves, 129 captures, 32 pieces per side, a full board,
+  31 pawns, promotion to 31 queens, >256 repetition entries and search cancellation.
+- Setup castle regression covers all four wings, king/rook movement, SAN/history,
+  rights consumption, replacement/returning rook and explicit eligibility toggles.
+  Old failure was setup metadata: every edit cleared all rights. Unrelated edits
+  now preserve rights; native malformed-rights input is rejected before mutation.
+
+Native changes include bounded inventories, shared 1,024-move heap buffers,
+dynamic repetition storage, extended pawn-count evaluation safety, cancellable
+search initialization and guarded check-aware quiescence. Orthodox evaluation
+values and main search heuristics remain; no rating/strength equivalence is claimed.
+The 256-ply search safety ceiling uses a static fallback after mate detection.
+
+Windows x64 and Linux x64 self-contained engines rebuilt; Linux executed,
+Windows executable format verified but **Windows runtime not tested**. Mac runtime
+not tested. No independent parent QA of v0.6 is claimed here. Tests are finite,
+not a proof of zero bugs. Python-chess is test-only and not bundled. Planned
+checkboxes have no gameplay effect even when selected; runtime ability state stays
+empty and orthodox perft remains the future extension regression gate.
+
+Clean ZIP extraction and fresh Godot import repeated all 512 checks and both
+reference suites successfully. A separate real X11 mouse playthrough opened
+Setup, erased f1/g1, started the position and played e1-g1: king g1, rook f1,
+chronicle O-O, then a legal native reply. Screenshots are included. The final
+archive differs from this tested extraction only in documentation/QA evidence.
+
+Logs: `validation/v0.6/`. Earlier release evidence below is historical.
+
+---
+
 # v0.5 validation — 2026-10-29
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64. The compiled engine,

@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Black-side start: engine plays White, board stays rotated
+PASS: Compiled engine reply verified and recorded
+PASS: Preview remains available while native process runs
+PASS: Native process failure is displayed with recovery controls
+PASS: Failure leaves position intact and does not spin/retry
+PASS: Local mode recovers from native failure
+PASS: New game successfully restarts compiled engine after failure
+UI NATIVE: 7 checks, 0 failures

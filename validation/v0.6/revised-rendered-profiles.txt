@@ -1,0 +1,15 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:364)
+OpenGL API 4.5 (Core Profile) Mesa 25.0.7-2+deb13u1 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 19.1.7, 256 bits)
+
+PASS: Standard profile defaults on
+PASS: Conservative selection is explicit and independent of planned abilities
+PASS: Conservative engine plays legal White move through verified bridge
+PASS: Chosen profile reaches worker without activating ability state
+PASS: Conservative engine plays Black from normal move history
+PASS: Profile change invalidates pending search
+PASS: No stale or duplicate move after profile change
+PASS: Restart/local switch cancels profile search
+PASS: Unknown profile fails closed in bridge
+PROFILES: 9 checks, 0 failures
