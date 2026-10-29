@@ -39,6 +39,22 @@ var search_key = ""
 var search_active = false
 var last_search: Dictionary = {}
 var engine_fault = ""
+# Live rules never become a historical position. Browsing pauses/cancels AI.
+var positions: Array = []
+var records: Array = []
+var history_index = -1 # -1 = live
+var move_list: ItemList
+var history_label: Label
+var live_button: Button
+var previous_button: Button
+var next_button: Button
+var material_label: Label
+var captures_label: Label
+var drag_from = -1
+var dragging = false
+var drag_start = Vector2.ZERO
+var drag_position = Vector2.ZERO
+
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -48,14 +64,39 @@ func _ready() -> void:
 	add_child(sidebar)
 	panel = VBoxContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_constant_override("separation", 12)
+	panel.add_theme_constant_override("separation", 8)
 	sidebar.add_child(panel)
 	var eyebrow = label("THE GREAT HALL", 14)
 	eyebrow.modulate = Color("c9ad72")
 	status = label("", 27)
 	status.add_theme_font_override("font", TITLE_FONT)
+	make_button("New game", restart)
 	detail = label("", 15)
-	detail.custom_minimum_size.y = 130
+	detail.custom_minimum_size.y = 92
+	material_label = label("", 17)
+	captures_label = label("", 14)
+	label("CHRONICLE", 13).modulate = Color("c9ad72")
+	history_label = label("", 13)
+	move_list = ItemList.new()
+	move_list.custom_minimum_size.y = 126
+	move_list.add_theme_font_size_override("font_size", 16)
+	move_list.item_selected.connect(func(index): browse_history(index))
+	panel.add_child(move_list)
+	var navigation = HBoxContainer.new()
+	panel.add_child(navigation)
+	previous_button = Button.new()
+	previous_button.text = "‹ Previous"
+	previous_button.pressed.connect(func(): browse_history(current_ply() - 1))
+	navigation.add_child(previous_button)
+	next_button = Button.new()
+	next_button.text = "Next ›"
+	next_button.pressed.connect(func(): browse_history(current_ply() + 1))
+	navigation.add_child(next_button)
+	live_button = Button.new()
+	live_button.text = "Return to live"
+	live_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	live_button.pressed.connect(return_to_live)
+	navigation.add_child(live_button)
 	var separator = HSeparator.new()
 	panel.add_child(separator)
 	label("YOUR GAME", 13).modulate = Color("c9ad72")
@@ -69,14 +110,13 @@ func _ready() -> void:
 	engine_status = label("", 13)
 	engine_status.modulate = Color("bdb09a")
 	engine_status.custom_minimum_size.y = 36
-	make_button("New game", restart)
 	claim = make_button("Claim draw", func():
 		if human_can_play() and game.claim_draw():
 			invalidate_search()
 			refresh())
 	agreement_button = make_button("Agree to a draw", func():
-		if game.result == "" and mode == 0: agreement.popup_centered())
-	label("LEFT CLICK  ·  select & move\nRIGHT CLICK  ·  inspect either army\nESC  ·  clear highlights", 13).modulate = Color("bdb09a")
+		if history_index == -1 and game.result == "" and mode == 0: agreement.popup_centered())
+	label("DRAG or CLICK  ·  move\nRIGHT CLICK  ·  inspect either army\n← / →  ·  history     END  ·  live\nESC  ·  cancel drag / clear highlights", 13).modulate = Color("bdb09a")
 	promotion = ConfirmationDialog.new()
 	promotion.title = "Crown your pawn"
 	promotion.dialog_text = "Choose a piece to complete the move."
@@ -144,6 +184,7 @@ func make_button(text: String, callback: Callable) -> Button:
 	return button
 
 func layout_board() -> void:
+	cancel_drag()
 	if sidebar == null: return
 	var board_size: float
 	if size.x >= 940:
@@ -160,7 +201,7 @@ func layout_board() -> void:
 	queue_redraw()
 
 func human_can_play() -> bool:
-	return game.result == "" and (mode == 0 or game.turn == human_side)
+	return history_index == -1 and game.result == "" and (mode == 0 or game.turn == human_side)
 
 func set_mode(value: int) -> void:
 	mode = value
@@ -173,6 +214,7 @@ func set_side(value: int) -> void:
 	restart()
 
 func set_difficulty(value: int) -> void:
+	cancel_drag()
 	difficulty = value
 	level_choice.select(value)
 	invalidate_search()
@@ -183,7 +225,11 @@ func invalidate_search() -> void:
 	if search_active: thinker.cancel()
 
 func restart() -> void:
+	cancel_drag()
 	invalidate_search()
+	positions.clear()
+	records.clear()
+	history_index = -1
 	game = Rules.new()
 	selected = -1
 	inspected = -1
@@ -201,7 +247,7 @@ func _process(_delta: float) -> void:
 		var answer: Dictionary = worker.wait_to_finish()
 		search_active = false
 		# Reject stale results even if a restart recreated the same board.
-		if search_generation == generation and search_key == game.position_key() and game.result == "" and mode == 1 and game.turn != human_side:
+		if history_index == -1 and search_generation == generation and search_key == game.position_key() and game.result == "" and mode == 1 and game.turn != human_side:
 			last_search = answer
 			if answer.get("error", "") != "":
 				engine_fault = answer.error
@@ -209,7 +255,7 @@ func _process(_delta: float) -> void:
 			elif answer.claim and game.claim_draw(): refresh()
 			elif not answer.move.is_empty(): finish_move(answer.move)
 			else: refresh()
-	if not search_active and engine_fault == "" and mode == 1 and game.result == "" and game.turn != human_side:
+	if history_index == -1 and not search_active and engine_fault == "" and mode == 1 and game.result == "" and game.turn != human_side:
 		thinker = EngineAI.new()
 		worker = Thread.new()
 		search_generation = generation
@@ -230,22 +276,24 @@ func _exit_tree() -> void:
 		search_active = false
 
 func refresh() -> void:
-	legal = game.legal_moves() if game.result == "" else []
-	var side = "White" if game.turn == 1 else "Black"
-	status.text = game.result if game.result != "" else side + " to move" + (" · Check" if game.in_check(game.turn) else "")
-	detail.text = "Move %d\n" % game.fullmove
-	if inspected != -1 and game.board[inspected] != 0:
-		preview = game.inspect_piece(inspected)
-		var piece_side = "White" if game.board[inspected] > 0 else "Black"
-		detail.text += "INSPECT · %s %s · %s\n" % [piece_side, PIECE_NAMES[abs(game.board[inspected])], Rules.name_of(inspected)]
+	ensure_history()
+	var shown = displayed_game()
+	legal = shown.legal_moves() if shown.result == "" else []
+	var side = "White" if shown.turn == 1 else "Black"
+	status.text = shown.result if shown.result != "" else side + " to move" + (" · Check" if shown.in_check(shown.turn) else "")
+	detail.text = "Move %d\n" % shown.fullmove
+	if inspected != -1 and shown.board[inspected] != 0:
+		preview = shown.inspect_piece(inspected)
+		var piece_side = "White" if shown.board[inspected] > 0 else "Black"
+		detail.text += "INSPECT · %s %s · %s\n" % [piece_side, PIECE_NAMES[abs(shown.board[inspected])], Rules.name_of(inspected)]
 		detail.text += "Blue dots/rings: king-safe destinations " + ("if this side moved now; no en passant.\n" if preview.hypothetical else "this turn.\n")
 		detail.text += "Amber diamonds: attacks/protection, not legal moves. Pins still attack; pawns attack diagonally."
-		if game.result != "": detail.text += "\nPosition study only; the game has ended."
-	elif game.result != "": detail.text += "The game is complete. Begin a new game to play again."
+		if shown.result != "": detail.text += "\nPosition study only; the game has ended."
+	elif shown.result != "": detail.text += "The game is complete. Begin a new game to play again."
 	elif selected != -1: detail.text += "Selected: " + Rules.name_of(selected) + "\nGreen dots/rings mark legal moves.\nRight-click any piece to study it."
-	elif mode == 1 and game.turn != human_side: detail.text += "The engine is considering its move.\nYou can right-click either army to inspect it while you wait."
+	elif mode == 1 and shown.turn != human_side: detail.text += "The engine is considering its move.\nYou can right-click either army to inspect it while you wait."
 	else: detail.text += "Choose a piece from your army.\nRight-click either army to inspect moves and attacks without moving."
-	var reason = game.claim_reason()
+	var reason = shown.claim_reason()
 	claim.disabled = reason == "" or not human_can_play()
 	claim.tooltip_text = "Claim a current threefold repetition or 50-move draw." if reason == "" else reason
 	agreement_button.visible = mode == 0
@@ -255,26 +303,79 @@ func refresh() -> void:
 	elif mode == 0: engine_status.text = "Both armies are controlled locally."
 	elif search_active: engine_status.text = "Thinking…  ·  %s budget\nInspection and controls remain available." % ("%.1f s" % (BUDGETS[difficulty] / 1000.0))
 	elif not last_search.is_empty(): engine_status.text = "Last search: depth %d · %d nodes · %d ms\nSebastian Lague V2 · no verified Elo" % [last_search.depth, last_search.nodes, last_search.elapsed_ms]
-	else: engine_status.text = "Sebastian Lague V2 · no verified Elo\nMode or side changes start a new game."
+	else: engine_status.text = "Sebastian Lague V2 · no verified Elo\nMode or side changes start a new shown."
+	if history_index != -1:
+		status.text = "Review · " + status.text
+		detail.text = "Read-only history. The live game is paused.\nReturn to live to continue.\nRight-click to inspect this position.\n" + (detail.text if inspected != -1 else "")
+		agreement_button.disabled = true
+	else: agreement_button.disabled = false
+	refresh_chronicle()
 	queue_redraw()
 
-func _unhandled_input(event: InputEvent) -> void:
+func square_at(point: Vector2) -> int:
+	var p = get_global_transform_with_canvas().affine_inverse() * point - ORIGIN
+	if p.x < 0 or p.y < 0 or p.x >= CELL * 8 or p.y >= CELL * 8: return -1
+	var square = int(p.y / CELL) * 8 + int(p.x / CELL)
+	return 63 - square if flipped() else square
+
+func cancel_drag() -> void:
+	drag_from = -1
+	dragging = false
+	queue_redraw()
+
+# Release is handled before GUI dispatch, even over the sidebar or off-board.
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and drag_from != -1:
+		drag_position = get_global_transform_with_canvas().affine_inverse() * event.position
+		if event.position.distance_to(drag_start) >= 6:
+			dragging = true
+			selected = drag_from
+		queue_redraw()
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed and drag_from != -1:
+		var source = drag_from
+		var was_dragging = dragging
+		cancel_drag()
+		if was_dragging:
+			var target = square_at(event.position)
+			selected = source
+			if target != -1 and target != source: select_square(target)
+			else:
+				selected = -1
+				refresh()
+			get_viewport().set_input_as_handled()
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		cancel_drag()
 		selected = -1
 		inspected = -1
 		refresh()
+
+	if event is InputEventKey and event.pressed and not promotion.visible and not agreement.visible and not (get_viewport().gui_get_focus_owner() is OptionButton):
+		if event.keycode == KEY_LEFT: browse_history(current_ply() - 1)
+		elif event.keycode == KEY_RIGHT: browse_history(current_ply() + 1)
+		elif event.keycode == KEY_HOME: browse_history(0)
+		elif event.keycode == KEY_END: return_to_live()
+		if event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END]: get_viewport().set_input_as_handled()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT: cancel_drag()
+
+func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
-		var p = get_global_transform_with_canvas().affine_inverse() * event.position - ORIGIN
-		if p.x >= 0 and p.y >= 0 and p.x < CELL * 8 and p.y < CELL * 8:
-			var s = int(p.y / CELL) * 8 + int(p.x / CELL)
-			if flipped(): s = 63 - s
-			if event.button_index == MOUSE_BUTTON_RIGHT: inspect_square(s)
-			elif event.button_index == MOUSE_BUTTON_LEFT: select_square(s)
+		var square = square_at(event.position)
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			cancel_drag()
+			if square != -1: inspect_square(square)
+		elif event.button_index == MOUSE_BUTTON_LEFT and square != -1:
+			select_square(square)
+			if human_can_play() and not promotion.visible and not agreement.visible and game.board[square] * game.turn > 0:
+				drag_from = square
+				drag_start = event.position
+				drag_position = get_global_transform_with_canvas().affine_inverse() * event.position
 
 func inspect_square(s: int) -> void:
 	if promotion.visible or agreement.visible: return
 	selected = -1
-	inspected = s if game.board[s] != 0 and inspected != s else -1
+	inspected = s if displayed_game().board[s] != 0 and inspected != s else -1
 	refresh()
 
 func select_square(s: int) -> void:
@@ -302,7 +403,16 @@ func promote(action: String) -> void:
 	promotion.hide()
 
 func finish_move(m: Dictionary) -> void:
+	if history_index != -1: return
+	ensure_history()
+	var san = game.san(m)
+	var victim = game.captured_piece(m)
+	var side = game.turn
+	var number = game.fullmove
 	if game.play(m):
+		records.append({"san": san, "captured": victim, "side": side, "number": number, "move": m.duplicate()})
+		positions.append(snapshot(game))
+		cancel_drag()
 		last_move = m
 		selected = -1
 		inspected = -1
@@ -320,6 +430,8 @@ func marker(center: Vector2, capture: bool, color: Color) -> void:
 	else: draw_circle(center, CELL * 0.10, color, true, -1, true)
 
 func _draw() -> void:
+	var shown = displayed_game()
+	var highlighted = last_move if history_index == -1 else (records[history_index - 1].move if history_index > 0 else {})
 	var font = PIECE_FONT
 	var brass = Color("b99a61")
 	draw_rect(Rect2(Vector2.ZERO, size), Color("202622"))
@@ -336,14 +448,14 @@ func _draw() -> void:
 		var rect = square_rect(s)
 		var light = (s % 8 + s / 8) % 2 == 0
 		draw_rect(rect, Color("decba5") if light else Color("78806a"))
-		if not last_move.is_empty() and s in [last_move.from, last_move.to]: draw_rect(rect, Color(0.89,0.67,0.20,0.36))
-		if abs(game.board[s]) == Rules.KING and game.in_check(sign(game.board[s])): draw_rect(rect, Color(0.78,0.19,0.17,0.58))
+		if not highlighted.is_empty() and s in [highlighted.from, highlighted.to]: draw_rect(rect, Color(0.89,0.67,0.20,0.36))
+		if abs(shown.board[s]) == Rules.KING and shown.in_check(sign(shown.board[s])): draw_rect(rect, Color(0.78,0.19,0.17,0.58))
 		if s == selected: draw_rect(rect.grow(-3), Color("39765b"), false, 4)
 		if s == inspected:
 			draw_rect(rect, Color(0.18,0.55,0.75,0.25))
 			draw_rect(rect.grow(-3), Color("377da6"), false, 4)
-		var piece: int = game.board[s]
-		if piece != 0:
+		var piece: int = shown.board[s]
+		if piece != 0 and not (dragging and s == drag_from):
 			var symbol: String = SYMBOLS[abs(piece)]
 			var fs = int(CELL * 0.77)
 			var width = PIECE_FONT.get_string_size(symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
@@ -369,3 +481,73 @@ func _draw() -> void:
 		draw_string(font, Vector2(ORIGIN.x - 31, ORIGIN.y + i * CELL + CELL * 0.57), str(rank), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, brass)
 	var legend = "BLUE  inspect   ·   AMBER ◆ attacks / protection" if inspected != -1 else "GREEN  legal moves   ·   GOLD  last move   ·   RED  check"
 	draw_string(font, Vector2(ORIGIN.x, ORIGIN.y + CELL * 8 + 53), legend, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("c2b59a"))
+
+	if dragging and drag_from != -1:
+		var piece: int = game.board[drag_from]
+		var symbol: String = SYMBOLS[abs(piece)]
+		var fs = int(CELL * 0.85)
+		var width = font.get_string_size(symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		var pos = drag_position + Vector2(-width / 2, CELL * 0.28)
+		draw_string_outline(font, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 3, Color("59432d") if piece > 0 else Color("d9c59b"))
+		draw_string(font, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("fff1d3") if piece > 0 else Color("25332d"))
+
+func snapshot(source: ChessRules) -> ChessRules:
+	var copy = source.copy_position(true)
+	copy.result = source.result
+	return copy
+
+func ensure_history() -> void:
+	# Also supports loading test/study FENs before the first recorded move.
+	if positions.is_empty() or (records.is_empty() and positions[0].position_key() != game.position_key()):
+		positions = [snapshot(game)]
+	if positions[-1].position_key() == game.position_key(): positions[-1].result = game.result
+
+func displayed_game() -> ChessRules:
+	return positions[history_index] if history_index >= 0 and history_index < positions.size() else game
+
+func current_ply() -> int:
+	return records.size() if history_index == -1 else history_index
+
+func browse_history(ply: int) -> void:
+	if promotion.visible or agreement.visible: return
+	ensure_history()
+	if records.is_empty(): return
+	cancel_drag()
+	invalidate_search()
+	history_index = clampi(ply, 0, records.size())
+	selected = -1
+	inspected = -1
+	refresh()
+
+func return_to_live() -> void:
+	cancel_drag()
+	history_index = -1
+	selected = -1
+	inspected = -1
+	refresh()
+
+func refresh_chronicle() -> void:
+	var ply = current_ply()
+	history_label.text = "LIVE · %d half-moves" % records.size() if history_index == -1 else "REVIEW · %d / %d · game paused" % [ply, records.size()]
+	live_button.disabled = history_index == -1
+	previous_button.disabled = ply == 0
+	next_button.disabled = ply == records.size()
+	# Rebuild only on moves; inspection should not reset scroll position.
+	if move_list.item_count != records.size() + 1:
+		move_list.clear()
+		move_list.add_item("Starting position")
+		for record in records:
+			move_list.add_item("%d%s  %s" % [record.number, "." if record.side == 1 else "…", record.san])
+	var was_selected = move_list.is_selected(ply)
+	move_list.select(ply)
+	if not was_selected: move_list.ensure_current_is_visible()
+	var balance = displayed_game().material_balance()
+	material_label.text = "Material · Even" if balance == 0 else "Material · %s +%d" % ["White" if balance > 0 else "Black", abs(balance)]
+	material_label.tooltip_text = "Pieces currently on this board: pawn 1, knight/bishop 3, rook 5, queen 9. Not an engine evaluation."
+	var white = ""
+	var black = ""
+	for i in ply:
+		var victim: int = records[i].captured
+		if victim < 0: white += SYMBOLS[abs(victim)] + " "
+		elif victim > 0: black += SYMBOLS[abs(victim)] + " "
+	captures_label.text = "White captured: " + (white if white != "" else "—") + "\nBlack captured: " + (black if black != "" else "—")

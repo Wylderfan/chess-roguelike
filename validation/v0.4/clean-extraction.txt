@@ -1,0 +1,11 @@
+Clean ZIP extraction: Godot 4.6.3 Linux x64; fresh editor import passed.
+rules: RULES: 37 checks, 0 failures
+inspection: INSPECTION: 10 checks, 0 failures
+engine: ENGINE: 34 checks, 0 failures
+ui: UI: 9 checks, 0 failures
+ui_engine: UI ENGINE: 21 checks, 0 failures
+bridge: BRIDGE: 56 checks, 0 failures
+ui_native: UI NATIVE: 7 checks, 0 failures
+ux: UX: 62 checks, 0 failures
+native: NATIVE: 15 checks, 0 failures
+protocol: PROTOCOL: 37 checks, 0 failures

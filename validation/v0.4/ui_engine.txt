@@ -1,0 +1,25 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Right-click own piece inspects, not selects
+PASS: Left-click inspected destination cannot execute preview
+PASS: Right-click opposing piece labels off-turn preview
+PASS: Right-click both sides leaves game unchanged
+PASS: AI search starts on worker thread
+PASS: Can inspect engine army during search
+PASS: Human cannot play the engine's turn
+RESPONSIVENESS { "frames": 409, "elapsed_ms": 2830, "max_frame_gap_ms": 19 }
+PASS: AI returns and applies a legal reply
+PASS: Frames continue while AI searches
+PASS: Restart cancels promptly and rejects stale move
+PASS: Mode change rejects stale search
+PASS: Black human view rotates board
+PASS: Side change rejects old result even at identical initial position
+PASS: Difficulty change cancels and searches with new limits
+PASS: Terminal draw during search rejects pending move
+PASS: AI promotion applies directly without human dialog
+PASS: AI checkmate stops further searches
+PASS: Human promotion dialog still opens
+PASS: Mode reset clears pending human promotion
+PASS: Ended game permits labeled study without moves
+PASS: Narrow layout stacks board and scrollable controls
+UI ENGINE: 21 checks, 0 failures

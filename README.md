@@ -1,11 +1,11 @@
-# Knight Chess v0.3 — Godot 4.6.3
+# Knight Chess v0.4 — Godot 4.6.3
 
-**Ready-to-play package:** download [the complete v0.3 ZIP](dist/Knight-Chess-v0.3-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
+**Ready-to-play package:** download [the complete v0.4 ZIP](dist/Knight-Chess-v0.4-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
-This release adds an **inactive foundation** for future ability bitboards/state;
-it does not add any powers, progression, or nonstandard chess moves.
+This release adds dragging, a move chronicle and material tracking. The inactive
+ability-state foundation remains unchanged; no powers or progression are enabled.
 
 ## Windows: extract, import, play
 
@@ -33,8 +33,23 @@ Mac binaries are not included; build the matching osx-arm64/osx-x64 target using
 
 ## Controls
 
-- Left-click your piece, then a green legal destination. Gold marks the last
-  move; red marks check. Promotion offers all four pieces.
+- Drag a piece onto a green legal destination, or click your piece and then its
+  destination. An illegal/off-board drop makes no move; Escape or right-click
+  cancels dragging. Gold marks the last move; red marks check. Both input methods
+  offer all four promotion choices before committing the move.
+- The **Chronicle** records standard algebraic notation (SAN), including captures,
+  castling, disambiguation, promotions, check and mate. Select a move or use
+  Previous/Next (Left/Right arrows); Home reviews the starting position.
+  History is **read-only**. The engine pauses/cancels its pending search while
+  you review. **Return to live** or End resumes the unchanged live game and AI.
+  Even the latest reviewed position remains read-only until you return to live.
+  Right-click inspection works on the displayed historical position.
+- Captured pieces are recorded from actual captures, including en passant and
+  captured promoted pieces. **Material** counts pieces on the displayed board:
+  pawn 1, knight/bishop 3, rook 5, queen 9; kings excluded. A positive lead is
+  labelled by side, equal material is Even. This is **not an engine evaluation**:
+  position, king safety and tactics are not included. Promotion changes material
+  without incorrectly adding a captured pawn. History shows historical totals.
 - Right-click either army to inspect without selecting a playable piece.
   **Blue dots/rings:** king-safe destinations. **Amber diamonds:** attacked or
   protected squares, including friendly occupied endpoints. These are different
@@ -94,12 +109,13 @@ Recognized dead material: kings only, one bishop/knight versus king, and
 king/bishop-only positions with all bishops on the same square color. Two knights
 are not automatically dead. No exhaustive solver for unusual blocked dead
 positions or prospective draw claims before an intended move. No clocks, touch
-move, arbiter penalties, undo, save/load UI, PGN or resignation button. This is
+move, arbiter penalties, undo, save/load UI, PGN import/export or resignation button. This is
 not a complete tournament adjudicator. Internal FEN loading is for trusted tests.
 
 ## Source and future abilities
 
-- `main.gd`: preserved medieval board, interaction and lifecycle controls.
+- `main.gd`: medieval board, drag/click input, independent review snapshots,
+  SAN chronicle, capture ledger, material display and AI lifecycle controls.
 - `rules.gd`: Godot standard rules and inspection, history transport and empty
   ability-state placeholder.
 - `engine.gd`: nonblocking UCI bridge; no GDScript search.
@@ -129,6 +145,7 @@ godot --headless --path . --script res://tests/test_ui.gd
 godot --headless --path . --script res://tests/test_ui_engine.gd
 godot --headless --path . --script res://tests/test_bridge.gd
 godot --headless --path . --script res://tests/test_ui_native.gd
+godot --headless --path . --script res://tests/test_ux.gd
 native/bin/win-x64/KnightEngine.exe --selftest
 ```
 
