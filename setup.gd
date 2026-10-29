@@ -1,5 +1,6 @@
 class_name ChessSetup
 extends RefCounted
+const MAX_PIECES_PER_SIDE = 32
 const Rules = preload("res://rules.gd")
 const PLANNED_ABILITIES = ["Pawn Dash", "Bishop Sidestep", "Queen Exchange"]
 var position = Rules.new()
@@ -11,25 +12,45 @@ func reset_standard() -> void:
 
 func edit(square: int, piece: int) -> void:
 	if square < 0 or square >= 64 or abs(piece) > Rules.KING: return
+	clear_touched_rights(square)
 	position.board[square] = piece
-	clear_rights()
+	position.ep = -1
 
 func relocate(source: int, target: int) -> void:
 	if source == target or source < 0 or target < 0 or source >= 64 or target >= 64: return
+	clear_touched_rights(source)
+	clear_touched_rights(target)
 	position.board[target] = position.board[source]
 	position.board[source] = 0
-	clear_rights()
+	position.ep = -1
 
 func clear_rights() -> void:
 	position.rights = ""
 	position.ep = -1
 
+const CASTLING_PAIRS = {"K": [60,63,1], "Q": [60,56,1], "k": [4,7,-1], "q": [4,0,-1]}
+
+func clear_touched_rights(square: int) -> void:
+	for right in CASTLING_PAIRS:
+		if square in [CASTLING_PAIRS[right][0], CASTLING_PAIRS[right][1]]:
+			position.rights = position.rights.replace(right, "")
+
+func eligible_castling(right: String) -> bool:
+	var pair = CASTLING_PAIRS[right]
+	return position.board[pair[0]] == pair[2] * Rules.KING and position.board[pair[1]] == pair[2] * Rules.ROOK
+
+func set_castling(right: String, enabled: bool) -> void:
+	position.rights = position.rights.replace(right, "")
+	if enabled and eligible_castling(right): position.rights += right
+	# Canonical FEN order; explicit opt-in is never inferred from replacement pieces.
+	var ordered = ""
+	for key in ["K","Q","k","q"]:
+		if key in position.rights: ordered += key
+	position.rights = ordered
+	position.ep = -1
+
 func allow_home_castling(enabled: bool) -> void:
-	clear_rights()
-	if not enabled: return
-	for pair in [[60,63,1,"K"],[60,56,1,"Q"],[4,7,-1,"k"],[4,0,-1,"q"]]:
-		if position.board[pair[0]] == pair[2] * Rules.KING and position.board[pair[1]] == pair[2] * Rules.ROOK:
-			position.rights += pair[3]
+	for right in CASTLING_PAIRS: set_castling(right, enabled)
 
 func odds(piece: int, human_side: int) -> void:
 	reset_standard()
@@ -69,21 +90,12 @@ func validation_error() -> String:
 	if maxi(abs(white % 8 - black % 8), abs(white / 8 - black / 8)) <= 1: return "Kings cannot be adjacent."
 	for square in 64:
 		if abs(position.board[square]) == Rules.PAWN and square / 8 in [0,7]: return "Pawns cannot start on ranks 1 or 8."
-	# This editor supports standard armies with material removed/repositioned,
-	# not arbitrary extra armies. Keep the native fixed piece/move buffers safe.
+	# Promotion changes type, not army size. The compiled engine enforces this cap too.
 	for side in [1,-1]:
-		var counts = [0,0,0,0,0,0,0]
-		var bishop_colors = [0,0]
-		for square in 64:
-			var piece: int = position.board[square]
-			if piece * side > 0:
-				counts[abs(piece)] += 1
-				if abs(piece) == Rules.BISHOP: bishop_colors[(square / 8 + square % 8) % 2] += 1
-		var name = "White" if side == 1 else "Black"
-		for piece in range(1,7):
-			if counts[piece] > [0,8,2,2,2,1,1][piece]: return name + " exceeds the setup inventory: 8 pawns, 2 knights/bishops/rooks, 1 queen and king."
-		var promotions = maxi(0,bishop_colors[0]-1) + maxi(0,bishop_colors[1]-1)
-		if promotions > 8-counts[Rules.PAWN]: return name + " needs a missing pawn to account for a promoted same-color bishop."
+		var count = 0
+		for piece in position.board:
+			if piece * side > 0: count += 1
+		if count > MAX_PIECES_PER_SIDE: return ("White" if side == 1 else "Black") + " exceeds the limit of 32 pieces including its king."
 	if position.in_check(1) and position.in_check(-1): return "Both kings cannot be in check."
 	if position.in_check(-position.turn): return "The side not to move cannot be in check. Change the turn or board."
 	if position.legal_moves().is_empty(): return "No legal moves: " + ("checkmate." if position.in_check(position.turn) else "stalemate.") + " Adjust the setup before starting."

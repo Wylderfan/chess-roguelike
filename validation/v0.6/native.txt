@@ -1,0 +1,58 @@
+PASS start perft 8902 plus every move/hash/unmake roundtrip
+PASS Kiwipete perft 2039 roundtrips
+PASS en passant perft 2812 roundtrips
+PASS all four promotion flags
+PASS promotion hash/unmake roundtrips
+PASS reserved flag 8 is neither promotion nor playable
+PASS empty ability state leaves standard hash unchanged
+PASS nonempty setup state contributes to identity
+PASS schema state has no active gameplay effect
+PASS ability snapshot make/unmake roundtrips
+PASS copy retains state and hash
+PASS null move hash includes state
+PASS null unmake restores state/hash
+PASS extension masks inactive
+PASS terminal root safe no-move
+PASS shared move bound covers any supported army
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS independent 221 legal move stress fixture exceeds old 218
+PASS independent 129 capture fixture exceeds old q buffer
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS repetition history/search safely exceed 256 entries
+PASS dynamic repetition push/pop preserves original history
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS multiple same-color bishops recognized dead
+PASS two knights not automatically dead
+PASS opposite-color bishops not dead
+PASS king capture rejected before mutation
+PASS native rejects over-cap inventory before piece-list construction
+NATIVE: 57 checks, 0 failures

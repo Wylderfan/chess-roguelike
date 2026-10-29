@@ -41,7 +41,7 @@ public sealed class EngineUCI : IDisposable
             switch (words[0])
             {
                 case "uci":
-                    Respond("id name Knight Chess v0.3 / SebLague V2 f346d2d");
+                    Respond("id name Knight Chess v0.6 / SebLague V2 f346d2d");
                     Respond("id author Sebastian Lague; Knight Chess integration");
                     Respond("uciok"); break;
                 case "isready": Respond("readyok"); break;
@@ -53,6 +53,7 @@ public sealed class EngineUCI : IDisposable
                 case "knight":
                     StopJoin(true);
                     if (words.Length > 1 && words[1] == "snapshot") Snapshot();
+                    else if (words.Length > 2 && words[1] == "divide") Divide(Math.Clamp(int.Parse(words[2]),1,4));
                     break;
             }
         }
@@ -66,6 +67,7 @@ public sealed class EngineUCI : IDisposable
         Board next = words.Length > 1 && words[1] == "startpos" ? Board.CreateBoard()
             : words.Length >= 8 && words[1] == "fen" ? Board.CreateBoard(string.Join(" ", words.Skip(2).Take(end - 2)))
             : throw new ArgumentException("position requires startpos or six-field fen");
+        PositionLimits.ValidatePlayableTurn(next);
         if (split >= 0)
             foreach (string text in words.Skip(split + 1))
             {
@@ -149,6 +151,30 @@ public sealed class EngineUCI : IDisposable
             repetition_count = board.RepetitionPositionHistory.Count(k => k == board.ZobristKey),
             fen = FenUtility.CurrentFen(board), abilities_empty = board.Abilities.IsEmpty
         }, json));
+    }
+    static long Perft(Board b, int depth)
+    {
+        if(depth==0) return 1;
+        long nodes=0;
+        foreach(var m in new MoveGenerator().GenerateMoves(b).ToArray())
+        {
+            b.MakeMove(m,true);
+            try { nodes += Perft(b,depth-1); }
+            finally { b.UnmakeMove(m,true); }
+        }
+        return nodes;
+    }
+    void Divide(int depth)
+    {
+        var copy=Board.CreateBoard(board);
+        var counts=new SortedDictionary<string,long>();
+        foreach(var m in new MoveGenerator().GenerateMoves(copy).ToArray())
+        {
+            copy.MakeMove(m,true);
+            try { counts[Name(m)]=Perft(copy,depth-1); }
+            finally { copy.UnmakeMove(m,true); }
+        }
+        Respond("divide " + JsonSerializer.Serialize(counts));
     }
     public void Dispose() => StopJoin(true);
 }

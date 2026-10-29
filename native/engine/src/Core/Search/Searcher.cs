@@ -16,6 +16,9 @@ namespace Chess.Core
 		public event Action<Move>? OnSearchComplete;
 
 		// State
+		readonly Move[][] moveBuffers = new Move[PositionLimits.MaxSearchPly + 1][];
+		readonly System.Collections.Generic.HashSet<ulong> quiescencePath = new();
+		Span<Move> MoveBuffer(int ply) => moveBuffers[ply] ??= new Move[MoveGenerator.MaxMoves];
 		public int CurrentDepth;
 		public Move BestMoveSoFar => bestMove;
 		public int BestEvalSoFar => bestEval;
@@ -59,8 +62,8 @@ namespace Chess.Core
 
 			moveGenerator.promotionsToGenerate = MoveGenerator.PromotionMode.All;
 
-			// Run a depth 1 search so that JIT doesn't run during actual search (and mess up timing stats in editor)
-			Search(1, 0, negativeInfinity, positiveInfinity);
+			// No unbudgeted warm-up: StartSearch owns every searched node and cancellation.
+
 		}
 
 		public void StartSearch(int milliseconds = 1000, System.Threading.CancellationToken token = default, int maxDepth = 64)
@@ -225,13 +228,13 @@ namespace Chess.Core
 				return ttVal;
 			}
 
-			if (plyRemaining == 0)
+			if (plyRemaining == 0 || plyFromRoot >= PositionLimits.MaxSearchPly)
 			{
-				int evaluation = QuiescenceSearch(alpha, beta);
+				int evaluation = QuiescenceSearch(alpha, beta, plyFromRoot);
 				return evaluation;
 			}
 
-			Span<Move> moves = stackalloc Move[256];
+			Span<Move> moves = MoveBuffer(plyFromRoot);
 			moveGenerator.GenerateMoves(board, ref moves, capturesOnly: false);
 			Move prevBestMove = plyFromRoot == 0 ? bestMove : transpositionTable.TryGetStoredMove();
 			moveOrderer.OrderMoves(prevBestMove, board, moves, moveGenerator.opponentAttackMap, moveGenerator.opponentPawnAttackMap, false, plyFromRoot);
@@ -359,49 +362,41 @@ namespace Chess.Core
 		}
 
 		// Search capture moves until a 'quiet' position is reached.
-		int QuiescenceSearch(int alpha, int beta)
+		int QuiescenceSearch(int alpha, int beta, int ply)
 		{
 			Nodes++;
-			if (ShouldStop())
+			if (ShouldStop()) return 0;
+			if (!quiescencePath.Add(board.ZobristKey)) return 0;
+			ulong key = board.ZobristKey;
+			try
 			{
-				return 0;
-			}
-			// A player isn't forced to make a capture (typically), so see what the evaluation is without capturing anything.
-			// This prevents situations where a player ony has bad captures available from being evaluated as bad,
-			// when the player might have good non-capture moves available.
-			int eval = evaluation.Evaluate(board);
-			searchDiagnostics.numPositionsEvaluated++;
-			if (eval >= beta)
-			{
-				searchDiagnostics.numCutOffs++;
-				return beta;
-			}
-			if (eval > alpha)
-			{
-				alpha = eval;
-			}
-
-			Span<Move> moves = stackalloc Move[128];
-			moveGenerator.GenerateMoves(board, ref moves, capturesOnly: true);
-			moveOrderer.OrderMoves(Move.NullMove, board, moves, moveGenerator.opponentAttackMap, moveGenerator.opponentPawnAttackMap, true, 0);
-			for (int i = 0; i < moves.Length; i++)
-			{
-				board.MakeMove(moves[i], true);
-				eval = -QuiescenceSearch(-beta, -alpha);
-				board.UnmakeMove(moves[i], true);
-
-				if (eval >= beta)
+				bool inCheck = board.IsInCheck();
+				Span<Move> moves = MoveBuffer(ply);
+				moveGenerator.GenerateMoves(board, ref moves, capturesOnly: !inCheck);
+				if (inCheck && moves.Length == 0) return -immediateMateScore + ply;
+				if (board.CurrentGameState.fiftyMoveCounter >= 100 || repetitionTable.Contains(key)) return 0;
+				int eval = evaluation.Evaluate(board);
+				searchDiagnostics.numPositionsEvaluated++;
+				// Explicit ceiling also bounds quiet check evasions. No stack move arrays.
+				if (ply >= PositionLimits.MaxSearchPly) return eval;
+				if (!inCheck)
 				{
-					searchDiagnostics.numCutOffs++;
-					return beta;
+					if (eval >= beta) return beta;
+					alpha = Max(alpha, eval);
 				}
-				if (eval > alpha)
+				moveOrderer.OrderMoves(Move.NullMove, board, moves, moveGenerator.opponentAttackMap, moveGenerator.opponentPawnAttackMap, true, ply);
+				for (int i = 0; i < moves.Length; i++)
 				{
-					alpha = eval;
+					board.MakeMove(moves[i], true);
+					try { eval = -QuiescenceSearch(-beta, -alpha, ply + 1); }
+					finally { board.UnmakeMove(moves[i], true); }
+					if (ShouldStop()) return 0;
+					if (eval >= beta) return beta;
+					alpha = Max(alpha, eval);
 				}
+				return alpha;
 			}
-
-			return alpha;
+			finally { quiescencePath.Remove(key); }
 		}
 
 

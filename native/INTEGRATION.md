@@ -1,4 +1,4 @@
-# Compiled engine integration — v0.3
+# Compiled engine integration — v0.6
 
 ## Provenance and build
 
@@ -66,13 +66,51 @@ The search's upstream repetition/draw evaluation is a heuristic (including early
 repetition avoidance). Godot remains the standard-game adjudicator with documented
 claim/automatic-draw semantics. No new Elo or tournament-rule completeness claim.
 
+## v0.6 extra-army safety changes
+
+`PositionLimits` and the editor enforce 32 pieces per side including one king.
+Each native pawn/knight/bishop/rook/queen list has capacity 32. Promotions do not
+increase army size, so 30 queens plus pawn/king can promote safely to 31 queens.
+The shared move/ordering capacity is 1024: at most 31 non-kings ×27 queen moves
+plus 10 king destinations (including castling) gives the conservative bound 847;
+pawns have at most 12 promotion choices. Tested stress positions actually exceed
+the former 218-move/128-capture storage at 221 legal moves and 129 captures.
+
+Main search and quiescence reuse lazily allocated **per-ply heap buffers**, not
+large recursive stack allocations. A 256-ply defensive ceiling bounds check-evasion
+cycles; quiescence detects path repetition, handles all legal evasions when checked
+and restores board/path state with finally blocks. At the ceiling it returns a
+static evaluation after checking for mate; this is a search safety fallback, not
+an adjudicated game result. The constructor no longer runs an unbudgeted depth-1
+warm-up; the requested search owns cancellation and time from its first node.
+
+Repetition storage grows dynamically, including initialization from histories
+longer than 256 entries. Isolated-pawn penalty lookup saturates at the last table
+entry, preserving all existing values for 0–8 isolated pawns. Material/PST scoring
+iterates all pieces, and phase weights already clamp; supported material scores
+stay below mate scores. Fixed 64-square masks, killer-ply guards and move/history
+indices remain appropriate. Same-color bishop-only dead-material detection now
+handles arbitrary bishop counts, matching Godot; two knights/opposite-color
+bishops are not falsely declared dead.
+
+Native FEN validation rejects malformed structure, out-of-bound inventories,
+missing/duplicate/adjacent kings, back-rank pawns and impossible castling pairs
+before replacing the live board. External UCI input also rejects a checked side
+not to move. That turn/history constraint is intentionally **not** applied to
+internal opposite-turn inspection snapshots. King capture is explicitly rejected
+before mutation. Invalid commands leave the prior live position intact.
+
+`knight divide DEPTH` (1–4) is a diagnostic command returning per-root perft counts;
+it uses a copied board and does not stop at draw adjudication. It is not a UI rule
+or ability. See `tests/reference/README.md` for independent fixture comparisons.
+
 ## Process contract and fail-closed agreement
 
 Godot's `engine.gd` is now a bridge. It runs nonblocking pipes on a worker thread,
 with bounded startup/search/cleanup time and explicit errors. Each request owns a
 fresh engine process, so there is no stale process result/TT/timer from another
-request. This sacrifices TT reuse between moves and adds about 140–180 ms startup
-on the build machine, while retaining optimized search and TT reuse within a move.
+request. This sacrifices TT reuse between moves and adds process/startup overhead
+(measured in each release's logs), while retaining optimized search and TT reuse within a move.
 The main scene additionally checks generation and position, then calls Rules.play.
 Restart/side/mode/difficulty changes cancel old work and terminate the old process.
 
@@ -106,7 +144,8 @@ chess keys. Nonempty test-only state has a deterministic contribution to identit
   root state/history; ordinary transitions carry state through AfterStandardMove.
 - MakeMove includes the old/new ability hash delta. Full Zobrist recomputation
   includes the same contribution. Repetition uses the combined key.
-- AdditionalDestinations/AdditionalThreats return zero. ThreatMask exposes the
+- AdditionalDestinations/AdditionalThreats return zero and are **not yet wired
+  into legal generation**. ThreatMask exposes the
   existing pawn/knight/king masks and magic slider masks, including protected
   endpoints. Core bit 0 is **a1**; Godot index 0 is **a8**. The protocol uses square
   names to avoid accidental inversion or loss of 64-bit precision in JSON.
@@ -122,7 +161,12 @@ serialize charges/cooldowns/once-per-match history, not only board masks. Audit
 pin/check shortcuts, king safety and castling interactions, make/unmake and null
 moves, repetition/hash/TT identity, move encoding/classification, captures and
 promotions, quiescence/quiet reductions/extensions, evaluation and book policy.
-Add roundtrip/perft/differential/tactical tests before allowing a nonempty schema.
+The setup checkbox intent is kept outside runtime AbilityState even when selected.
+Keep the default no-op branch passing all published orthodox perft/divides; enabled
+powers require separately specified move/threat/execute/state/hash fixtures, not
+orthodox counts forced onto altered rules. Revisit PositionLimits and the move
+bound before adding spawns, extra destinations or new move encodings. Add
+roundtrip/perft/differential/tactical tests before allowing a nonempty schema.
 These are concrete extension seams, not a promise that arbitrary abilities can
 be implemented by simply OR-ing a mask into legal moves.
 

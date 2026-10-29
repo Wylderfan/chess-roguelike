@@ -1,11 +1,11 @@
-# Knight Chess v0.5 — Godot 4.6.3
+# Knight Chess v0.6 — Godot 4.6.3
 
-**Ready-to-play package:** download [the complete v0.5 ZIP](dist/Knight-Chess-v0.5-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
+**Ready-to-play package:** download [the complete v0.6 ZIP](dist/Knight-Chess-v0.6-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
-This release adds a pre-game board editor, material-odds presets and inactive
-per-side ability checkboxes. Dragging, the move chronicle and material tracking
+This release supports extra pieces in the pre-game editor, fixes castling setup
+rights and stabilizes the inactive ability checkboxes. Dragging, the move chronicle and material tracking
 remain available. No powers, progression or nonstandard gameplay rules are enabled.
 
 ## Windows: extract, import, play
@@ -40,29 +40,38 @@ returns to the exact live game or historical view; pending AI work resumes only
 when appropriate. Opening Setup starts from the standard board, not the current
 midgame position. Reset standard board affects the draft only.
 
-1. Choose engine/local mode, human side, search budget and side to move.
+1. Choose engine/local mode, **White** or **Black**, search budget and side to move.
+   The selector is labelled Your side in engine mode or Preset beneficiary locally.
 2. For odds, select a preset to remove the opposing f-pawn, b-knight, a-rook or
    queen. Each preset resets the board first; removals do not stack. The opposing
    army is shown explicitly. Choose your human side **before** applying a preset;
    changing that choice later does not automatically alter the edited board.
 3. Use **Move pieces** to drag or click source/destination; use the White/Black
-   piece palette to place or replace a piece. **Erase** or right-click removes a
+   piece palette to **add extra pieces on empty squares** or replace a piece.
+   Multiple queens, extra pawns/knights/rooks/bishops are supported.
+   **Erase** or right-click removes a
    piece. Editing can temporarily produce an invalid board; Start explains errors.
-4. Any board edit disables castling and clears en passant. To permit castling,
-   explicitly check **Allow castling from home king / rook** after editing.
-   Only matching home-square king/rook pairs receive rights; normal occupancy and
-   attacked-square rules still apply during play. Reset standard restores its
-   known starting castling rights. En passant always starts absent, halfmove
-   clock at 0 and move number at 1, including a Black-to-move start.
-5. Start creates a fresh FEN and repetition/move history. Missing starting pieces
+4. **Unrelated edits preserve castling rights.** Removing f1/g1 keeps White's
+   original e1/h1 right, so castling becomes available when legal. Moving,
+   removing or replacing a home king/rook clears only its affected rights.
+   Replacing the same type or returning a rook does **not** infer an unmoved rook.
+   Four castling checkboxes show the explicit starting permissions; a right can
+   only be enabled when its king/rook are on the matching home squares. This is
+   deliberate composition of a new start, never inferred midgame history.
+   Normal blockers, current check and attacked transit/destination rules still
+   apply. Reset standard restores starting rights. En passant starts absent,
+   halfmove clock at 0 and move number at 1, including Black-to-move starts.
+5. Start creates a fresh FEN and repetition/move history. Added or missing pieces
    affect material balance but are **not captures**. The engine searches the
-   asymmetric position normally; its evaluation and search strength are unchanged.
+   asymmetric position normally; no handicap penalty weakens its decisions.
 
-Setup supports at most a standard army per side: **8 pawns, 2 knights, 2 bishops,
-2 rooks, 1 queen and exactly 1 king**. It does not support unlimited extra armies.
-Promotions during normal play still work. A same-color bishop pair needs a
-missing pawn to account for promotion. Validation requires nonadjacent kings,
-no pawns on ranks 1/8, neither both kings nor the side not to move in check.
+Setup supports **up to 32 pieces per side, including exactly one king**, on
+64 board squares. Any mix of standard pieces is allowed within that total;
+pawns must be on ranks 2–7 and kings nonadjacent. Promotions preserve the army's
+piece count and have native list capacity even with 30 existing queens. There
+is no orthodox per-type inventory or missing-pawn requirement. Starting boards
+can be unreachable from the standard opening; movement and king safety remain
+standard. Both kings or the side not to move cannot be in check.
 The side to move **may** be in check if it has a legal response. Already
 checkmated, stalemated or recognized insufficient-material setups are rejected
 with an explanation. These are structural/playability checks, not an exhaustive
@@ -127,12 +136,12 @@ Full MIT source and notices are included. The former engine remains only as a
 clearly named test baseline, never a silent fallback opponent.
 
 Quick/Balanced/Deep use real **300/1100/2600 ms search budgets**. They are not Elo
-or artificial skill levels. Startup/rules verification adds roughly 140–180 ms
-on the build machine. The engine can finish early when it finds a forced mate.
+or artificial skill levels. Startup/rules verification adds overhead outside the search budget; see
+this release's measured validation logs. The engine can finish early when it finds a forced mate.
 No rating is claimed: the upstream author's Lichess description is not a verified
 rating for this build, nor a chess.com rating.
 
-Evidence: all seven existing tactical fixtures passed; opening searches reached
+Historical v0.3 evidence: all seven existing tactical fixtures passed; opening searches reached
 completed depths 8/10/11 at the three budgets in one sample. In four controlled
 150 ms-per-side games, this engine beat v0.2 **4–0**, with two openings and colors
 reversed. That is a small regression comparison, not an Elo estimate. Complete
@@ -168,7 +177,7 @@ not a complete tournament adjudicator. Internal FEN loading is for trusted tests
   SAN chronicle, capture ledger, material display and AI lifecycle controls.
 - `rules.gd`: Godot standard rules and inspection, history transport and empty
   ability-state placeholder.
-- `setup.gd`: isolated draft, standard-inventory validation, safe FEN/rights and
+- `setup.gd`: isolated draft, bounded extra armies, safe FEN/castling rights and
   inactive ability intentions.
 - `engine.gd`: nonblocking UCI bridge; no GDScript search.
 - `native/engine/src/Core`: optimized compiled upstream core with targeted fixes.
@@ -199,6 +208,8 @@ godot --headless --path . --script res://tests/test_bridge.gd
 godot --headless --path . --script res://tests/test_ui_native.gd
 godot --headless --path . --script res://tests/test_ux.gd
 godot --headless --path . --script res://tests/test_setup.gd
+godot --headless --path . --script res://tests/test_extra_armies.gd
+godot --headless --path . --script res://tests/test_reference.gd
 native/bin/win-x64/KnightEngine.exe --selftest
 ```
 
@@ -206,3 +217,19 @@ Optional Python protocol suite and four-game comparison are described in
 VALIDATION.md. All scripts return nonzero on test failure. Godot creates a local
 `.godot` cache on import; caches and native build intermediates are not shipped.
 The bundled DejaVu fonts retain their original license. No external artwork.
+
+## Move-generation assurance and future powers
+
+The standard abilities-off baseline passes published perft counts and per-root
+move divides at multiple depths. Both Godot and native legal/threat sets are
+compared against 541 positions generated by independent python-chess 1.11.2.
+See `tests/reference/README.md` for the matrix, sources, seed and reproducible
+commands. The reference library is test-only and is **not shipped** or required
+to play. Finite tests are evidence, not a guarantee of zero bugs.
+
+All ability checkboxes are still planned/inactive even when selected. They do
+not change runtime rules or hashes. Future abilities must preserve the default
+orthodox perft gate and use separate expected fixtures for enabled custom moves.
+The existing zero mask hooks are not yet wired into legal move generation; see
+`native/INTEGRATION.md` for the authoritative-rule/state/execute/hash boundary.
+Extra starting material has its own expected legal sets, not standard-start totals.

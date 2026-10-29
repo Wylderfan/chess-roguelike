@@ -1,10 +1,10 @@
-﻿namespace Chess.Core
+namespace Chess.Core
 {
 	public class MoveOrdering
 	{
 
 		int[] moveScores;
-		const int maxMoveCount = 218;
+		const int maxMoveCount = MoveGenerator.MaxMoves;
 
 		const int squareControlledByOpponentPawnPenalty = 350;
 		const int capturedPieceValueMultiplier = 100;

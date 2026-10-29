@@ -1,0 +1,12 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Scene starts with White to move
+PASS: Mouse event selects white pawn
+PASS: Illegal destination leaves position intact
+PASS: Mouse events play e2-e4 and change turn
+PASS: Restart resets board, turn and highlights
+PASS: Promotion waits for choice
+PASS: Promotion dialog choice applies knight
+PASS: Mouse sequence displays checkmate
+PASS: Draw agreement disables moves
+UI: 9 checks, 0 failures

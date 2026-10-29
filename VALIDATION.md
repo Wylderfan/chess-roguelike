@@ -1,3 +1,49 @@
+# v0.6 validation — 2026-10-29
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64; .NET SDK 10.0.403.
+
+- **512 core/UI/native checks passed**, including 70 new extra-army/editor checks.
+- Independent python-chess 1.11.2 fixture corpus: **541 positions**, full legal sets,
+  opposite-turn previews and per-piece threats. Godot **1,640 checks passed**;
+  native **1,650 checks passed** (also invalid-input/state-preservation checks).
+- Both implementations passed all **17 published perft depth cases**, with exact
+  root divides: initial through depth 4; Kiwipete through 3; EP endgame through 4;
+  promotion/check-evasion positions through 3. Matrix, pinned source and commands:
+  [tests/reference/README.md](tests/reference/README.md).
+- Rendered Linux/Mesa run: **70 extra-army checks passed**. Actual viewport mouse
+  and keyboard checkbox interaction, checked/unchecked/hover geometry and narrow
+  layout were exercised; screenshots inspected. Both human colors played extra
+  queen games against the native engine.
+- Stress includes 221 legal moves, 129 captures, 32 pieces per side, a full board,
+  31 pawns, promotion to 31 queens, >256 repetition entries and search cancellation.
+- Setup castle regression covers all four wings, king/rook movement, SAN/history,
+  rights consumption, replacement/returning rook and explicit eligibility toggles.
+  Old failure was setup metadata: every edit cleared all rights. Unrelated edits
+  now preserve rights; native malformed-rights input is rejected before mutation.
+
+Native changes include bounded inventories, shared 1,024-move heap buffers,
+dynamic repetition storage, extended pawn-count evaluation safety, cancellable
+search initialization and guarded check-aware quiescence. Orthodox evaluation
+values and main search heuristics remain; no rating/strength equivalence is claimed.
+The 256-ply search safety ceiling uses a static fallback after mate detection.
+
+Windows x64 and Linux x64 self-contained engines rebuilt; Linux executed,
+Windows executable format verified but **Windows runtime not tested**. Mac runtime
+not tested. No independent parent QA of v0.6 is claimed here. Tests are finite,
+not a proof of zero bugs. Python-chess is test-only and not bundled. Planned
+checkboxes have no gameplay effect even when selected; runtime ability state stays
+empty and orthodox perft remains the future extension regression gate.
+
+Clean ZIP extraction and fresh Godot import repeated all 512 checks and both
+reference suites successfully. A separate real X11 mouse playthrough opened
+Setup, erased f1/g1, started the position and played e1-g1: king g1, rook f1,
+chronicle O-O, then a legal native reply. Screenshots are included. The final
+archive differs from this tested extraction only in documentation/QA evidence.
+
+Logs: `validation/v0.6/`. Earlier release evidence below is historical.
+
+---
+
 # v0.5 validation — 2026-10-29
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64. The compiled engine,

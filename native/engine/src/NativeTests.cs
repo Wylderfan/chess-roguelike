@@ -58,6 +58,60 @@ public static class NativeTests
             var search = new Searcher(b);
             search.StartSearch(50);
             Check(search.BestMoveSoFar.IsNull, "terminal root safe no-move");
+
+            Check(MoveGenerator.MaxMoves >= 31*27+10, "shared move bound covers any supported army");
+            foreach(var fen in new[]{
+                "7k/8/8/8/P1P1P3/P1P1P3/P1P1P3/6K1 w - - 0 1",
+                "QQQQQQnk/Q4Qpp/2Q3Q1/Q5QQ/3Q3Q/QQ1Q3Q/PPQ4Q/KN1QQQQQ w - - 0 1",
+                "qQqQQqnk/qQqQqQpp/QQqQqQqQ/qqqQqQqQ/1QQQqqqq/QqqqQQQQ/PPQqQqqq/KNQqQqQQ w - - 0 1",
+                "7k/2P3pp/8/8/QQQQQQQ1/QQQQQQQQ/QQQQQQQQ/KQQQQQQQ w - - 0 1"})
+            {
+                b=Board.CreateBoard(fen);
+                var original=FenUtility.CurrentFen(b); var originalKey=b.ZobristKey;
+                Check(Math.Abs(new Evaluation().Evaluate(b))<99000,"extra-army evaluation finite and below mate range");
+                Check(Perft(b,2)>0,"extra-army perft + full hash/unmake restoration");
+                var engine=new Searcher(b);
+                Check(engine.Nodes==0,"constructor performs no unbudgeted search");
+                engine.StartSearch(30);
+                Check(!engine.BestMoveSoFar.IsNull && FenUtility.CurrentFen(b)==original && b.ZobristKey==originalKey,"budgeted extra-army search restores board and hash");
+                using var cancelled=new System.Threading.CancellationTokenSource(); cancelled.Cancel();
+                engine.StartSearch(1000,cancelled.Token);
+                Check(FenUtility.CurrentFen(b)==original && b.ZobristKey==originalKey,"cancelled search leaves original state intact");
+            }
+            b=Board.CreateBoard("QQQQQQnk/Q4Qpp/2Q3Q1/Q5QQ/3Q3Q/QQ1Q3Q/PPQ4Q/KN1QQQQQ w - - 0 1");
+            Check(new MoveGenerator().GenerateMoves(b).Length==221,"independent 221 legal move stress fixture exceeds old 218");
+            b=Board.CreateBoard("qQqQQqnk/qQqQqQpp/QQqQqQqQ/qqqQqQqQ/1QQQqqqq/QqqqQQQQ/PPQqQqqq/KNQqQqQQ w - - 0 1");
+            Check(new MoveGenerator().GenerateMoves(b,true).Length==129,"independent 129 capture fixture exceeds old q buffer");
+            b=Board.CreateBoard("7k/2P3pp/8/8/QQQQQQQ1/QQQQQQQQ/QQQQQQQQ/KQQQQQQQ w - - 0 1");
+            foreach(var m in new MoveGenerator().GenerateMoves(b).ToArray().Where(m=>m.IsPromotion))
+            {
+                var k=b.ZobristKey; b.MakeMove(m,true);
+                Check(b.ZobristKey==Zobrist.CalculateZobristKey(b) && b.Pawns[0].Count==0,"maximum inventory promotion headroom and hash");
+                b.UnmakeMove(m,true); Check(b.ZobristKey==k && b.Queens[0].Count==30,"maximum promotion unmake restores list");
+            }
+            b=Board.CreateBoard();
+            for(int i=0;i<600;i++) b.RepetitionPositionHistory.Push((ulong)i+1000);
+            var repetition=new RepetitionTable(); repetition.Init(b);
+            for(int i=0;i<600;i++) repetition.Push((ulong)i+2000,false);
+            Check(repetition.Contains(1001),"repetition history/search safely exceed 256 entries");
+            for(int i=0;i<600;i++) repetition.TryPop();
+            Check(repetition.Contains(1001),"dynamic repetition push/pop preserves original history");
+            foreach(var fen in new[]{"4k3/8/8/8/8/8/8/4K3 w K - 0 1","4k3/8/8/8/8/8/4K3/7R w K - 0 1","9/8/8/8/8/8/8/4K2k w - - 0 1","8/8/8/8/8/8/8/4K3 w - - 0 1"})
+            {
+                bool rejected=false; try{Board.CreateBoard(fen);}catch(ArgumentException){rejected=true;}
+                Check(rejected,"malformed/native castling input rejected before board mutation");
+            }
+            Check(Arbiter.InsufficentMaterial(Board.CreateBoard("7k/8/8/6B1/8/4B3/8/K1B5 w - - 0 1")),"multiple same-color bishops recognized dead");
+            Check(!Arbiter.InsufficentMaterial(Board.CreateBoard("7k/8/8/8/8/8/8/KNN5 w - - 0 1")),"two knights not automatically dead");
+            Check(!Arbiter.InsufficentMaterial(Board.CreateBoard("7k/8/8/8/8/8/8/KBB5 w - - 0 1")),"opposite-color bishops not dead");
+
+            b=Board.CreateBoard("4k3/8/8/8/8/8/8/K3R3 w - - 0 1");
+            var forbiddenKey=b.ZobristKey; bool kingRejected=false;
+            try { b.MakeMove(new Move(4,60),true); } catch(ArgumentException){kingRejected=true;}
+            Check(kingRejected && b.ZobristKey==forbiddenKey && b.Square[60]==Piece.BlackKing,"king capture rejected before mutation");
+            bool overCap=false;
+            try { Board.CreateBoard("7k/8/NN6/NNNNNNNN/NNNNNNNN/NNNNNNNN/NNNNNNNN/K7 w - - 0 1"); } catch(ArgumentException){overCap=true;}
+            Check(overCap,"native rejects over-cap inventory before piece-list construction");
             Console.WriteLine($"NATIVE: {checks} checks, 0 failures");
             return 0;
         }

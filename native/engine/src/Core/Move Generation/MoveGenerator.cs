@@ -5,7 +5,7 @@ namespace Chess.Core
 
 	public class MoveGenerator
 	{
-		public const int MaxMoves = 218;
+		public const int MaxMoves = PositionLimits.MaxMoves;
 		//public enum PromotionMode { All, QueenOnly, QueenAndKnight }
 		public enum PromotionMode { All, QueenOnly, QueenAndKnight }
 

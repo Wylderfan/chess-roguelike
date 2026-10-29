@@ -63,10 +63,11 @@ var setup_status: Label
 var setup_summary: Label
 var setup_tool_label: Label
 var setup_mode_choice: OptionButton
+var setup_side_label: Label
 var setup_side_choice: OptionButton
 var setup_turn_choice: OptionButton
 var setup_level_choice: OptionButton
-var setup_castling: CheckBox
+var setup_castling_checks: Dictionary = {}
 var setup_ability_checks: Dictionary = {}
 var setup_mode = 1
 var setup_side = 1
@@ -181,6 +182,25 @@ func build_theme() -> void:
 			t.set_stylebox(state, type, box)
 		t.set_color("font_color", type, Color("eee1c7"))
 		t.set_color("font_disabled_color", type, Color("8f897c"))
+	# Fixed metrics in every state: native theme checked/unchecked icons and inherited
+	# Button styles may otherwise have different widths/margins, shifting the text.
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+		var box = StyleBoxFlat.new()
+		box.bg_color = Color("3d3930") if state == "normal" else Color("514835")
+		box.border_color = Color("e0bf77") if state == "focus" else Color("83704b")
+		box.set_border_width_all(1)
+		box.set_corner_radius_all(4)
+		box.content_margin_left = 12
+		box.content_margin_right = 12
+		box.content_margin_top = 10
+		box.content_margin_bottom = 10
+		t.set_stylebox(state, "CheckBox", box)
+	for checked in [false,true]:
+		var icon = checkbox_icon(checked)
+		for suffix in ["", "_disabled"]:
+			t.set_icon(("checked" if checked else "unchecked") + suffix, "CheckBox", icon)
+	t.set_constant("h_separation", "CheckBox", 8)
+	t.set_constant("check_v_offset", "CheckBox", 0)
 	theme = t
 
 func label(text: String, font_size: int) -> Label:
@@ -613,25 +633,27 @@ func build_setup_panel() -> void:
 	var live_panel = panel
 	panel = setup_panel
 	label("PREPARE THE ARMIES", 23).add_theme_font_override("font", TITLE_FONT)
-	label("New game draft · current game paused.\nStart replaces it; Cancel returns unchanged.\nStandard inventory only; no extra armies.", 14)
+	label("New game draft · current game paused.\nStart replaces it; Cancel returns unchanged.\nUp to 32 pieces per side, including one king.", 14)
 	make_button("Start this position", start_setup)
 	make_button("Cancel · return to game", cancel_setup)
 	setup_status = label("", 15)
 	setup_summary = label("", 14)
 	setup_mode_choice = choice(["Challenge the engine", "Local · two players"])
 	setup_mode_choice.item_selected.connect(func(index): setup_mode = 1 if index == 0 else 0; cancel_drag(); selected = -1; refresh_setup())
-	setup_side_choice = choice(["Human / odds beneficiary: White", "Human / odds beneficiary: Black"])
+	setup_side_label = label("Your side", 13)
+	setup_side_choice = choice(["White", "Black"])
 	setup_side_choice.item_selected.connect(func(index): setup_side = 1 if index == 0 else -1; cancel_drag(); selected = -1; refresh_setup())
 	setup_level_choice = choice(["Quick · 0.3 s", "Balanced · 1.1 s", "Deep · 2.6 s"])
 	setup_level_choice.item_selected.connect(func(index): setup_level = index)
 	setup_turn_choice = choice(["White to move", "Black to move"])
 	setup_turn_choice.item_selected.connect(func(index): setup.position.turn = 1 if index == 0 else -1; refresh_setup())
-	label("MATERIAL ODDS · resets the board", 13).modulate = Color("c9ad72")
+	label("REMOVE MATERIAL · resets the board", 13).modulate = Color("c9ad72")
 	var presets = choice(["Choose a preset…", "Remove opponent pawn · f-file", "Remove opponent knight · b-file", "Remove opponent rook · a-file", "Remove opponent queen"])
 	presets.item_selected.connect(func(index):
 		if index > 0: apply_setup_odds([0,Rules.PAWN,Rules.KNIGHT,Rules.ROOK,Rules.QUEEN][index])
 		presets.select(0))
 	make_button("Reset standard board", func(): apply_setup_odds(0))
+	label("ADD MATERIAL · choose a piece below, then click an empty square. Move and Erase also remain available.", 13)
 	setup_tool_label = label("", 14)
 	var group = ButtonGroup.new()
 	var tools_row = HBoxContainer.new()
@@ -659,12 +681,18 @@ func build_setup_panel() -> void:
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.pressed.connect(choose_setup_tool.bind(side * piece))
 			row.add_child(button)
-	setup_castling = CheckBox.new()
-	setup_castling.text = "Allow castling from home king / rook"
-	setup_castling.add_theme_font_size_override("font_size", 13)
-	setup_castling.toggled.connect(func(enabled): setup.allow_home_castling(enabled); refresh_setup())
-	panel.add_child(setup_castling)
-	label("Any board edit clears castling. Enable it explicitly after editing. En passant is always cleared. Move counters start at 1 / 0.", 13)
+	label("CASTLING RIGHTS · composed starting position", 13)
+	var castling_grid = GridContainer.new()
+	castling_grid.columns = 2
+	panel.add_child(castling_grid)
+	for pair in [["K","White O-O"],["Q","White O-O-O"],["k","Black O-O"],["q","Black O-O-O"]]:
+		var box = CheckBox.new()
+		box.text = pair[1]
+		box.add_theme_font_size_override("font_size", 13)
+		box.toggled.connect(func(enabled): setup.set_castling(pair[0],enabled); refresh_setup())
+		castling_grid.add_child(box)
+		setup_castling_checks[pair[0]] = box
+	label("Unrelated edits keep rights. Moving, replacing or removing a home king/rook clears its rights; restoring a piece does not restore rights. Opt in explicitly for a composed start. En passant always starts empty.", 13)
 	label("PLANNED ABILITIES · NO GAMEPLAY EFFECT", 13).modulate = Color("c9ad72")
 	label("These checkboxes record ideas only. Both armies still use normal chess rules; the engine receives no active abilities.", 13)
 	for side in ["white","black"]:
@@ -749,7 +777,10 @@ func refresh_setup() -> void:
 	setup_summary.text += " · castling: " + (setup.position.rights if setup.position.rights != "" else "off")
 	setup_tool_label.text = "Tool: " + ("Move · drag, or click source then destination" if setup_tool == 99 else ("Erase" if setup_tool == 0 else "Place " + ("White " if setup_tool > 0 else "Black ") + PIECE_NAMES[abs(setup_tool)]))
 	setup_turn_choice.select(0 if setup.position.turn == 1 else 1)
-	setup_castling.set_pressed_no_signal(setup.position.rights != "")
+	for right in setup_castling_checks:
+		setup_castling_checks[right].disabled = not setup.eligible_castling(right)
+		setup_castling_checks[right].set_pressed_no_signal(right in setup.position.rights)
+	setup_side_label.text = "Your side" if setup_mode == 1 else "Preset beneficiary"
 	setup_level_choice.visible = setup_mode == 1
 	queue_redraw()
 
@@ -774,3 +805,15 @@ func start_setup() -> bool:
 	planned_abilities = intent
 	refresh()
 	return true
+
+func checkbox_icon(checked: bool) -> ImageTexture:
+	var pixels = Image.create(22,22,false,Image.FORMAT_RGBA8)
+	pixels.fill(Color.TRANSPARENT)
+	for y in range(2,20):
+		for x in range(2,20):
+			pixels.set_pixel(x,y,Color("d9bd7e") if x in [2,3,18,19] or y in [2,3,18,19] else Color("202622"))
+	if checked:
+		for i in range(5,17):
+			var y = (i+5) if i < 10 else (24-i)
+			for dy in range(-1,2): pixels.set_pixel(i,y+dy,Color("eee1c7"))
+	return ImageTexture.create_from_image(pixels)
