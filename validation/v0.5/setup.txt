@@ -1,0 +1,115 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Standard draft roundtrips to exact FEN
+PASS: Setup validation: White needs exactly one king
+PASS: Setup validation: White needs exactly one king
+PASS: Setup validation: adjacent
+PASS: Setup validation: ranks 1 or 8
+PASS: Setup validation: ranks 1 or 8
+PASS: Setup validation: Both kings
+PASS: Setup validation: side not to move
+PASS: Setup validation: legal check evasion allowed
+PASS: Setup validation: checkmate
+PASS: Setup validation: stalemate
+PASS: Setup validation: insufficient
+PASS: Setup validation: ranks 1 or 8
+PASS: Setup validation: inventory
+PASS: Setup validation: inventory
+PASS: Setup validation: inventory
+PASS: Setup validation: promoted
+PASS: Odds inventory and material: human 1 removed 1
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human 1 removed 2
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human 1 removed 4
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human 1 removed 5
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human -1 removed 1
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human -1 removed 2
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human -1 removed 4
+PASS: Odds clear castling and EP
+PASS: Odds inventory and material: human -1 removed 5
+PASS: Odds clear castling and EP
+PASS: Edited setup cannot preserve stale en-passant rights
+PASS: Explicit castling uses home kings and rooks
+PASS: Further edit clears previously enabled castling
+PASS: Missing rook cannot receive castling right
+PASS: Moved king cannot receive castling rights
+PASS: Independent per-side ability intentions recorded
+PASS: Planned abilities do not alter keys, moves or runtime ability state
+PASS: Per-side checkbox removal is independent
+PASS: Editor opens fresh draft without altering live game
+PASS: Palette erase changes draft only and clears rights
+PASS: Palette restores standard piece
+PASS: Editor drag repositions piece without playing a move
+PASS: Editor click-to-reposition supports opposing pieces
+PASS: Invalid setup gives visible error and blocks Start
+PASS: Cancel restores exact live position, history and chronicle
+PASS: Actual checkbox signals store independent configuration
+PASS: Valid odds draft starts game
+PASS: Custom start creates fresh history and empty chronicle
+PASS: Queen odds are +9 without imaginary capture
+PASS: Setup intent separate from empty native state and fresh FEN transport
+PASS: Drag and SAN work after custom start
+PASS: History begins at custom odds board
+PASS: Cancel setup restores history browsing state
+PASS: Valid promotion-ready custom board starts
+PASS: Custom-start dragged promotion waits for choice
+PASS: Custom-start promotion SAN preserved
+PASS: Legal side-to-move check accepted and displayed
+PASS: Native odds start: human 1 removed 1
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Black-start chronicle uses 1… notation
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human 1 removed 2
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Black-start chronicle uses 1… notation
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human 1 removed 4
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Black-start chronicle uses 1… notation
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human 1 removed 5
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Black-start chronicle uses 1… notation
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human -1 removed 1
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human -1 removed 2
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human -1 removed 4
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native odds start: human -1 removed 5
+PASS: Native odds setup has intended handicap and cleared rights
+PASS: Native legal reply from asymmetric initial FEN
+PASS: Arbitrary-start FEN, SAN side/number and inactive abilities preserved
+PASS: Second native odds reply preserves full custom-start move history
+PASS: Native search active before setup interruption
+PASS: Opening setup cancels live search and rejects stale result
+PASS: Cancel setup resumes exactly one native reply
+PASS: Apply new local draft during native search
+PASS: No stale native move after replacing active game
+PASS: Rotated editor input maps to actual board square
+PASS: Reset standard restores material and known starting rights
+PASS: Setup has scrollable stacked narrow layout
+SETUP: 112 checks, 0 failures
