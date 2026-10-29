@@ -1,3 +1,48 @@
+# v0.4 validation — 2026-10-29
+
+Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64. The compiled C# engine,
+Windows/Linux binaries, native sources, source pin and licenses are unchanged
+from v0.3. No new strength claim or engine modifications.
+
+## Passed for v0.4
+
+**288 explicit checks**: all previous 226 checks plus 62 UX checks. Logs are in
+`validation/v0.4/`. Existing rule, inspection, tactical engine, scene, threaded
+scene, native, protocol, bridge and native UI suites all passed.
+All 288 checks passed again after clean ZIP extraction and fresh Godot import;
+summary in `validation/v0.4/clean-extraction.txt`. The final archive differs from
+that tested extraction only in documentation/validation evidence.
+
+The new suite covers SAN file/rank/full-square disambiguation and pinned-piece
+exclusion; castling, captures, en passant, all four promotions, capture-promotion,
+check and mate; position/history invariance while generating notation; drag/click
+coexistence, illegal/offboard/sidebar drops, Escape/right-click/resize cancellation;
+rotated coordinates; promotion cancel/choice; restart/mode/side/difficulty changes;
+AI-turn input exclusion and stale search cancellation; history snapshots,
+inspection, result preservation, material/capture ledgers, return to live and
+narrow layout. Captured promoted queens and en-passant victims are tested explicitly.
+
+History policy: browsing cancels pending AI work and pauses new searches. The live
+position is never replaced by a reviewed snapshot. Returning live resumes search.
+This is browsing only, not undo/takeback. Current and historical material use
+P=1, N/B=3, R=5, Q=9, K=0; no position evaluation is displayed.
+
+Graphical Linux: ran the 62-check UX suite using a virtual Xorg display with Mesa
+llvmpipe OpenGL compatibility rendering; reviewed screenshots for dragging,
+capture/material, history and promotion, plus the 600px-wide stacked layout.
+These are real rendered Godot viewport interactions, not browser mockups.
+Also used X11 mouse events in the standalone application to drag e2–e4, observe
+an engine reply and SAN entries, select the starting position, return to live
+and use click-to-move. Rendered evidence is in `validation/v0.4/screenshots/`.
+The graphical suite uses a bounded wait for the AI-start event (one frame is not
+sufficient on every renderer).
+
+Windows x64 remains the same self-contained binary cross-built for v0.3. Direct
+Windows/Mac execution was not performed in this executor. Parent independent QA
+is separate. No claim that the v0.3 historical results below validate new UI code.
+
+## Historical v0.3 validation (preserved)
+
 # v0.3 validation — 2026-10-29
 
 Godot **4.6.3.stable.official.7d41c59c4**, Linux x86_64. Compiled engine built with

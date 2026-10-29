@@ -1,0 +1,59 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Exact both-side legal/threat agreement: r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1
+PASS: Exact both-side legal/threat agreement: 4kr2/8/8/8/8/8/8/4K2R w K - 0 1
+PASS: Exact both-side legal/threat agreement: 4k1r1/8/8/8/8/8/8/4K2R w K - 0 1
+PASS: Exact both-side legal/threat agreement: 4r1k1/8/8/8/8/8/8/4K2R w K - 0 1
+PASS: Exact both-side legal/threat agreement: 4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1
+PASS: Exact both-side legal/threat agreement: k3r3/8/8/3pP3/8/8/8/4K3 w - d6 0 1
+PASS: Exact both-side legal/threat agreement: 4k3/8/8/r4pPK/8/8/8/8 w - f6 0 1
+PASS: Exact both-side legal/threat agreement: 4k3/P7/8/8/8/8/8/4K3 w - - 0 1
+PASS: Exact both-side legal/threat agreement: 4k3/8/8/8/8/8/p7/4K3 b - - 0 1
+PASS: Exact both-side legal/threat agreement: 4r1k1/8/8/8/8/8/4N3/4K3 w - - 0 1
+PASS: Exact both-side legal/threat agreement: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
+PASS: Exact both-side legal/threat agreement: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+PASS: Random-history position agreement ply 1:
+PASS: Random-history position agreement ply 2:
+PASS: Random-history position agreement ply 3:
+PASS: Random-history position agreement ply 4:
+PASS: Random-history position agreement ply 5:
+PASS: Random-history position agreement ply 6:
+PASS: Random-history position agreement ply 7:
+PASS: Random-history position agreement ply 8:
+PASS: Random-history position agreement ply 9:
+PASS: Random-history position agreement ply 10:
+PASS: Random-history position agreement ply 11:
+PASS: Random-history position agreement ply 12:
+PASS: Random-history position agreement ply 13:
+PASS: Random-history position agreement ply 14:
+PASS: Random-history position agreement ply 15:
+PASS: Random-history position agreement ply 16:
+PASS: Random-history position agreement ply 17:
+PASS: Random-history position agreement ply 18:
+PASS: Random-history position agreement ply 19:
+PASS: Random-history position agreement ply 20:
+PASS: Random-history position agreement ply 21:
+PASS: Random-history position agreement ply 22:
+PASS: Random-history position agreement ply 23:
+PASS: Random-history position agreement ply 24:
+PASS: Random-history position agreement ply 25:
+PASS: Random-history position agreement ply 26:
+PASS: Random-history position agreement ply 27:
+PASS: Random-history position agreement ply 28:
+PASS: Random-history position agreement ply 29:
+PASS: Random-history position agreement ply 30:
+PASS: Random-history position agreement ply 31:
+PASS: Random-history position agreement ply 32:
+PASS: Random-history position agreement ply 33:
+PASS: Random-history position agreement ply 34:
+PASS: Random-history position agreement ply 35:
+PASS: Random-history position agreement ply 36:
+PASS: Random-history position agreement ply 37:
+PASS: Random-history position agreement ply 38:
+PASS: Random-history position agreement ply 39:
+PASS: Random-history position agreement ply 40:
+PASS: Ability placeholder copies and changes identity
+PASS: Unimplemented abilities fail closed
+PASS: Process failure terminates search without illegal move
+PASS: Failed process cannot produce playable result
+BRIDGE: 56 checks, 0 failures

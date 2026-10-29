@@ -245,3 +245,48 @@ static func uci_name(m: Dictionary) -> String:
 
 func uci_position() -> String:
 	return "position fen " + initial_fen + (" moves " + " ".join(move_log) if not move_log.is_empty() else "")
+
+# SAN and material reporting use the same legal moves and transitions as play.
+func captured_piece(m: Dictionary) -> int:
+	var victim: int = board[m.to]
+	if abs(board[m.from]) == PAWN and m.to == ep and victim == 0 and m.from % 8 != m.to % 8:
+		victim = board[m.to + 8 * turn]
+	return victim
+
+func material_balance() -> int:
+	var values = [0, 1, 3, 3, 5, 9, 0]
+	var balance = 0
+	for piece in board: balance += int(sign(piece)) * values[abs(piece)]
+	return balance
+
+func san(m: Dictionary) -> String:
+	var moves = legal_moves()
+	if not moves.has(m): return ""
+	var piece = abs(board[m.from])
+	var capture = captured_piece(m) != 0
+	var text = ""
+	if piece == KING and abs(m.to - m.from) == 2:
+		text = "O-O" if m.to > m.from else "O-O-O"
+	else:
+		if piece != PAWN:
+			text = "  NBRQK"[piece]
+			var ambiguous = false
+			var same_file = false
+			var same_rank = false
+			for other in moves:
+				if other.from != m.from and other.to == m.to and board[other.from] == board[m.from]:
+					ambiguous = true
+					same_file = same_file or other.from % 8 == m.from % 8
+					same_rank = same_rank or other.from / 8 == m.from / 8
+			if ambiguous:
+				if not same_file: text += name_of(m.from)[0]
+				elif not same_rank: text += name_of(m.from)[1]
+				else: text += name_of(m.from)
+		elif capture: text = name_of(m.from)[0]
+		if capture: text += "x"
+		text += name_of(m.to)
+		if m.promotion != 0: text += "=" + "  NBRQK"[m.promotion]
+	var after = copy_position()
+	after.apply_unchecked(m)
+	if after.in_check(after.turn): text += "#" if after.legal_moves().is_empty() else "+"
+	return text

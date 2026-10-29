@@ -1,5 +1,13 @@
 # Changes
 
+## v0.4 — 2026-10-29
+
+- Added drag-and-drop while retaining click-to-move, promotion choice and illegal-drop cancellation.
+- Added SAN move chronicle and read-only history with previous/next/start/live navigation. Reviewing pauses AI; returning live resumes it.
+- Added actual capture ledger and conventional material balance for the displayed position, including en passant and promotions.
+- Kept right-click legal/threat previews, medieval board, side rotation, check/last-move highlights and compiled engine unchanged.
+- Added 62 UX/notation/history assertions and graphical Linux validation; previous 226 checks retained.
+
 ## v0.3 — 2026-10-29
 
 - Replaced the playable GDScript AI with pinned Sebastian Lague V2 compiled C# UCI.
