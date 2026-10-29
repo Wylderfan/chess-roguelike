@@ -1,0 +1,16 @@
+PASS start perft 8902 plus every move/hash/unmake roundtrip
+PASS Kiwipete perft 2039 roundtrips
+PASS en passant perft 2812 roundtrips
+PASS all four promotion flags
+PASS promotion hash/unmake roundtrips
+PASS reserved flag 8 is neither promotion nor playable
+PASS empty ability state leaves standard hash unchanged
+PASS nonempty setup state contributes to identity
+PASS schema state has no active gameplay effect
+PASS ability snapshot make/unmake roundtrips
+PASS copy retains state and hash
+PASS null move hash includes state
+PASS null unmake restores state/hash
+PASS extension masks inactive
+PASS terminal root safe no-move
+NATIVE: 15 checks, 0 failures

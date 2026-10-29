@@ -1,0 +1,6 @@
+.godot/
+native/engine/bin/
+native/engine/obj/
+native/bin/
+.DS_Store
+Thumbs.db

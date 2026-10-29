@@ -1,0 +1,6 @@
+Repository: https://github.com/SebLague/Chess-Coding-Adventure
+Branch: Chess-V2-UCI
+Pinned commit: f346d2d2ee92422614de063724796537337d702b
+Original license: MIT, Copyright (c) 2021 Sebastian Lague
+Upstream targets .NET 6. This private integration targets .NET 10 LTS.
+See INTEGRATION.md for local changes and build instructions.
