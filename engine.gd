@@ -70,9 +70,15 @@ func close_process() -> void:
 	errors.close()
 	process_id = -1
 
+func effective_profile(g: ChessRules) -> String:
+	return "conservative" if not g.ability_state.is_empty() else rules_profile
+
 func verify_snapshot(g: ChessRules, data: Dictionary) -> String:
-	if data.get("profile", "") != rules_profile: return "Engine rules profile mismatch."
-	if data.get("schema", -1) != 0 or not data.get("abilities_empty", false) or not g.ability_state.is_empty(): return "Unsupported ability schema; normal chess only."
+	if data.get("profile", "") != effective_profile(g): return "Engine rules profile mismatch."
+	if not g.supported_abilities(): return "Unsupported ability state."
+	var active = not g.ability_state.is_empty()
+	if data.get("schema", -1) != (1 if active else 0) or data.get("abilities_empty", true) == active: return "Engine ability schema mismatch."
+	if active and data.get("pawn_retreat", "none") != g.retreat_setting(): return "Engine Pawn Retreat mismatch."
 	var ours: Array = []
 	for m in g.legal_moves(): ours.append(Rules.uci_name(m))
 	ours.sort()
@@ -101,8 +107,8 @@ func search(position: ChessRules, milliseconds: int, _max_depth: int = 64) -> Di
 		output.error = "Unsupported rules profile."
 		return output
 	if position.result != "" or position.legal_moves().is_empty(): return output
-	if not position.ability_state.is_empty():
-		output.error = "Abilities are not enabled in v0.3."
+	if not position.supported_abilities():
+		output.error = "Unsupported ability state."
 		return output
 	var path = executable_path()
 	if not FileAccess.file_exists(path):
@@ -122,7 +128,8 @@ func search(position: ChessRules, milliseconds: int, _max_depth: int = 64) -> Di
 		ready = next_line(deadline) == "uciok"
 	if not ready and not is_canceled(): fault = "Engine startup failed. " + fault
 	if fault == "" and not is_canceled():
-		send("setoption name RulesProfile value " + rules_profile)
+		send("setoption name RulesProfile value " + effective_profile(position))
+		send("setoption name PawnRetreat value " + position.retreat_setting())
 		send("ucinewgame")
 		send(position.uci_position())
 		send("knight snapshot")

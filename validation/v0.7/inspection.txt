@@ -1,0 +1,13 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Off-turn pawn shows hypothetical pushes
+PASS: Pawn attacks empty diagonals, not push squares
+PASS: Inspection preserves complete state
+PASS: Knight protects friendly piece without legal capture
+PASS: Pinned knight still attacks but cannot legally move
+PASS: King attacks differ from safe moves and castling transit
+PASS: Castling is a move, not a king attack
+PASS: On-turn legal en passant shown
+PASS: Off-turn preview never inherits en passant
+PASS: Illegal pinned en passant remains a pawn attack only
+INSPECTION: 10 checks, 0 failures

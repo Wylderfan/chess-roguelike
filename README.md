@@ -1,13 +1,13 @@
-# Knight Chess v0.6 — Godot 4.6.3
+# Knight Chess v0.7 — Godot 4.6.3
 
-**Ready-to-play package:** download [the complete v0.6 ZIP](dist/Knight-Chess-v0.6-Godot-4.6.3.zip) using GitHub’s Download raw button, then follow the instructions below. The ZIP contains the self-contained Windows/Linux engines. A source-only checkout must build the engine using `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the ZIP. Native build outputs are intentionally not committed separately.
+**v0.7 playtest package:** supplied separately with this change as `Knight-Chess-v0.7-Godot-4.6.3.zip`, containing the rebuilt self-contained Windows/Linux engines. A source checkout must build the engine with `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the v0.7 package. The older v0.6 ZIP in `dist/` does **not** contain Pawn Retreat and must not be used with v0.7 source. Native build outputs are intentionally not committed separately.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
 This release supports extra pieces in the pre-game editor, fixes castling setup
 rights and stabilizes the inactive ability checkboxes. A selectable conservative
 engine profile provides a working standard-rule compatibility fallback. Dragging, the move chronicle and material tracking
-remain available. No powers, progression or nonstandard gameplay rules are enabled.
+remain available. Pawn Retreat is the first experimental ability; progression remains unimplemented.
 
 ## Engine compatibility profiles
 
@@ -100,13 +100,22 @@ White and Black each have **Pawn Dash, Bishop Sidestep and Queen Exchange**
 checkboxes, explicitly labelled **planned / no gameplay effect**. Selections
 record session-only configuration intent; they change no legal moves, attacks,
 captures, evaluation, hash or native runtime ability state. Intent is kept apart
-from `ChessRules.ability_state`, which stays empty, and the native protocol still
-rejects active/unknown ability state. No ability code or save system is enabled.
+from the active `ChessRules.ability_state`, and the native protocol rejects unknown ability state. These three planned options remain inactive. Pawn Retreat is separate and functional; no save system is enabled.
 
 Changing mode or human side using the regular play controls starts a fresh
 **standard** game (the existing behavior), clearing setup intent. To choose
 custom odds again, use New game / Setup. The internal restart method and normal
 regression tests also reset to standard; history browsing is never a takeback.
+
+## Experimental Pawn Retreat
+
+Enable **White · Pawn Retreat** and/or **Black · Pawn Retreat** in Prepare the Armies, then Start. Default is off. For an enabled side, a pawn may move **one empty square straight backward**, provided its king remains safe. It cannot capture backward, attack backward, enter rank 1/8, promote backward, or retreat two squares. Forward captures, promotions and en passant are unchanged. A pawn that retreats to its normal starting rank can use its usual forward two-square push again; this rank-based rule is intentional. Retreat resets the halfmove clock like any pawn move. Reversible pawn cycles still count toward repetition draws. Chronicle notation uses `e4-e3` for a retreat to distinguish it from a forward pawn move to e3.
+
+The active rule forces **Conservative** search even if the profile dropdown says Standard: simulated legality, material-only scoring, no late-move reductions or transposition cache. The live label identifies the active sides. This is a correctness-first prototype, not a strength rating. The compiled engine receives the rule before replaying the starting FEN and all moves; Godot compares both sides' complete legal sets and every piece's attacks before each engine search. A mismatch stops play visibly.
+
+Setup edits and Reset standard board retain the draft's ability selections. Cancel leaves the live game untouched. New standard game, mode or side changes clear active abilities. Read-only history retains the rules of that game. FEN alone does not store ability state.
+
+A quick local test: enable White Pawn Retreat, play e2-e4, e7-e5, then e4-e3. With both abilities off, ordinary chess still passes the existing published perft matrix.
 
 ## Controls
 
@@ -200,7 +209,7 @@ not a complete tournament adjudicator. Internal FEN loading is for trusted tests
   inactive ability intentions.
 - `engine.gd`: nonblocking UCI bridge; no GDScript search.
 - `native/engine/src/Core`: optimized compiled upstream core with targeted fixes.
-- `native/engine/src/Extensions/AbilityState.cs`: inactive masks/state hooks.
+- `native/engine/src/Extensions/AbilityState.cs`: per-side Pawn Retreat rule state.
 - `native/INTEGRATION.md`: exact source pin, changes, protocol, licenses,
   platform/build requirements and the required future ability audit.
 - `tests/` and `validation/`: reproducible suites, comparison and observed results.
@@ -246,9 +255,4 @@ See `tests/reference/README.md` for the matrix, sources, seed and reproducible
 commands. The reference library is test-only and is **not shipped** or required
 to play. Finite tests are evidence, not a guarantee of zero bugs.
 
-All ability checkboxes are still planned/inactive even when selected. They do
-not change runtime rules or hashes. Future abilities must preserve the default
-orthodox perft gate and use separate expected fixtures for enabled custom moves.
-The existing zero mask hooks are not yet wired into legal move generation; see
-`native/INTEGRATION.md` for the authoritative-rule/state/execute/hash boundary.
-Extra starting material has its own expected legal sets, not standard-start totals.
+Pawn Retreat is active when selected. The other planned checkboxes remain inactive. Abilities off retain the standard-chess reference path.
