@@ -83,7 +83,7 @@ namespace Chess.Core
 		public Searcher(Board board, RuleProfile? profile = null)
 		{
 			this.board = board;
-            Profile=profile ?? RuleProfile.Standard; Profile.Validate(board);
+            Profile=board.Abilities.IsEmpty ? (profile ?? RuleProfile.Standard) : RuleProfile.Conservative; Profile.Validate(board);
 
 			evaluation = new Evaluation();
 			moveGenerator = new MoveGenerator { Profile=Profile };
@@ -287,7 +287,7 @@ namespace Chess.Core
 			if (plyFromRoot > 0)
 			{
 				bool wasPawnMove = Piece.PieceType(board.Square[prevMove.TargetSquare]) == Piece.Pawn;
-				repetitionTable.Push(board.CurrentGameState.zobristKey, prevWasCapture || wasPawnMove);
+				repetitionTable.Push(board.CurrentGameState.zobristKey, prevWasCapture || (wasPawnMove && !board.Abilities.CanRetreat(Piece.IsWhite(board.Square[prevMove.TargetSquare]))));
 			}
 
 			int evaluationBound = TranspositionTable.UpperBound;

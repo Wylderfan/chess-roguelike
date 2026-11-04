@@ -132,43 +132,40 @@ The adapter compares **all** of these move/threat sets with Godot before every
 search. Off-turn preview excludes captures of the opposing king in both systems.
 Any discrepancy stops AI rather than choosing a move from incompatible rules.
 
-## Ability bitboard/state foundation — inactive
+## Pawn Retreat: registered schema 1
 
-`src/Extensions/AbilityState.cs` contains a small value schema: per-side used-state
-bits and per-side masks, all zero for normal chess. No ability is registered and
-no gameplay rule changes. Empty state hashes to zero, preserving original normal
-chess keys. Nonempty test-only state has a deterministic contribution to identity.
+`setoption name PawnRetreat value none|white|black|both` enables an unlimited
+per-side capability. Send it before `position` replay. Changing the capability
+after played moves requires `ucinewgame` first; invalid options fail atomically.
+`ucinewgame` preserves option configuration. Snapshot `schema` remains 0 with all
+abilities off, becomes 1 when enabled, and `pawn_retreat` reports the exact value.
 
-- GameState snapshots contain AbilityState, so ordinary/null unmake restores it.
-- Copying carries initial state and replays moves. Setup-only state changes reset
-  root state/history; ordinary transitions carry state through AfterStandardMove.
-- MakeMove includes the old/new ability hash delta. Full Zobrist recomputation
-  includes the same contribution. Repetition uses the combined key.
-- AdditionalDestinations/AdditionalThreats return zero and are **not yet wired
-  into legal generation**. ThreatMask exposes the
-  existing pawn/knight/king masks and magic slider masks, including protected
-  endpoints. Core bit 0 is **a1**; Godot index 0 is **a8**. The protocol uses square
-  names to avoid accidental inversion or loss of 64-bit precision in JSON.
-- Godot has an empty copied/keyed placeholder. The bridge rejects nonempty ability
-  state or unknown schema: it must not pretend standard UCI supports custom state.
-- Move flags are classified explicitly. No flag is assigned to a future ability.
+An enabled pawn may move one square straight backward onto an empty square on
+ranks 2–7. It cannot capture, attack, promote or enter ranks 1/8 backward. Forward
+movement, captures and promotions stay unchanged. Returning to the start rank
+allows the existing rank-based two-square advance. Retreat onto an en-passant
+target is quiet, not an en-passant capture. Every candidate must leave its own
+king safe. There are no charges, cooldowns, or new move flags.
 
-Before enabling a real ability, make the compiled rules/protocol authoritative
-for BOTH play and inspection, including state transport and legal/threat masks.
-Godot's standard generator is currently a checked independent implementation;
-do not maintain two separate ability implementations. Version the protocol and
-serialize charges/cooldowns/once-per-match history, not only board masks. Audit
-pin/check shortcuts, king safety and castling interactions, make/unmake and null
-moves, repetition/hash/TT identity, move encoding/classification, captures and
-promotions, quiescence/quiet reductions/extensions, evaluation and book policy.
-The setup checkbox intent is kept outside runtime AbilityState even when selected.
-Keep the default no-op branch passing all published orthodox perft/divides; enabled
-powers require separately specified move/threat/execute/state/hash fixtures, not
-orthodox counts forced onto altered rules. Revisit PositionLimits and the move
-bound before adding spawns, extra destinations or new move encodings. Add
-roundtrip/perft/differential/tactical tests before allowing a nonempty schema.
-These are concrete extension seams, not a promise that arbitrary abilities can
-be implemented by simply OR-ing a mask into legal moves.
+The capability mask participates in Zobrist identity and GameState snapshots;
+copy/replay, make/unmake and null moves preserve it. Non-capturing moves by a pawn
+with Retreat do not clear repetition history because forward/backward cycles are
+possible. All pawn moves still reset the halfmove clock. Standard empty-state
+hashes and ordinary perft remain unchanged.
+
+Active abilities force the conservative profile in the protocol, generator and
+searcher: simulation legality, no TT or late-move reductions, material evaluation.
+Only the registered mask bit is accepted; unknown state fails closed. Geometric
+pawn attacks remain forward diagonals. AdditionalDestinations supplies the quiet
+retreat candidate to the contract; kings, castling and en passant retain their
+normal attack and safety rules. Quiescence excludes retreat unless generating
+all check evasions. Check/pawn extensions remain bounded and may make this
+experimental search slower. No strength or Elo estimate is claimed.
+
+The Godot bridge independently checks complete legal sets and threats before
+search, and validates returned moves. Core bit 0 is a1; Godot index 0 is a8;
+protocol square names avoid inversion. Future abilities still require full
+state, legality, repetition, evaluation and move-capacity audits.
 
 ## Native tests
 
@@ -181,7 +178,7 @@ The second command is run from the project root. Python is needed only for that
 protocol test, not to play. Linux uses `native/bin/linux-x64/KnightEngine`.
 Native perft tests check incremental hashes and complete make/unmake roundtrips
 at every traversed node, including castling, en passant and promotions. They also
-exercise inactive state, copying, null moves, reserved flags and terminal roots.
+exercise registered/unknown state, copying, null moves, reserved flags and terminal roots.
 See the root VALIDATION.md and `validation/` logs for measured results.
 
 ## Functional compatibility profiles (v0.6 revision)
@@ -190,20 +187,16 @@ UCI: `setoption name RulesProfile value standard` (default) or `conservative`.
 `knight profile` returns the active settings; snapshots include the profile name,
 which Godot verifies. Profile changes stop/join/suppress existing search before
 changing configuration. Diagnostics report actual LMR, TT probe/store and chosen
-evaluation counters. The UI exposes the same two profiles independently of
-inactive ability checkbox intent. Unknown profiles/options are errors.
+evaluation counters. The UI exposes the same two profiles alongside the registered Pawn Retreat option. Unknown profiles/options are errors.
 
 `Extensions/RuleProfile.cs` defines the registered capability combinations and
-`IRuleContract` candidate/threat/make/unmake seam. Only `OrthodoxContract` is
-registered. Conservative candidates come directly from bitboard geometry and
+`IRuleContract` candidate/threat/make/unmake seam. `OrthodoxContract` now includes the narrow Pawn Retreat extension. Conservative candidates come directly from bitboard geometry and
 pawn/castling rules, without the fast generator's pin/check pruning. Each is
 made, its mover's king checked against geometric opposing attacks, and unmade in
 `finally`. Castling checks origin and simulated transit separately from the final
 king/rook move; EP removes its victim before checking; promotions include all four
 choices; kings cannot be captured. The same contract is used in conservative
-search, snapshots, replay validation and perft. Current custom-state validation
-accepts only empty schema 0; the state foundation can still be unit-tested through
-explicit make/unmake without allowing it into playable search/generation.
+search, snapshots, replay validation and perft. Custom-state validation accepts empty schema 0 and registered Pawn Retreat schema 1.
 
 Standard retains the existing fast generator and search policy. Conservative
 bypasses all TT probes/stores and cached-move ordering, disables LMR, and evaluates

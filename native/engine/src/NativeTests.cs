@@ -145,6 +145,61 @@ public static class NativeTests
                 bool badSchema=false;try{profile.Validate(b,1);}catch(ArgumentException){badSchema=true;}
                 Check(badSchema,"unregistered ability schema fails closed in both profiles");
             }
+            foreach(var white in new[]{true,false})
+            {
+                string fen=white?"7k/8/8/8/8/4P3/8/K7 w - - 17 1":"7k/8/4p3/8/8/8/8/K7 b - - 17 1";
+                b=Board.CreateBoard(fen);
+                var ordinaryHash=b.ZobristKey;
+                b.SetAbilityStateForSetup(AbilityState.ParseRetreat(white?"white":"black"));
+                string retreat=white?"e3e2":"e6e7";
+                var generator=new MoveGenerator();
+                var legal=generator.GenerateMoves(b).ToArray();
+                Check(legal.Any(m=>EngineUCI.Name(m)==retreat),"per-side retreat generated through conservative safety path");
+                Check(!generator.GenerateMoves(b,true).ToArray().Any(m=>EngineUCI.Name(m)==retreat),"retreat is quiet, not a capture or attack");
+                Check(b.ZobristKey!=ordinaryHash && b.ZobristKey==Zobrist.CalculateZobristKey(b),"retreat capability participates in hash");
+                Check(Perft(b,3)>0,"retreat tree incremental hashes and every unmake restore state");
+                var before=b.ZobristKey;
+                var move=legal.Single(m=>EngineUCI.Name(m)==retreat);
+                b.MakeMove(move);
+                Check(b.CurrentGameState.fiftyMoveCounter==0 && b.CurrentGameState.enPassantFile==0,"retreat resets halfmove clock and never creates en passant");
+                Check(b.RepetitionPositionHistory.Contains(before),"reversible pawn move preserves repetition history");
+                var copyRetreat=Board.CreateBoard(b);
+                Check(copyRetreat.ZobristKey==b.ZobristKey && copyRetreat.Abilities==b.Abilities,"copy replays active retreat history");
+                var searchRetreat=new Searcher(b,RuleProfile.Standard);
+                var searchFen=FenUtility.CurrentFen(b);var searchKey=b.ZobristKey;
+                searchRetreat.StartSearch(100,default,3);
+                Check(searchRetreat.Profile==RuleProfile.Conservative && searchRetreat.CacheProbes==0 && searchRetreat.Reductions==0,"active ability forces conservative search");
+                Check(new MoveGenerator().GenerateMoves(b).ToArray().Any(m=>Move.SameMove(m,searchRetreat.BestMoveSoFar)) && b.ZobristKey==searchKey && FenUtility.CurrentFen(b)==searchFen,"active search returns legal move and restores board");
+            }
+            foreach(var item in new[]{
+                ("7k/8/8/8/8/4P3/4n3/K7 w - - 0 1","e3e2"),
+                ("7k/8/8/8/8/4P3/4N3/K7 w - - 0 1","e3e2"),
+                ("7k/8/8/8/8/8/4P3/K7 w - - 0 1","e2e1"),
+                ("7k/4p3/8/8/8/8/8/K7 b - - 0 1","e7e8"),
+                ("7k/8/1b6/8/8/4P3/5K2/8 w - - 0 1","e3e2")})
+            {
+                b=Board.CreateBoard(item.Item1);b.SetAbilityStateForSetup(AbilityState.ParseRetreat("both"));
+                Check(!new MoveGenerator().GenerateMoves(b).ToArray().Any(m=>EngineUCI.Name(m)==item.Item2),"retreat rejects occupied/end-rank/king-exposing destinations");
+            }
+            b=Board.CreateBoard("7k/8/4p3/8/8/4P3/8/K7 w - - 0 1");
+            b.SetAbilityStateForSetup(AbilityState.ParseRetreat("both"));var cycleKey=b.ZobristKey;
+            foreach(var name in new[]{"e3e2","e6e7","e2e3","e7e6","e3e2","e6e7","e2e3","e7e6"})
+                b.MakeMove(new MoveGenerator().GenerateMoves(b).ToArray().Single(m=>EngineUCI.Name(m)==name));
+            Check(b.ZobristKey==cycleKey && b.RepetitionPositionHistory.Count(k=>k==cycleKey)==3,"forward/backward pawn cycles retain threefold identity");
+            b=Board.CreateBoard("7k/8/8/8/8/4P3/8/K7 w - - 0 1");b.SetAbilityStateForSetup(AbilityState.ParseRetreat("black"));
+            Check(!new MoveGenerator().GenerateMoves(b).ToArray().Any(m=>EngineUCI.Name(m)=="e3e2"),"disabled side cannot retreat");
+            b=Board.CreateBoard("7k/8/8/8/8/4P3/8/K7 w - - 0 1");b.SetAbilityStateForSetup(AbilityState.ParseRetreat("white"));
+            foreach(var name in new[]{"e3e2","h8g8"}) b.MakeMove(new MoveGenerator().GenerateMoves(b).ToArray().Single(m=>EngineUCI.Name(m)==name));
+            Check(new MoveGenerator().GenerateMoves(b).ToArray().Any(m=>EngineUCI.Name(m)=="e2e4"),"return to starting rank restores rank-based double advance");
+            b=Board.CreateBoard("7k/8/8/8/8/2P5/8/1b1K4 w - - 0 1");b.SetAbilityStateForSetup(AbilityState.ParseRetreat("white"));
+            // Pawn retreat can interpose on a checking bishop ray.
+            b=Board.CreateBoard("7k/8/8/8/8/1bP5/8/3K4 w - - 0 1");b.SetAbilityStateForSetup(AbilityState.ParseRetreat("white"));
+            Check(new MoveGenerator().GenerateMoves(b).ToArray().Any(m=>EngineUCI.Name(m)=="c3c2"),"retreat can block check when king-safe");
+            b=Board.CreateBoard("7k/4P3/8/4p3/8/8/8/K7 w - e6 0 1");b.SetAbilityStateForSetup(AbilityState.ParseRetreat("white"));
+            var epTargetRetreat=new MoveGenerator().GenerateMoves(b).ToArray().Single(m=>EngineUCI.Name(m)=="e7e6");
+            Check(epTargetRetreat.MoveFlag==Move.NoFlag,"synthetic retreat onto EP target classified quiet");
+            b.MakeMove(epTargetRetreat);
+            Check(b.Square[36]==Piece.BlackPawn && b.CurrentGameState.enPassantFile==0,"synthetic EP target retreat preserves opposing pawn");
             Console.WriteLine($"NATIVE: {checks} checks, 0 failures");
             return 0;
         }

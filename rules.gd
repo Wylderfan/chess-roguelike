@@ -17,7 +17,7 @@ var history: Dictionary = {}
 var result: String = ""
 var initial_fen: String = ""
 var move_log: Array = []
-# Empty schema only. Non-empty abilities are rejected by the v0.3 bridge.
+# Schema 1: immutable per-game Pawn Retreat side configuration.
 var ability_state: Dictionary = {}
 
 func _init(setup: bool = true) -> void:
@@ -45,6 +45,23 @@ func load_fen(fen: String) -> void:
 	result = ""
 	history = {}
 	history[position_key()] = 1
+
+# Configure only a fresh game. FEN alone does not encode variant rules.
+func configure_retreat(value: String) -> void:
+	assert(move_log.is_empty())
+	assert(value in ["none", "white", "black", "both"])
+	ability_state = {} if value == "none" else {"pawn_retreat": value}
+	history = {position_key(): 1}
+	result = ""
+
+func retreat_setting() -> String:
+	return str(ability_state.get("pawn_retreat", "none"))
+
+func retreat_enabled(side: int) -> bool:
+	return retreat_setting() in ["both", "white" if side == 1 else "black"]
+
+func supported_abilities() -> bool:
+	return ability_state.is_empty() or (ability_state.size() == 1 and retreat_setting() in ["white", "black", "both"])
 
 static func square(s: String) -> int:
 	return (8 - int(s[1])) * 8 + "abcdefgh".find(s[0])
@@ -124,6 +141,9 @@ func pseudo_moves() -> Array:
 		var x = a % 8
 		var y = a / 8
 		if p == PAWN:
+			var back = a + 8 * turn
+			if retreat_enabled(turn) and back >= 8 and back < 56 and board[back] == 0:
+				add_move(moves, a, back)
 			var b = a - 8 * turn
 			if b >= 0 and b < 64 and board[b] == 0:
 				add_move(moves, a, b)
@@ -174,7 +194,7 @@ func apply_unchecked(m: Dictionary) -> void:
 	var b: int = m.to
 	var piece: int = board[a]
 	var captured: int = board[b]
-	if abs(piece) == PAWN and b == ep and captured == 0: board[b + 8 * turn] = 0
+	if abs(piece) == PAWN and b == ep and captured == 0 and a % 8 != b % 8: board[b + 8 * turn] = 0
 	board[b] = piece if m.promotion == 0 else turn * int(m.promotion)
 	board[a] = 0
 	if abs(piece) == KING:
@@ -283,6 +303,7 @@ func san(m: Dictionary) -> String:
 				elif not same_rank: text += name_of(m.from)[1]
 				else: text += name_of(m.from)
 		elif capture: text = name_of(m.from)[0]
+		elif (m.to - m.from) * turn == 8: text = name_of(m.from) + "-"
 		if capture: text += "x"
 		text += name_of(m.to)
 		if m.promotion != 0: text += "=" + "  NBRQK"[m.promotion]

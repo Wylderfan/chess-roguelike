@@ -307,3 +307,7 @@ The previous 111 headless checks and four-game comparison baseline source are
 retained/retested as described above. Retrieval of the prior ZIP's exact expanded
 QA prose was unavailable in this executor, so this summary does not invent
 additional graphical scenarios or claim Windows/Mac testing.
+
+## v0.7 Pawn Retreat
+
+See `validation/v0.7/README.md` and retained raw logs. Standard 545-position/17 published perft matrix remains passing for Godot and both native profiles. Variant oracle: 260 positions/840 checks per implementation with 60 depth/divide cases. Actual Linux GUI retreat, engine reply, history and off-toggle behavior passed. Two short seeded engine playtests produced 52 subsequent legal engine plies; no additional retreat chosen. Windows binary cross-built only. Source-only checkout must rebuild native engine; use the separately delivered v0.7 ZIP for ready-to-play binaries.

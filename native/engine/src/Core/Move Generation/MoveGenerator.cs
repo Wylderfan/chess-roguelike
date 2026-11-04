@@ -58,8 +58,9 @@ namespace Chess.Core
 		// Quiet moves (non captures) can optionally be excluded. This is used in quiescence search.
 		public int GenerateMoves(Board board, ref Span<Move> moves, bool capturesOnly = false)
 		{
-            Profile.Validate(board);
-            if (!Profile.FastLegality)
+            var effectiveProfile = board.Abilities.IsEmpty ? Profile : RuleProfile.Conservative;
+            effectiveProfile.Validate(board);
+            if (!effectiveProfile.FastLegality)
             {
                 var rules=OrthodoxContract.Instance;
                 inCheck=SimulatedLegality.InCheck(board,board.MoveColourIndex,rules);

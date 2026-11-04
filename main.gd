@@ -72,6 +72,7 @@ var setup_turn_choice: OptionButton
 var setup_level_choice: OptionButton
 var setup_castling_checks: Dictionary = {}
 var setup_ability_checks: Dictionary = {}
+var setup_retreat_checks: Dictionary = {}
 var setup_mode = 1
 var setup_side = 1
 var setup_level = 1
@@ -132,9 +133,9 @@ func _ready() -> void:
 	level_choice.select(difficulty)
 	level_choice.item_selected.connect(set_difficulty)
 	profile_choice = choice(["Standard engine", "Conservative · experimental"])
-	profile_choice.tooltip_text = "Conservative: simulated legality, no LMR or transposition cache, material-only evaluation. No abilities enabled."
+	profile_choice.tooltip_text = "Conservative: simulated legality, no LMR or transposition cache, material-only evaluation. Pawn Retreat always uses Conservative."
 	profile_choice.item_selected.connect(set_profile)
-	profile_help = label("Standard: full evaluation, LMR and cache.\nConservative: simulated legality, material only,\nno LMR or cache. Neither enables abilities.", 13)
+	profile_help = label("Standard: full evaluation, LMR and cache.\nConservative: simulated legality, material only,\nno LMR or cache. Pawn Retreat forces Conservative.", 13)
 	profile_help.modulate = Color("bdb09a")
 	planned_label = label("", 13)
 	planned_label.modulate = Color("c9ad72")
@@ -375,6 +376,7 @@ func refresh() -> void:
 		agreement_button.disabled = true
 	else: agreement_button.disabled = false
 	planned_label.text = "Planned abilities recorded · no gameplay effect" if not planned_abilities.white.is_empty() or not planned_abilities.black.is_empty() else ""
+	if shown.retreat_setting() != "none": planned_label.text = "Pawn Retreat: " + shown.retreat_setting() + " · Conservative engine" + ("\n" + planned_label.text if planned_label.text != "" else "")
 	planned_label.visible = planned_label.text != ""
 	refresh_chronicle()
 	queue_redraw()
@@ -710,8 +712,16 @@ func build_setup_panel() -> void:
 		castling_grid.add_child(box)
 		setup_castling_checks[pair[0]] = box
 	label("Unrelated edits keep rights. Moving, replacing or removing a home king/rook clears its rights; restoring a piece does not restore rights. Opt in explicitly for a composed start. En passant always starts empty.", 13)
+	label("EXPERIMENTAL · PAWN RETREAT", 13).modulate = Color("c9ad72")
+	label("One empty square straight backward. No backward capture or attack; no entry to ranks 1/8. Uses Conservative engine. Returning to the starting pawn rank permits its normal double push.", 13)
+	for side in ["white", "black"]:
+		var box = CheckBox.new()
+		box.text = side.capitalize() + " · Pawn Retreat"
+		box.toggled.connect(func(enabled): setup.set_retreat(side, enabled); refresh_setup())
+		panel.add_child(box)
+		setup_retreat_checks[side] = box
 	label("PLANNED ABILITIES · NO GAMEPLAY EFFECT", 13).modulate = Color("c9ad72")
-	label("These checkboxes record ideas only. Both armies still use normal chess rules; the engine receives no active abilities.", 13)
+	label("These checkboxes record ideas only. These planned options do not change moves. Pawn Retreat above is the only active ability.", 13)
 	for side in ["white","black"]:
 		label(side.capitalize() + " · planned", 15)
 		for ability in Setup.PLANNED_ABILITIES:
@@ -741,6 +751,9 @@ func open_setup() -> void:
 	legal = []
 	setup = Setup.new()
 	setup.planned = planned_abilities.duplicate(true)
+	for side in ["white", "black"]:
+		setup.set_retreat(side, game.retreat_enabled(1 if side == "white" else -1))
+		setup_retreat_checks[side].set_pressed_no_signal(setup.retreat[side])
 	setup_mode = mode
 	setup_side = human_side
 	setup_level = difficulty
@@ -786,7 +799,7 @@ func apply_setup_odds(piece: int) -> void:
 func refresh_setup() -> void:
 	if not editing: return
 	var error = setup.validation_error()
-	setup_status.text = "Ready · normal chess" if error == "" else error
+	setup_status.text = ("Ready · normal chess" if setup.retreat_value() == "none" else "Ready · Pawn Retreat: " + setup.retreat_value()) if error == "" else error
 	setup_status.modulate = Color("b8d7a8") if error == "" else Color("f2b7a1")
 	var balance = setup.position.material_balance()
 	setup_summary.text = ("Material · Even" if balance == 0 else "Material · %s +%d" % ["White" if balance > 0 else "Black", abs(balance)])

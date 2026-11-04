@@ -55,7 +55,7 @@ is implied: this corpus is finite, seeded, and excludes Chess960 and active powe
 
 Future abilities must keep the default no-op/abilities-off path passing this
 orthodox matrix. Enabled custom movement needs its own expected positions/counts;
-see `native/INTEGRATION.md`. Current checkboxes remain inactive even when selected.
+see `native/INTEGRATION.md`. The three planned checkboxes remain inactive; Pawn Retreat has separate variant fixtures.
 
 The revision adds four valid EP fixtures (both turns, with and without a capturer)
 and eight malformed EP targets independently marked invalid by python-chess.
@@ -63,3 +63,9 @@ Both native profiles must reject those targets without mutating the live board.
 Pinned/discovered-check EP remains in the valid comparison corpus. The first 541
 positions from the initial v0.6 corpus are retained; new fixtures do not replace
 previous random games or extra-army walks.
+
+## Pawn Retreat oracle (v0.7)
+
+`generate_retreat.py` uses test-only python-chess 1.11.2 for ordinary moves, attacks and board transitions. It adds the one-square empty backward candidate independently and checks the moving king against the resulting attack map. Opposite-turn previews exclude king captures and clear en passant. Seed 7042026; 260 fixtures include per-side toggles, blockers, pins, check evasions, promotions and six biased random walks. The five crafted positions × four settings × depths 1–3 produce 60 perft/divide cases. These are variant expectations, not published orthodox perft totals.
+
+Run `godot --headless --path . --script tests/test_retreat_reference.gd` and `python tests/reference/check_retreat_native.py native/bin/linux-x64/KnightEngine`. Both compare full legal sets for both turns, all piece attacks and every saved root divide (840 checks each). The generator is a separate test tool, not shipped as a runtime dependency.

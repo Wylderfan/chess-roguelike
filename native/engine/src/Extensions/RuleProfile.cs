@@ -1,7 +1,7 @@
 using System;
 namespace Chess.Core;
 
-// Only registered orthodox contracts are executable. A future ruleset must
+// Only registered contracts are executable. A future ruleset must
 // supply candidates, threats, reversible execution and complete state identity.
 public sealed record RuleProfile(string Name, bool FastLegality, bool LateMoveReductions,
     bool TranspositionCache, bool PositionalEvaluation)
@@ -11,9 +11,9 @@ public sealed record RuleProfile(string Name, bool FastLegality, bool LateMoveRe
     public static RuleProfile Parse(string name) => name.ToLowerInvariant() switch {
         "standard" => Standard, "conservative" => Conservative,
         _ => throw new ArgumentException("Unknown RulesProfile") };
-    public void Validate(Board board, int schema = AbilityState.SchemaVersion)
+    public void Validate(Board board, int schema = -1)
     {
-        if (schema != 0 || !board.Abilities.IsEmpty || (this != Standard && this != Conservative))
+        if ((schema >= 0 && schema != board.Abilities.Schema) || !board.Abilities.IsSupported || (!board.Abilities.IsEmpty && this != Conservative) || (this != Standard && this != Conservative))
             throw new ArgumentException("Unsupported rule contract or ability state/schema");
     }
 }
@@ -28,7 +28,7 @@ public interface IRuleContract
 }
 
 // Standard candidates from bitboard geometry, without fast pin/check masks.
-// No arbitrary abilities are registered by this implementation.
+// Includes the registered quiet Pawn Retreat candidate; attacks are unchanged.
 public sealed class OrthodoxContract : IRuleContract
 {
     public static readonly OrthodoxContract Instance = new();
@@ -45,6 +45,8 @@ public sealed class OrthodoxContract : IRuleContract
             if(!Piece.IsColour(piece,colour)) continue;
             if(type==Piece.Pawn)
             {
+                ulong extra = AbilityRules.AdditionalDestinations(b,s);
+                for(int back=8;back<56;back++) if(((extra>>back)&1)!=0) output[n++]=new Move(s,back);
                 int t=s+forward;
                 if(t>=0 && t<64 && b.Square[t]==0)
                 {

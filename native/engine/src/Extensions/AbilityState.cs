@@ -1,12 +1,20 @@
 using System;
 namespace Chess.Core;
 
-// Schema foundation only. No abilities are registered/enabled by v0.3.
+// Schema 1 registers the per-side, unlimited Pawn Retreat capability.
 // Value semantics allow cheap snapshots in GameState and exact unmake/copy.
 public readonly record struct AbilityState(ulong WhiteUsed, ulong BlackUsed,
     ulong WhiteMask, ulong BlackMask)
 {
-    public const int SchemaVersion = 0;
+    public const int SchemaVersion = 1;
+    public const ulong PawnRetreat = 1;
+    public int Schema => IsEmpty ? 0 : SchemaVersion;
+    public bool IsSupported => WhiteUsed == 0 && BlackUsed == 0 && ((WhiteMask | BlackMask) & ~PawnRetreat) == 0;
+    public bool CanRetreat(bool white) => ((white ? WhiteMask : BlackMask) & PawnRetreat) != 0;
+    public string RetreatName => (WhiteMask, BlackMask) switch { (1,1) => "both", (1,0) => "white", (0,1) => "black", _ => "none" };
+    public static AbilityState ParseRetreat(string value) => value.ToLowerInvariant() switch {
+        "none" => default, "white" => new(0,0,1,0), "black" => new(0,0,0,1), "both" => new(0,0,1,1),
+        _ => throw new ArgumentException("Unknown PawnRetreat value") };
     public bool IsEmpty => (WhiteUsed | BlackUsed | WhiteMask | BlackMask) == 0;
     public ulong Hash => IsEmpty ? 0 : Mix(WhiteUsed ^ 0x517cc1b727220a95UL)
         ^ Mix(BlackUsed ^ 0x6eed0e9da4d94a4fUL)
@@ -22,9 +30,15 @@ public readonly record struct AbilityState(ulong WhiteUsed, ulong BlackUsed,
 
 public static class AbilityRules
 {
-    // These zero-effect hooks are the documented seam, not activated powers.
+    // Registered candidate extension; threats remain ordinary forward diagonals.
     // Do not OR candidate moves into legal moves without king/pin/check validation.
-    public static ulong AdditionalDestinations(Board board, int square) => 0;
+    public static ulong AdditionalDestinations(Board board, int square)
+    {
+        int piece = board.Square[square];
+        if (Piece.PieceType(piece) != Piece.Pawn || !board.Abilities.CanRetreat(Piece.IsWhite(piece))) return 0;
+        int target = square + (Piece.IsWhite(piece) ? -8 : 8);
+        return target >= 8 && target < 56 && board.Square[target] == 0 ? 1UL << target : 0;
+    }
     public static ulong AdditionalThreats(Board board, int square) => 0;
     public static AbilityState AfterStandardMove(AbilityState state, Move move) => state;
 

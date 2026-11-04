@@ -1,0 +1,73 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Side options are just White and Black
+PASS: Unrelated setup removals preserve all original castling rights
+PASS: Cleared-wing composed position starts
+PASS: Castling generated for e1g1
+PASS: King and rook move; own castling rights consumed
+PASS: Castling SAN and custom-start history preserved
+PASS: Unrelated setup removals preserve all original castling rights
+PASS: Cleared-wing composed position starts
+PASS: Castling generated for e1c1
+PASS: King and rook move; own castling rights consumed
+PASS: Castling SAN and custom-start history preserved
+PASS: Unrelated setup removals preserve all original castling rights
+PASS: Cleared-wing composed position starts
+PASS: Castling generated for e8g8
+PASS: King and rook move; own castling rights consumed
+PASS: Castling SAN and custom-start history preserved
+PASS: Unrelated setup removals preserve all original castling rights
+PASS: Cleared-wing composed position starts
+PASS: Castling generated for e8c8
+PASS: King and rook move; own castling rights consumed
+PASS: Castling SAN and custom-start history preserved
+PASS: Replacing even identical home rook clears its right
+PASS: Explicit composed-start right can be restored for valid pair
+PASS: Returning a moved rook never infers castling history
+PASS: Replacing king clears both own rights only
+PASS: Absent rook cannot gain castling right
+PASS: Castling controls disable only unavailable pairs
+PASS: Palette adds a genuine second queen without removing another piece
+PASS: Extra starting material is not a capture
+PASS: Mouse checked state leaves checkbox text/control geometry fixed
+PASS: Checked and unchecked indicators have identical dimensions
+PASS: Keyboard toggling and focus preserve geometry
+PASS: Stable checkbox padding: normal
+PASS: Stable checkbox padding: hover
+PASS: Stable checkbox padding: pressed
+PASS: Stable checkbox padding: hover_pressed
+PASS: Stable checkbox padding: disabled
+PASS: Stable checkbox padding: focus
+PASS: Narrow checked layout stays aligned and within viewport
+PASS: All planned checkboxes selected still leave orthodox identity and inactive state
+PASS: Planned checkboxes selected still pass initial depth-2 perft
+PASS: Supported boundary setup accepted: nine-isolated-pawns
+PASS: Native search and both-side threat/legal parity: nine-isolated-pawns
+PASS: Supported boundary setup accepted: ten-queens-after-promotion
+PASS: Native search and both-side threat/legal parity: ten-queens-after-promotion
+PASS: Supported boundary setup accepted: 221-legal-moves
+PASS: Native search and both-side threat/legal parity: 221-legal-moves
+PASS: Supported boundary setup accepted: 129-captures
+PASS: Native search and both-side threat/legal parity: 129-captures
+PASS: Supported boundary setup accepted: max-32-pawn
+PASS: Native search and both-side threat/legal parity: max-32-pawn
+PASS: Supported boundary setup accepted: max-32-knight
+PASS: Native search and both-side threat/legal parity: max-32-knight
+PASS: Supported boundary setup accepted: max-32-bishop
+PASS: Native search and both-side threat/legal parity: max-32-bishop
+PASS: Supported boundary setup accepted: max-32-rook
+PASS: Native search and both-side threat/legal parity: max-32-rook
+PASS: Supported boundary setup accepted: max-32-queen
+PASS: Native search and both-side threat/legal parity: max-32-queen
+PASS: Supported boundary setup accepted: max-both-32
+PASS: Native search and both-side threat/legal parity: max-both-32
+PASS: Supported boundary setup accepted: max-31-queens-after-promotion
+PASS: Native search and both-side threat/legal parity: max-31-queens-after-promotion
+PASS: 33-piece side is rejected before native loading
+PASS: Extra-queen game starts for human side 1
+PASS: Engine plays legally against extra queen
+PASS: Second engine reply retains extra-army history and inactive ability state
+PASS: Extra-queen game starts for human side -1
+PASS: Engine plays legally against extra queen
+PASS: Second engine reply retains extra-army history and inactive ability state
+EXTRA ARMIES: 70 checks, 0 failures

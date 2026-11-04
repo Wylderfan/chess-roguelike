@@ -1,5 +1,12 @@
 # Changes
 
+## v0.7 — 2026-11-04
+
+- First active ability: per-side Pawn Retreat, one empty square backward with king safety and unchanged attacks.
+- Automatic conservative engine compatibility, protocol schema gate, replay and repetition-cycle support.
+- Source-explicit retreat notation, live active-rule label, isolated setup/cancel/history handling.
+- Independent test-only variant oracle and standard-chess regressions.
+
 ## v0.6 follow-up — compatibility profiles and EP input correction
 - Standard/conservative engine selector with real LMR/cache/evaluation controls.
 - Conservative standard-rule geometric candidates and simulate/check legality.

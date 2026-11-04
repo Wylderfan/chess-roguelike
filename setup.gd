@@ -5,10 +5,12 @@ const Rules = preload("res://rules.gd")
 const PLANNED_ABILITIES = ["Pawn Dash", "Bishop Sidestep", "Queen Exchange"]
 var position = Rules.new()
 # Configuration intent only: NEVER copied into ChessRules.ability_state or UCI.
+var retreat = {"white": false, "black": false}
 var planned = {"white": [], "black": []}
 
 func reset_standard() -> void:
 	position = Rules.new()
+	sync_retreat()
 
 func edit(square: int, piece: int) -> void:
 	if square < 0 or square >= 64 or abs(piece) > Rules.KING: return
@@ -60,6 +62,19 @@ func odds(piece: int, human_side: int) -> void:
 	if human_side == -1: square = square ^ 56
 	edit(square, 0)
 
+func set_retreat(side: String, enabled: bool) -> void:
+	retreat[side] = enabled
+	sync_retreat()
+
+func sync_retreat() -> void:
+	position.configure_retreat(retreat_value())
+
+func retreat_value() -> String:
+	if retreat.white and retreat.black: return "both"
+	if retreat.white: return "white"
+	if retreat.black: return "black"
+	return "none"
+
 func set_planned(side: String, ability: String, enabled: bool) -> void:
 	if not planned.has(side) or not ability in PLANNED_ABILITIES: return
 	planned[side].erase(ability)
@@ -105,5 +120,6 @@ func validation_error() -> String:
 func create_game() -> ChessRules:
 	var fresh = Rules.new()
 	fresh.load_fen(fen())
+	fresh.configure_retreat(retreat_value())
 	fresh.update_result()
 	return fresh

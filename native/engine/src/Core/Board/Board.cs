@@ -226,7 +226,7 @@ namespace Chess.Core
 			// Pawn moves and captures reset the fifty move counter and clear 3-fold repetition history
 			if (movedPieceType == Piece.Pawn || capturedPieceType != Piece.None)
 			{
-				if (!inSearch)
+				if (!inSearch && (capturedPieceType != Piece.None || !Abilities.CanRetreat(Piece.IsWhite(movedPiece))))
 				{
 					RepetitionPositionHistory.Clear();
 				}
