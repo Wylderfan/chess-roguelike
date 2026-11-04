@@ -1,0 +1,67 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Capture last upgrade: equip e4
+PASS: Capture last upgrade: exact nonempty move history retained
+PASS: Capture last upgrade: immutable original FEN and upgrades retained
+PASS: Capture last upgrade: current effective markers correct
+PASS: Capture last upgrade: original upgrades force Conservative after replay
+PASS: Capture last upgrade: real engine returns legal move;
+PASS: Capture last upgrade: actual native handshake observed
+PASS: Capture last upgrade: actual native profile remains Conservative
+PASS: Capture last upgrade: actual native current schema/empty flag correct
+PASS: Capture last upgrade: actual native current marker squares match
+PASS: Capture last upgrade: exact both-side legality and all threats agree after replay
+PASS: Capture last upgrade: engine search leaves original game untouched
+PASS: Promotion removes last upgrade: equip a7
+PASS: Promotion removes last upgrade: exact nonempty move history retained
+PASS: Promotion removes last upgrade: immutable original FEN and upgrades retained
+PASS: Promotion removes last upgrade: current effective markers correct
+PASS: Promotion removes last upgrade: original upgrades force Conservative after replay
+PASS: Promotion removes last upgrade: real engine returns legal move;
+PASS: Promotion removes last upgrade: actual native handshake observed
+PASS: Promotion removes last upgrade: actual native profile remains Conservative
+PASS: Promotion removes last upgrade: actual native current schema/empty flag correct
+PASS: Promotion removes last upgrade: actual native current marker squares match
+PASS: Promotion removes last upgrade: exact both-side legality and all threats agree after replay
+PASS: Promotion removes last upgrade: engine search leaves original game untouched
+PASS: EP removes last upgrade: equip d6
+PASS: EP removes last upgrade: exact nonempty move history retained
+PASS: EP removes last upgrade: immutable original FEN and upgrades retained
+PASS: EP removes last upgrade: current effective markers correct
+PASS: EP removes last upgrade: original upgrades force Conservative after replay
+PASS: EP removes last upgrade: real engine returns legal move;
+PASS: EP removes last upgrade: actual native handshake observed
+PASS: EP removes last upgrade: actual native profile remains Conservative
+PASS: EP removes last upgrade: actual native current schema/empty flag correct
+PASS: EP removes last upgrade: actual native current marker squares match
+PASS: EP removes last upgrade: exact both-side legality and all threats agree after replay
+PASS: EP removes last upgrade: engine search leaves original game untouched
+PASS: EP preserves capturing upgrade: equip d5
+PASS: EP preserves capturing upgrade: equip e5
+PASS: EP preserves capturing upgrade: exact nonempty move history retained
+PASS: EP preserves capturing upgrade: immutable original FEN and upgrades retained
+PASS: EP preserves capturing upgrade: current effective markers correct
+PASS: EP preserves capturing upgrade: original upgrades force Conservative after replay
+PASS: EP preserves capturing upgrade: real engine returns legal move;
+PASS: EP preserves capturing upgrade: actual native handshake observed
+PASS: EP preserves capturing upgrade: actual native profile remains Conservative
+PASS: EP preserves capturing upgrade: actual native current schema/empty flag correct
+PASS: EP preserves capturing upgrade: actual native current marker squares match
+PASS: EP preserves capturing upgrade: exact both-side legality and all threats agree after replay
+PASS: EP preserves capturing upgrade: engine search leaves original game untouched
+PASS: Mixed pawns on both sides: equip d6
+PASS: Mixed pawns on both sides: equip e4
+PASS: Mixed pawns on both sides: exact nonempty move history retained
+PASS: Mixed pawns on both sides: immutable original FEN and upgrades retained
+PASS: Mixed pawns on both sides: current effective markers correct
+PASS: Mixed pawns on both sides: original upgrades force Conservative after replay
+PASS: Mixed pawns on both sides: real engine returns legal move;
+PASS: Mixed pawns on both sides: actual native handshake observed
+PASS: Mixed pawns on both sides: actual native profile remains Conservative
+PASS: Mixed pawns on both sides: actual native current schema/empty flag correct
+PASS: Mixed pawns on both sides: actual native current marker squares match
+PASS: Mixed pawns on both sides: exact both-side legality and all threats agree after replay
+PASS: Mixed pawns on both sides: engine search leaves original game untouched
+PASS: Ordinary game still searches successfully:
+PASS: Fresh ordinary game does not inherit previous Conservative/upgrade configuration
+PIECE BRIDGE: 64 checks, 0 failures

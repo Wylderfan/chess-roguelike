@@ -311,3 +311,7 @@ additional graphical scenarios or claim Windows/Mac testing.
 ## v0.7 Pawn Retreat
 
 See `validation/v0.7/README.md` and retained raw logs. Standard 545-position/17 published perft matrix remains passing for Godot and both native profiles. Variant oracle: 260 positions/840 checks per implementation with 60 depth/divide cases. Actual Linux GUI retreat, engine reply, history and off-toggle behavior passed. Two short seeded engine playtests produced 52 subsequent legal engine plies; no additional retreat chosen. Windows binary cross-built only. Source-only checkout must rebuild native engine; use the separately delivered v0.7 ZIP for ready-to-play binaries.
+
+## v0.8 Individual upgrades and Piece Workshop
+
+See `validation/v0.8/README.md` and raw logs. The standard 545-position matrix still passes in Godot and both native profiles. New per-piece oracle compares 168 mixed-upgrade positions, legal/threat maps, 24 divides and native marker snapshots. Common/Rare/Legendary capacity is 1/2/2; only Pawn Retreat is implemented. A hollow second socket is reserved capacity, not a working second power. Windows is cross-built, not executed. Use the v0.8 ZIP binaries with v0.8 source.

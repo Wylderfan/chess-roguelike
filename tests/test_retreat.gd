@@ -59,7 +59,7 @@ func run() -> void:
 	var setup = Setup.new(); setup.set_retreat("white",true)
 	check(setup.create_game().retreat_setting() == "white", "Setup transfers active rule")
 	setup.reset_standard()
-	check(setup.position.retreat_setting() == "white", "Board reset retains setup option")
+	check(setup.position.retreat_setting() == "none", "Board reset creates ordinary replacement pieces")
 	var bridge = Bridge.new()
 	check(bridge.effective_profile(g) == "conservative", "Ability forces conservative")
 	check(bridge.effective_profile(standard) == "standard", "Off retains standard")
