@@ -287,7 +287,7 @@ namespace Chess.Core
 			if (plyFromRoot > 0)
 			{
 				bool wasPawnMove = Piece.PieceType(board.Square[prevMove.TargetSquare]) == Piece.Pawn;
-				repetitionTable.Push(board.CurrentGameState.zobristKey, prevWasCapture || (wasPawnMove && !board.Abilities.CanRetreat(Piece.IsWhite(board.Square[prevMove.TargetSquare]))));
+				repetitionTable.Push(board.CurrentGameState.zobristKey, prevWasCapture || (wasPawnMove && !board.Abilities.CanRetreat(prevMove.TargetSquare)));
 			}
 
 			int evaluationBound = TranspositionTable.UpperBound;

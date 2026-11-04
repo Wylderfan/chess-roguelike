@@ -17,7 +17,15 @@ var history: Dictionary = {}
 var result: String = ""
 var initial_fen: String = ""
 var move_log: Array = []
-# Schema 1: immutable per-game Pawn Retreat side configuration.
+# Per-piece editor data. IDs and rarity are visual/progression metadata; only
+# equipped abilities participate in legality, repetition and the native protocol.
+const PAWN_RETREAT = "pawn_retreat"
+const RARITIES = ["common", "rare", "legendary"]
+var piece_data: Dictionary = {}
+var initial_piece_data: Dictionary = {}
+var initial_retreat_squares: Array = []
+var next_piece_id: int = 1
+# Schema 2: canonical CURRENT-square markers, empty for ordinary chess.
 var ability_state: Dictionary = {}
 
 func _init(setup: bool = true) -> void:
@@ -28,6 +36,10 @@ func load_fen(fen: String) -> void:
 	initial_fen = fen
 	move_log = []
 	ability_state = {}
+	piece_data = {}
+	initial_piece_data = {}
+	initial_retreat_squares = []
+	next_piece_id = 1
 	var fields = fen.split(" ")
 	board.clear()
 	for c in fields[0]:
@@ -42,26 +54,162 @@ func load_fen(fen: String) -> void:
 	ep = -1 if fields[3] == "-" else square(fields[3])
 	halfmove = int(fields[4]) if fields.size() > 4 else 0
 	fullmove = int(fields[5]) if fields.size() > 5 else 1
-	result = ""
-	history = {}
-	history[position_key()] = 1
+	for s in board.size():
+		if board[s] != 0: piece_data[s] = new_piece_data()
+	refresh_initial_state()
 
-# Configure only a fresh game. FEN alone does not encode variant rules.
-func configure_retreat(value: String) -> void:
-	assert(move_log.is_empty())
-	assert(value in ["none", "white", "black", "both"])
-	ability_state = {} if value == "none" else {"pawn_retreat": value}
+static func ability_capacity(rarity: String) -> int:
+	return 2 if rarity in ["rare", "legendary"] else (1 if rarity == "common" else 0)
+
+static func ability_eligible(piece: int, ability: String) -> bool:
+	return ability == PAWN_RETREAT and abs(piece) == PAWN
+
+func new_piece_data() -> Dictionary:
+	var used: Array = []
+	for data in piece_data.values(): used.append(data.get("id", ""))
+	while ("piece_%d" % next_piece_id) in used: next_piece_id += 1
+	var data = {"id": "piece_%d" % next_piece_id, "rarity": "common", "abilities": []}
+	next_piece_id += 1
+	return data
+
+func get_piece_data(s: int) -> Dictionary:
+	return piece_data.get(s, {}).duplicate(true)
+
+func piece_data_error() -> String:
+	var ids: Array = []
+	for s in piece_data:
+		if not s is int or s < 0 or s >= 64 or board[s] == 0:
+			return "Piece upgrades must belong to an occupied square."
+		var data = piece_data[s]
+		if not data is Dictionary or not data.get("id") is String or data.id.is_empty() or data.id in ids:
+			return "Every placed piece needs a unique identity."
+		ids.append(data.id)
+		if not data.get("rarity") is String or not data.rarity in RARITIES:
+			return "Piece rarity must be common, rare or legendary."
+		if not data.get("abilities") is Array:
+			return "Piece abilities must be a list."
+		if data.abilities.size() > ability_capacity(data.rarity):
+			return "This piece has more abilities than its rarity allows."
+		var equipped: Array = []
+		for ability in data.abilities:
+			if not ability is String or not ability_eligible(board[s], ability):
+				return "Pawn Retreat can only be assigned to a pawn; other abilities are not available."
+			if ability in equipped: return "A piece cannot equip the same ability twice."
+			equipped.append(ability)
+	for s in board.size():
+		if board[s] != 0 and not piece_data.has(s): return "Every placed piece needs upgrade metadata."
+	return ""
+
+func pawn_can_retreat(s: int) -> bool:
+	if s < 0 or s >= board.size() or abs(board[s]) != PAWN: return false
+	return PAWN_RETREAT in piece_data.get(s, {}).get("abilities", [])
+
+func retreat_squares() -> Array:
+	var squares: Array = []
+	for s in board.size():
+		if pawn_can_retreat(s): squares.append(name_of(s))
+	squares.sort()
+	return squares
+
+func effective_ability_state() -> Dictionary:
+	var squares = retreat_squares()
+	return {} if squares.is_empty() else {PAWN_RETREAT: squares}
+
+func sync_effective_abilities() -> void:
+	ability_state = effective_ability_state()
+
+# Only composition/fresh-game APIs capture the replay origin. Ordinary moves
+# update current markers, leaving this initial snapshot immutable.
+func refresh_initial_state() -> void:
+	sync_effective_abilities()
+	initial_piece_data = piece_data.duplicate(true)
+	initial_retreat_squares = retreat_squares()
 	history = {position_key(): 1}
 	result = ""
 
+func configure_piece_data(data: Dictionary) -> bool:
+	if not move_log.is_empty(): return false
+	var previous = piece_data
+	piece_data = data.duplicate(true)
+	if piece_data_error() != "":
+		piece_data = previous
+		return false
+	for metadata in piece_data.values():
+		var id: String = metadata.id
+		if id.begins_with("piece_") and id.trim_prefix("piece_").is_valid_int():
+			next_piece_id = maxi(next_piece_id, int(id.trim_prefix("piece_")) + 1)
+	refresh_initial_state()
+	return true
+
+func set_piece_ability(s: int, ability: String, enabled: bool) -> bool:
+	if not move_log.is_empty() or not piece_data.has(s) or not ability_eligible(board[s], ability): return false
+	var data: Dictionary = piece_data[s]
+	if enabled and not ability in data.abilities:
+		if data.abilities.size() >= ability_capacity(data.rarity): return false
+		data.abilities.append(ability)
+	elif not enabled: data.abilities.erase(ability)
+	refresh_initial_state()
+	return true
+
+func set_piece_rarity(s: int, rarity: String) -> bool:
+	if not move_log.is_empty() or not piece_data.has(s) or not rarity in RARITIES: return false
+	if piece_data[s].abilities.size() > ability_capacity(rarity): return false
+	piece_data[s].rarity = rarity
+	refresh_initial_state()
+	return true
+
+# Editor replacement is a new piece, even when replacing the same piece type.
+func place_piece(s: int, piece: int) -> void:
+	if not move_log.is_empty() or s < 0 or s >= 64 or abs(piece) > KING: return
+	piece_data.erase(s)
+	board[s] = piece
+	if piece != 0: piece_data[s] = new_piece_data()
+	refresh_initial_state()
+
+func relocate_piece(source: int, target: int) -> void:
+	if not move_log.is_empty() or source == target or source < 0 or target < 0 or source >= 64 or target >= 64 or board[source] == 0: return
+	board[target] = board[source]
+	board[source] = 0
+	piece_data[target] = piece_data[source]
+	piece_data.erase(source)
+	refresh_initial_state()
+
+# Compatibility convenience: equips the current starting pawn instances only.
+# It never grants a side-wide power to pieces placed later.
+func configure_retreat(value: String) -> void:
+	assert(move_log.is_empty())
+	assert(value in ["none", "white", "black", "both"])
+	for s in piece_data:
+		piece_data[s].abilities.erase(PAWN_RETREAT)
+		if abs(board[s]) == PAWN and value in ["both", "white" if board[s] > 0 else "black"]:
+			piece_data[s].abilities.append(PAWN_RETREAT)
+	refresh_initial_state()
+
 func retreat_setting() -> String:
-	return str(ability_state.get("pawn_retreat", "none"))
+	var white = retreat_enabled(1)
+	var black = retreat_enabled(-1)
+	return "both" if white and black else ("white" if white else ("black" if black else "none"))
 
 func retreat_enabled(side: int) -> bool:
-	return retreat_setting() in ["both", "white" if side == 1 else "black"]
+	for s in board.size():
+		if board[s] * side > 0 and pawn_can_retreat(s): return true
+	return false
 
 func supported_abilities() -> bool:
-	return ability_state.is_empty() or (ability_state.size() == 1 and retreat_setting() in ["white", "black", "both"])
+	if piece_data_error() != "" or ability_state != effective_ability_state(): return false
+	# Fail closed if a replay marker list was corrupted independently of its
+	# original piece snapshot. Current markers may legitimately now be empty.
+	var expected_initial: Array = []
+	for s in initial_piece_data:
+		if not s is int or s < 0 or s >= 64: return false
+		var data = initial_piece_data[s]
+		if not data is Dictionary or not data.get("abilities") is Array: return false
+		for ability in data.abilities:
+			if ability != PAWN_RETREAT: return false
+			if name_of(s) in expected_initial: return false
+			expected_initial.append(name_of(s))
+	expected_initial.sort()
+	return initial_retreat_squares == expected_initial
 
 static func square(s: String) -> int:
 	return (8 - int(s[1])) * 8 + "abcdefgh".find(s[0])
@@ -80,6 +228,11 @@ func copy_position(include_history: bool = false) -> ChessRules:
 	c.initial_fen = initial_fen
 	c.move_log = move_log.duplicate()
 	c.ability_state = ability_state.duplicate(true)
+	c.piece_data = piece_data.duplicate(true)
+	c.initial_piece_data = initial_piece_data.duplicate(true)
+	c.initial_retreat_squares = initial_retreat_squares.duplicate()
+	c.next_piece_id = next_piece_id
+	c.result = result
 	if include_history: c.history = history.duplicate()
 	return c
 
@@ -142,7 +295,7 @@ func pseudo_moves() -> Array:
 		var y = a / 8
 		if p == PAWN:
 			var back = a + 8 * turn
-			if retreat_enabled(turn) and back >= 8 and back < 56 and board[back] == 0:
+			if pawn_can_retreat(a) and back >= 8 and back < 56 and board[back] == 0:
 				add_move(moves, a, back)
 			var b = a - 8 * turn
 			if b >= 0 and b < 64 and board[b] == 0:
@@ -194,7 +347,17 @@ func apply_unchecked(m: Dictionary) -> void:
 	var b: int = m.to
 	var piece: int = board[a]
 	var captured: int = board[b]
-	if abs(piece) == PAWN and b == ep and captured == 0 and a % 8 != b % 8: board[b + 8 * turn] = 0
+	if abs(piece) == PAWN and b == ep and captured == 0 and a % 8 != b % 8:
+		board[b + 8 * turn] = 0
+		piece_data.erase(b + 8 * turn)
+	piece_data[b] = piece_data[a]
+	piece_data.erase(a)
+	if m.promotion != 0:
+		# Rarity/identity survive promotion; pawn-only abilities do not.
+		var kept: Array = []
+		for ability in piece_data[b].abilities:
+			if ability_eligible(int(m.promotion), ability): kept.append(ability)
+		piece_data[b].abilities = kept
 	board[b] = piece if m.promotion == 0 else turn * int(m.promotion)
 	board[a] = 0
 	if abs(piece) == KING:
@@ -202,6 +365,8 @@ func apply_unchecked(m: Dictionary) -> void:
 			var rook = a + (3 if b > a else -4)
 			board[a + (1 if b > a else -1)] = board[rook]
 			board[rook] = 0
+			piece_data[a + (1 if b > a else -1)] = piece_data[rook]
+			piece_data.erase(rook)
 		rights = rights.replace("K" if turn == 1 else "k", "").replace("Q" if turn == 1 else "q", "")
 	for pair in [[0,"q"],[7,"k"],[56,"Q"],[63,"K"]]:
 		if a == pair[0] or b == pair[0]: rights = rights.replace(pair[1], "")
@@ -209,6 +374,7 @@ func apply_unchecked(m: Dictionary) -> void:
 	halfmove = 0 if abs(piece) == PAWN or captured != 0 else halfmove + 1
 	if turn == -1: fullmove += 1
 	turn = -turn
+	sync_effective_abilities()
 
 func position_key() -> String:
 	# An en-passant target only distinguishes repetitions if capture is legal.

@@ -226,14 +226,14 @@ namespace Chess.Core
 			// Pawn moves and captures reset the fifty move counter and clear 3-fold repetition history
 			if (movedPieceType == Piece.Pawn || capturedPieceType != Piece.None)
 			{
-				if (!inSearch && (capturedPieceType != Piece.None || !Abilities.CanRetreat(Piece.IsWhite(movedPiece))))
+				if (!inSearch && (capturedPieceType != Piece.None || !Abilities.CanRetreat(startSquare)))
 				{
 					RepetitionPositionHistory.Clear();
 				}
 				newFiftyMoveCounter = 0;
 			}
 
-			AbilityState nextAbilities = AbilityRules.AfterStandardMove(Abilities, move);
+			AbilityState nextAbilities = AbilityRules.AfterStandardMove(Abilities, move, movedPiece);
 			newZobristKey ^= Abilities.Hash ^ nextAbilities.Hash;
 			GameState newState = new(capturedPieceType, newEnPassantFile, newCastlingRights, newFiftyMoveCounter, newZobristKey, nextAbilities);
 			gameStateHistory.Push(newState);
