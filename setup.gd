@@ -4,26 +4,31 @@ const MAX_PIECES_PER_SIDE = 32
 const Rules = preload("res://rules.gd")
 const PLANNED_ABILITIES = ["Pawn Dash", "Bishop Sidestep", "Queen Exchange"]
 var position = Rules.new()
-# Configuration intent only: NEVER copied into ChessRules.ability_state or UCI.
+# Legacy side helpers are conveniences only. Runtime abilities live on pieces.
 var retreat = {"white": false, "black": false}
 var planned = {"white": [], "black": []}
 
 func reset_standard() -> void:
+	var next_id = position.next_piece_id
 	position = Rules.new()
-	sync_retreat()
+	position.next_piece_id = maxi(next_id, position.next_piece_id)
+	position.piece_data.clear()
+	for square in 64:
+		if position.board[square] != 0: position.piece_data[square] = position.new_piece_data()
+	position.refresh_initial_state()
+	retreat = {"white": false, "black": false}
 
 func edit(square: int, piece: int) -> void:
 	if square < 0 or square >= 64 or abs(piece) > Rules.KING: return
 	clear_touched_rights(square)
-	position.board[square] = piece
+	position.place_piece(square, piece)
 	position.ep = -1
 
 func relocate(source: int, target: int) -> void:
-	if source == target or source < 0 or target < 0 or source >= 64 or target >= 64: return
+	if source == target or source < 0 or target < 0 or source >= 64 or target >= 64 or position.board[source] == 0: return
 	clear_touched_rights(source)
 	clear_touched_rights(target)
-	position.board[target] = position.board[source]
-	position.board[source] = 0
+	position.relocate_piece(source, target)
 	position.ep = -1
 
 func clear_rights() -> void:
@@ -62,9 +67,19 @@ func odds(piece: int, human_side: int) -> void:
 	if human_side == -1: square = square ^ 56
 	edit(square, 0)
 
+func set_piece_ability(square: int, ability: String, enabled: bool) -> bool:
+	return position.set_piece_ability(square, ability, enabled)
+
+func set_piece_rarity(square: int, rarity: String) -> bool:
+	return position.set_piece_rarity(square, rarity)
+
 func set_retreat(side: String, enabled: bool) -> void:
+	if not retreat.has(side): return
 	retreat[side] = enabled
-	sync_retreat()
+	var color = 1 if side == "white" else -1
+	for square in 64:
+		if position.board[square] == color * Rules.PAWN:
+			position.set_piece_ability(square, Rules.PAWN_RETREAT, enabled)
 
 func sync_retreat() -> void:
 	position.configure_retreat(retreat_value())
@@ -111,6 +126,9 @@ func validation_error() -> String:
 		for piece in position.board:
 			if piece * side > 0: count += 1
 		if count > MAX_PIECES_PER_SIDE: return ("White" if side == 1 else "Black") + " exceeds the limit of 32 pieces including its king."
+	var upgrade_error = position.piece_data_error()
+	if upgrade_error != "": return upgrade_error
+	if not position.supported_abilities(): return "Piece ability state is inconsistent."
 	if position.in_check(1) and position.in_check(-1): return "Both kings cannot be in check."
 	if position.in_check(-position.turn): return "The side not to move cannot be in check. Change the turn or board."
 	if position.legal_moves().is_empty(): return "No legal moves: " + ("checkmate." if position.in_check(position.turn) else "stalemate.") + " Adjust the setup before starting."
@@ -120,6 +138,6 @@ func validation_error() -> String:
 func create_game() -> ChessRules:
 	var fresh = Rules.new()
 	fresh.load_fen(fen())
-	fresh.configure_retreat(retreat_value())
+	if not fresh.configure_piece_data(position.piece_data): return null
 	fresh.update_result()
 	return fresh

@@ -1,4 +1,4 @@
-# Compiled engine integration — v0.6
+# Compiled engine integration — v0.8
 
 ## Provenance and build
 
@@ -132,35 +132,54 @@ The adapter compares **all** of these move/threat sets with Godot before every
 search. Off-turn preview excludes captures of the opposing king in both systems.
 Any discrepancy stops AI rather than choosing a move from incompatible rules.
 
-## Pawn Retreat: registered schema 1
+## Per-piece Pawn Retreat: registered schema 2
 
-`setoption name PawnRetreat value none|white|black|both` enables an unlimited
-per-side capability. Send it before `position` replay. Changing the capability
-after played moves requires `ucinewgame` first; invalid options fail atomically.
-`ucinewgame` preserves option configuration. Snapshot `schema` remains 0 with all
-abilities off, becomes 1 when enabled, and `pawn_retreat` reports the exact value.
+`setoption name PawnRetreatSquares value e2,e7` configures the individually marked
+pawns in the next starting FEN; use `none` to clear. Syntax is checked immediately
+(lowercase unique square names on ranks 2–7); occupancy is checked against the
+next `position` FEN, not a temporary standard board. Search/snapshot requests
+while awaiting a valid position fail visibly. A marker on an empty square or
+non-pawn is rejected. Options must precede position move replay. Changes after
+played moves require `ucinewgame`; malformed options/positions do not mutate the
+live board. `ucinewgame` retains the configuration and requires a fresh position
+for explicit square options.
 
-An enabled pawn may move one square straight backward onto an empty square on
+The legacy `PawnRetreat none|white|black|both` option remains a convenience for
+marking every initial pawn of the selected colours. It no longer grants a
+side-wide runtime power. Last option type wins. Snapshot `retreat_squares` is a
+sorted array of CURRENT algebraic marker locations. `schema` is 2 with any current
+marker and 0 when empty; `abilities_empty` agrees. `pawn_retreat` is retained only
+as a summary of colours currently possessing markers, not the rule identity.
+
+A marked pawn may move one square straight backward onto an empty square on
 ranks 2–7. It cannot capture, attack, promote or enter ranks 1/8 backward. Forward
 movement, captures and promotions stay unchanged. Returning to the start rank
 allows the existing rank-based two-square advance. Retreat onto an en-passant
 target is quiet, not an en-passant capture. Every candidate must leave its own
 king safe. There are no charges, cooldowns, or new move flags.
 
-The capability mask participates in Zobrist identity and GameState snapshots;
-copy/replay, make/unmake and null moves preserve it. Non-capturing moves by a pawn
-with Retreat do not clear repetition history because forward/backward cycles are
-possible. All pawn moves still reset the halfmove clock. Standard empty-state
-hashes and ordinary perft remain unchanged.
+Per-colour bitboards mark individual pawn locations. A marker follows its pawn
+through quiet moves and captures. Capturing a marked pawn removes its marker,
+including the separate en-passant victim square. Promotion consumes this
+pawn-only power rather than passing it to the promoted piece. Every transition
+participates in Zobrist identity and GameState snapshots; copy/replay, make/unmake
+and null moves preserve exact markers and hashes. Unknown fields, overlapping
+colour masks or markers on mismatched pieces fail closed. Future UI slot metadata
+does not enter this engine: only the actual registered power is serialized.
 
-Active abilities force the conservative profile in the protocol, generator and
-searcher: simulation legality, no TT or late-move reductions, material evaluation.
-Only the registered mask bit is accepted; unknown state fails closed. Geometric
-pawn attacks remain forward diagonals. AdditionalDestinations supplies the quiet
-retreat candidate to the contract; kings, castling and en passant retain their
-normal attack and safety rules. Quiescence excludes retreat unless generating
-all check evasions. Check/pawn extensions remain bounded and may make this
-experimental search slower. No strength or Elo estimate is claimed.
+Non-capturing moves by a marked pawn do not clear repetition history because
+forward/backward cycles are possible. All pawn moves still reset the halfmove
+clock. Standard empty-state hashes and ordinary perft remain unchanged.
+
+A position with initial markers forces the conservative root profile even if
+all markers are subsequently captured or promoted. Search descendants retain
+that profile: simulation legality, no TT/late-move reductions, material evaluation.
+The generator also selects simulation whenever current markers are present.
+Geometric pawn attacks remain forward diagonals. AdditionalDestinations supplies
+the quiet retreat candidate; kings, castling and en passant retain normal attack
+and safety rules. Quiescence excludes retreat unless generating all check
+evasions. Check/pawn extensions remain bounded and may make experimental search
+slower. No strength or Elo estimate is claimed.
 
 The Godot bridge independently checks complete legal sets and threats before
 search, and validates returned moves. Core bit 0 is a1; Godot index 0 is a8;
@@ -196,7 +215,7 @@ made, its mover's king checked against geometric opposing attacks, and unmade in
 `finally`. Castling checks origin and simulated transit separately from the final
 king/rook move; EP removes its victim before checking; promotions include all four
 choices; kings cannot be captured. The same contract is used in conservative
-search, snapshots, replay validation and perft. Custom-state validation accepts empty schema 0 and registered Pawn Retreat schema 1.
+search, snapshots, replay validation and perft. Custom-state validation accepts empty schema 0 and registered per-piece Pawn Retreat schema 2.
 
 Standard retains the existing fast generator and search policy. Conservative
 bypasses all TT probes/stores and cached-move ordering, disables LMR, and evaluates
