@@ -1,4 +1,4 @@
-﻿namespace Chess.Core
+namespace Chess.Core
 {
 	public class Evaluation
 	{
@@ -165,7 +165,7 @@
 				}
 			}
 
-			return bonus + isolatedPawnPenaltyByCount[numIsolatedPawns];
+			return bonus + isolatedPawnPenaltyByCount[System.Math.Min(numIsolatedPawns, isolatedPawnPenaltyByCount.Length - 1)];
 		}
 
 

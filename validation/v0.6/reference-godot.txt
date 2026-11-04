@@ -1,0 +1,25 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PERFT start depth 1 = 20
+PERFT start depth 2 = 400
+PERFT start depth 3 = 8902
+PERFT start depth 4 = 197281
+PERFT kiwipete depth 1 = 48
+PERFT kiwipete depth 2 = 2039
+PERFT kiwipete depth 3 = 97862
+PERFT ep-endgame depth 1 = 14
+PERFT ep-endgame depth 2 = 191
+PERFT ep-endgame depth 3 = 2812
+PERFT ep-endgame depth 4 = 43238
+PERFT promotions depth 1 = 6
+PERFT promotions depth 2 = 264
+PERFT promotions depth 3 = 9467
+PERFT check-evasions depth 1 = 44
+PERFT check-evasions depth 2 = 1486
+PERFT check-evasions depth 3 = 62379
+Reference positions compared: 100
+Reference positions compared: 200
+Reference positions compared: 300
+Reference positions compared: 400
+Reference positions compared: 500
+GODOT REFERENCE: 541 positions, 1640 checks, 0 failures

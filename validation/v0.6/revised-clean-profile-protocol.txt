@@ -1,0 +1,17 @@
+PASS snapshot reflects standard
+PASS standard timed legal search 0.306s
+PASS standard timed search restores full snapshot
+PASS standard stop joins promptly with legal result
+PASS standard interrupted search restores full snapshot
+PASS standard option transition suppresses stale result
+PASS standard terminal position returns safe no-move
+PASS snapshot reflects conservative
+PASS conservative timed legal search 0.339s
+PASS conservative timed search restores full snapshot
+PASS conservative runtime counters honor controls
+PASS conservative stop joins promptly with legal result
+PASS conservative interrupted search restores full snapshot
+PASS conservative option transition suppresses stale result
+PASS conservative terminal position returns safe no-move
+PASS unsupported profile rejected
+PROFILE PROTOCOL: 16 checks, 0 failures
