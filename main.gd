@@ -1,6 +1,7 @@
 extends Control
 const Rules = preload("res://rules.gd")
 const Setup = preload("res://setup.gd")
+const Upgrades = preload("res://upgrade_art.gd")
 const EngineAI = preload("res://engine.gd")
 const PIECE_FONT = preload("res://assets/pieces.ttf")
 const TITLE_FONT = preload("res://assets/title.ttf")
@@ -72,11 +73,16 @@ var setup_turn_choice: OptionButton
 var setup_level_choice: OptionButton
 var setup_castling_checks: Dictionary = {}
 var setup_ability_checks: Dictionary = {}
-var setup_retreat_checks: Dictionary = {}
+var setup_upgrade_square = -1
+var upgrade_title: Label
+var upgrade_help: Label
+var upgrade_slots: Label
+var upgrade_rarity: OptionButton
+var upgrade_retreat: CheckBox
 var setup_mode = 1
 var setup_side = 1
 var setup_level = 1
-var setup_tool = 99 # 99=relocate, 0=erase, signed piece=place
+var setup_tool = 99 # 99=move, 98=upgrade, 0=erase, signed piece=place; ±101=Retreat pawn
 var planned_abilities = {"white": [], "black": []}
 var planned_label: Label
 
@@ -352,6 +358,8 @@ func refresh() -> void:
 		preview = shown.inspect_piece(inspected)
 		var piece_side = "White" if shown.board[inspected] > 0 else "Black"
 		detail.text += "INSPECT · %s %s · %s\n" % [piece_side, PIECE_NAMES[abs(shown.board[inspected])], Rules.name_of(inspected)]
+		var upgrade = shown.get_piece_data(inspected)
+		detail.text += upgrade.get("rarity","common").capitalize() + " · " + ("Pawn Retreat" if shown.pawn_can_retreat(inspected) else "No equipped abilities") + "\n"
 		detail.text += "Blue dots/rings: king-safe destinations " + ("if this side moved now; no en passant.\n" if preview.hypothetical else "this turn.\n")
 		detail.text += "Amber diamonds: attacks/protection, not legal moves. Pins still attack; pawns attack diagonally."
 		if shown.result != "": detail.text += "\nPosition study only; the game has ended."
@@ -376,7 +384,7 @@ func refresh() -> void:
 		agreement_button.disabled = true
 	else: agreement_button.disabled = false
 	planned_label.text = "Planned abilities recorded · no gameplay effect" if not planned_abilities.white.is_empty() or not planned_abilities.black.is_empty() else ""
-	if shown.retreat_setting() != "none": planned_label.text = "Pawn Retreat: " + shown.retreat_setting() + " · Conservative engine" + ("\n" + planned_label.text if planned_label.text != "" else "")
+	if shown.retreat_setting() != "none": planned_label.text = "Retreat pieces: " + ", ".join(shown.retreat_squares()) + " · Conservative engine" + ("\n" + planned_label.text if planned_label.text != "" else "")
 	planned_label.visible = planned_label.text != ""
 	refresh_chronicle()
 	queue_redraw()
@@ -552,6 +560,7 @@ func _draw() -> void:
 			draw_string_outline(PIECE_FONT, pos + Vector2(1,2), symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 3, Color(0.12,0.12,0.09,0.35))
 			draw_string_outline(PIECE_FONT, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 2, edge)
 			draw_string(PIECE_FONT, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+			Upgrades.draw_upgrade(self, rect, shown.get_piece_data(s))
 		for m in legal:
 			if m.from == selected and m.to == s: marker(rect.get_center(), piece != 0, Color("276247"))
 		if inspected != -1 and not preview.is_empty():
@@ -578,6 +587,7 @@ func _draw() -> void:
 		var pos = drag_position + Vector2(-width / 2, CELL * 0.28)
 		draw_string_outline(font, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 3, Color("59432d") if piece > 0 else Color("d9c59b"))
 		draw_string(font, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("fff1d3") if piece > 0 else Color("25332d"))
+		Upgrades.draw_upgrade(self,Rect2(drag_position-Vector2.ONE*CELL*.5,Vector2.ONE*CELL),shown.get_piece_data(drag_from))
 
 func snapshot(source: ChessRules) -> ChessRules:
 	var copy = source.copy_position(true)
@@ -652,11 +662,27 @@ func build_setup_panel() -> void:
 	var live_panel = panel
 	panel = setup_panel
 	label("PREPARE THE ARMIES", 23).add_theme_font_override("font", TITLE_FONT)
-	label("New game draft · current game paused.\nStart replaces it; Cancel returns unchanged.\nUp to 32 pieces per side, including one king.", 14)
+	label("Starting-army draft · current game paused.\nStart replaces it; Cancel returns unchanged.\nUp to 32 pieces per side, including one king.", 14)
 	make_button("Start this position", start_setup)
 	make_button("Cancel · return to game", cancel_setup)
 	setup_status = label("", 15)
 	setup_summary = label("", 14)
+	label("PIECE WORKSHOP", 17).modulate = Color("83cbb7")
+	make_button("Upgrade a piece · select on board", func(): choose_setup_tool(98))
+	upgrade_title = label("Choose a piece with the Upgrade tool.", 15)
+	upgrade_rarity = choice(["Common · 1 ability slot", "Rare · 2 ability slots", "Legendary · 2 ability slots"])
+	upgrade_rarity.item_selected.connect(func(index):
+		if setup_upgrade_square >= 0: setup.set_piece_rarity(setup_upgrade_square, ["common","rare","legendary"][index])
+		refresh_setup())
+	upgrade_retreat = CheckBox.new()
+	upgrade_retreat.text = "Pawn Retreat · returning-arrow sigil"
+	upgrade_retreat.toggled.connect(func(enabled):
+		if setup_upgrade_square >= 0: setup.set_piece_ability(setup_upgrade_square,"pawn_retreat",enabled)
+		refresh_setup())
+	panel.add_child(upgrade_retreat)
+	upgrade_slots = label("", 13)
+	upgrade_help = label("One empty square backward; no backward attack or capture. Only pawns can equip it. Rare and Legendary reserve a second slot; no second ability exists yet.", 13)
+
 	setup_mode_choice = choice(["Challenge the engine", "Local · two players"])
 	setup_mode_choice.item_selected.connect(func(index): setup_mode = 1 if index == 0 else 0; cancel_drag(); selected = -1; refresh_setup())
 	setup_side_label = label("Your side", 13)
@@ -666,18 +692,18 @@ func build_setup_panel() -> void:
 	setup_level_choice.item_selected.connect(func(index): setup_level = index)
 	setup_turn_choice = choice(["White to move", "Black to move"])
 	setup_turn_choice.item_selected.connect(func(index): setup.position.turn = 1 if index == 0 else -1; refresh_setup())
-	label("REMOVE MATERIAL · resets the board", 13).modulate = Color("c9ad72")
+	label("REMOVE MATERIAL · resets board and upgrades", 13).modulate = Color("c9ad72")
 	var presets = choice(["Choose a preset…", "Remove opponent pawn · f-file", "Remove opponent knight · b-file", "Remove opponent rook · a-file", "Remove opponent queen"])
 	presets.item_selected.connect(func(index):
 		if index > 0: apply_setup_odds([0,Rules.PAWN,Rules.KNIGHT,Rules.ROOK,Rules.QUEEN][index])
 		presets.select(0))
-	make_button("Reset standard board", func(): apply_setup_odds(0))
+	make_button("Reset standard army · clears upgrades", func(): apply_setup_odds(0))
 	label("ADD MATERIAL · choose a piece below, then click an empty square. Move and Erase also remain available.", 13)
 	setup_tool_label = label("", 14)
 	var group = ButtonGroup.new()
 	var tools_row = HBoxContainer.new()
 	panel.add_child(tools_row)
-	for pair in [[99,"Move pieces"],[0,"Erase"]]:
+	for pair in [[99,"Move"],[98,"Upgrade"],[0,"Erase"]]:
 		var button = Button.new()
 		button.text = pair[1]
 		button.toggle_mode = true
@@ -700,6 +726,16 @@ func build_setup_panel() -> void:
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.pressed.connect(choose_setup_tool.bind(side * piece))
 			row.add_child(button)
+	var upgraded_row = HBoxContainer.new()
+	panel.add_child(upgraded_row)
+	for pair in [[101,"White Retreat pawn"],[-101,"Black Retreat pawn"]]:
+		var button = Button.new()
+		button.text = pair[1]
+		button.toggle_mode = true
+		button.button_group = group
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.pressed.connect(choose_setup_tool.bind(pair[0]))
+		upgraded_row.add_child(button)
 	label("CASTLING RIGHTS · composed starting position", 13)
 	var castling_grid = GridContainer.new()
 	castling_grid.columns = 2
@@ -712,14 +748,6 @@ func build_setup_panel() -> void:
 		castling_grid.add_child(box)
 		setup_castling_checks[pair[0]] = box
 	label("Unrelated edits keep rights. Moving, replacing or removing a home king/rook clears its rights; restoring a piece does not restore rights. Opt in explicitly for a composed start. En passant always starts empty.", 13)
-	label("EXPERIMENTAL · PAWN RETREAT", 13).modulate = Color("c9ad72")
-	label("One empty square straight backward. No backward capture or attack; no entry to ranks 1/8. Uses Conservative engine. Returning to the starting pawn rank permits its normal double push.", 13)
-	for side in ["white", "black"]:
-		var box = CheckBox.new()
-		box.text = side.capitalize() + " · Pawn Retreat"
-		box.toggled.connect(func(enabled): setup.set_retreat(side, enabled); refresh_setup())
-		panel.add_child(box)
-		setup_retreat_checks[side] = box
 	label("PLANNED ABILITIES · NO GAMEPLAY EFFECT", 13).modulate = Color("c9ad72")
 	label("These checkboxes record ideas only. These planned options do not change moves. Pawn Retreat above is the only active ability.", 13)
 	for side in ["white","black"]:
@@ -751,9 +779,9 @@ func open_setup() -> void:
 	legal = []
 	setup = Setup.new()
 	setup.planned = planned_abilities.duplicate(true)
-	for side in ["white", "black"]:
-		setup.set_retreat(side, game.retreat_enabled(1 if side == "white" else -1))
-		setup_retreat_checks[side].set_pressed_no_signal(setup.retreat[side])
+	setup.position.load_fen(game.initial_fen)
+	setup.position.configure_piece_data(game.initial_piece_data)
+	setup_upgrade_square = -1
 	setup_mode = mode
 	setup_side = human_side
 	setup_level = difficulty
@@ -776,17 +804,26 @@ func choose_setup_tool(piece: int) -> void:
 	cancel_drag()
 	selected = -1
 	setup_tool = piece
+	if piece == 98: sidebar.scroll_vertical = 0
 	refresh_setup()
 
 func setup_square(square: int) -> void:
 	if not editing: return
-	if setup_tool == 99:
+	if setup_tool == 98:
+		setup_upgrade_square = square if setup.position.board[square] != 0 else -1
+		selected = setup_upgrade_square
+	elif setup_tool == 99:
 		if selected != -1 and selected != square:
 			setup.relocate(selected, square)
+			setup_upgrade_square = square
 			selected = -1
 		else: selected = square if setup.position.board[square] != 0 and selected != square else -1
 	else:
-		setup.edit(square, setup_tool)
+		if abs(setup_tool) == 101:
+			setup.edit(square, int(sign(setup_tool)) * Rules.PAWN)
+			setup.set_piece_ability(square,"pawn_retreat",true)
+		else: setup.edit(square, setup_tool)
+		setup_upgrade_square = square if setup.position.board[square] != 0 else -1
 		selected = -1
 	refresh_setup()
 
@@ -794,18 +831,24 @@ func apply_setup_odds(piece: int) -> void:
 	cancel_drag()
 	selected = -1
 	setup.odds(piece, setup_side)
+	setup_upgrade_square = -1
 	refresh_setup()
 
 func refresh_setup() -> void:
 	if not editing: return
 	var error = setup.validation_error()
-	setup_status.text = ("Ready · normal chess" if setup.retreat_value() == "none" else "Ready · Pawn Retreat: " + setup.retreat_value()) if error == "" else error
+	setup_status.text = ("Ready · normal chess" if setup.position.retreat_squares().is_empty() else "Ready · %d upgraded pawn(s)" % setup.position.retreat_squares().size()) if error == "" else error
 	setup_status.modulate = Color("b8d7a8") if error == "" else Color("f2b7a1")
 	var balance = setup.position.material_balance()
 	setup_summary.text = ("Material · Even" if balance == 0 else "Material · %s +%d" % ["White" if balance > 0 else "Black", abs(balance)])
 	setup_summary.text += "\nOpponent for presets: " + ("Black" if setup_side == 1 else "White")
 	setup_summary.text += " · castling: " + (setup.position.rights if setup.position.rights != "" else "off")
-	setup_tool_label.text = "Tool: " + ("Move · drag, or click source then destination" if setup_tool == 99 else ("Erase" if setup_tool == 0 else "Place " + ("White " if setup_tool > 0 else "Black ") + PIECE_NAMES[abs(setup_tool)]))
+	var tool_name = "Move · drag, or click source then destination"
+	if setup_tool == 98: tool_name = "Upgrade · click one piece, then use Piece Workshop"
+	elif setup_tool == 0: tool_name = "Erase"
+	elif setup_tool != 99: tool_name = "Place " + ("White " if setup_tool > 0 else "Black ") + ("Retreat pawn" if abs(setup_tool) == 101 else PIECE_NAMES[abs(setup_tool)])
+	setup_tool_label.text = "Tool: " + tool_name
+	refresh_upgrade_inspector()
 	setup_turn_choice.select(0 if setup.position.turn == 1 else 1)
 	for right in setup_castling_checks:
 		setup_castling_checks[right].disabled = not setup.eligible_castling(right)
@@ -813,6 +856,27 @@ func refresh_setup() -> void:
 	setup_side_label.text = "Your side" if setup_mode == 1 else "Preset beneficiary"
 	setup_level_choice.visible = setup_mode == 1
 	queue_redraw()
+
+func refresh_upgrade_inspector() -> void:
+	var square = setup_upgrade_square
+	if square < 0 or square >= 64 or setup.position.board[square] == 0:
+		upgrade_title.text = "Choose a piece with the Upgrade tool."
+		upgrade_rarity.disabled = true
+		upgrade_retreat.disabled = true
+		upgrade_retreat.set_pressed_no_signal(false)
+		upgrade_slots.text = "Teal sigil: Retreat · Violet frame: Rare · Gold frame: Legendary"
+		return
+	var data = setup.position.get_piece_data(square)
+	var piece = setup.position.board[square]
+	upgrade_title.text = ("White " if piece > 0 else "Black ") + PIECE_NAMES[abs(piece)] + " · " + Rules.name_of(square)
+	upgrade_rarity.disabled = false
+	upgrade_rarity.select(["common","rare","legendary"].find(data.get("rarity","common")))
+	upgrade_retreat.disabled = abs(piece) != Rules.PAWN
+	upgrade_retreat.set_pressed_no_signal("pawn_retreat" in data.get("abilities",[]))
+	var capacity = Rules.ability_capacity(data.get("rarity","common"))
+	upgrade_slots.text = "%d / %d abilities equipped" % [data.get("abilities",[]).size(),capacity]
+	if capacity == 2: upgrade_slots.text += " · second socket reserved; another ability is not available yet."
+	if abs(piece) != Rules.PAWN: upgrade_slots.text += " · Pawn Retreat requires a pawn."
 
 func start_setup() -> bool:
 	if not editing: return false

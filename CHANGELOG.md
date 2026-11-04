@@ -1,5 +1,13 @@
 # Changes
 
+## v0.8 — 2026-11-04
+
+- Piece Workshop equips individual pawns, preserves identity when relocating, and validates starting armies.
+- Common one-slot and Rare/Legendary two-slot metadata; only Pawn Retreat exists, so no duplicate or invented second ability.
+- Original returning-arrow sigil, rarity frames, empty second socket and extensible linked-sigil renderer.
+- Per-piece native replay, move/capture/EP/promotion, undo and repetition semantics; initial marker transport and fail-closed protocol.
+- Independent mixed-piece oracle, lifecycle regressions and Linux graphical playtesting.
+
 ## v0.7 — 2026-11-04
 
 - First active ability: per-side Pawn Retreat, one empty square backward with king safety and unchanged attacks.

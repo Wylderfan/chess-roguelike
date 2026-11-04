@@ -1,0 +1,28 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PERFT mixed_white depth 1 = 6
+PERFT mixed_white depth 2 = 18
+PERFT mixed_white depth 3 = 135
+PERFT mixed_black depth 1 = 6
+PERFT mixed_black depth 2 = 18
+PERFT mixed_black depth 3 = 135
+PERFT both depth 1 = 6
+PERFT both depth 2 = 36
+PERFT both depth 3 = 270
+PERFT capture depth 1 = 6
+PERFT capture depth 2 = 31
+PERFT capture depth 3 = 214
+PERFT ep depth 1 = 6
+PERFT ep depth 2 = 29
+PERFT ep depth 3 = 193
+PERFT promotion depth 1 = 8
+PERFT promotion depth 2 = 52
+PERFT promotion depth 3 = 452
+PERFT pin depth 1 = 5
+PERFT pin depth 2 = 70
+PERFT pin depth 3 = 547
+PERFT evasion depth 1 = 5
+PERFT evasion depth 2 = 82
+PERFT evasion depth 3 = 518
+Reference positions compared: 100
+GODOT PIECE REFERENCE: 168 positions, 528 checks, 0 failures

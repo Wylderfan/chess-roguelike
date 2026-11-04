@@ -1,0 +1,46 @@
+
+Welcome to .NET 10.0!
+---------------------
+SDK Version: 10.0.403
+
+Telemetry
+---------
+The .NET tools collect usage data in order to help us improve your experience. It is collected by Microsoft and shared with the community. You can opt-out of telemetry by setting the DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+
+Read more about .NET CLI Tools telemetry: https://aka.ms/dotnet-cli-telemetry
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate, run 'dotnet dev-certs https --trust'
+Learn about HTTPS: https://aka.ms/dotnet-https
+
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+  Determining projects to restore...
+  Restored /workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj (in 18.27 sec).
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'KingSquare' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'PieceBitboards' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'ColourBitboards' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Rooks' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Bishops' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Queens' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Knights' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Pawns' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'RepetitionPositionHistory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'AllGameMoves' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'allPieceLists' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'gameStateHistory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Evaluation/Evaluation.cs(17,9): warning CS8618: Non-nullable field 'board' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Search/Searcher.cs(83,10): warning CS8618: Non-nullable field 'searchIterationTimer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Search/Searcher.cs(83,10): warning CS8618: Non-nullable field 'searchTotalTimer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Search/Searcher.cs(83,10): warning CS8618: Non-nullable field 'debugInfo' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Helpers/PGNCreator.cs(40,47): warning CS9336: The pattern is redundant. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Opening Book/OpeningBook.cs(46,80): warning CS8600: Converting null literal or possible null value to non-nullable type. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/src/Core/Move Generation/MoveGenerator.cs(38,9): warning CS8618: Non-nullable field 'board' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/Chess-Coding-Adventure.csproj]
+  Chess-Coding-Adventure -> /workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/engine/bin/Release/net10.0/linux-x64/KnightEngine.dll
+  Chess-Coding-Adventure -> /workspace/scratch/c8a1aa3aaf8c/chess-ability-work/native/bin/linux-x64/

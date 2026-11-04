@@ -93,6 +93,8 @@ func run()->void:
 	bounds=box.get_global_rect();click(bounds.get_center());await process_frame
 	check(box.button_pressed and box.get_global_rect()==bounds and bounds.end.x<=600,"Narrow checked layout stays aligned and within viewport")
 	await capture("checkbox-narrow")
+	# Reopening now preserves the starting army; explicitly choose standard for this orthodox fixture.
+	ui.apply_setup_odds(0)
 	for side in ["white","black"]:
 		for ability in Setup.PLANNED_ABILITIES:ui.setup.set_planned(side,ability,true)
 	var inactive=ui.setup.create_game()
