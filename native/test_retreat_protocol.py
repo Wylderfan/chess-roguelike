@@ -23,7 +23,7 @@ try:
         send('setoption name RulesProfile value standard')
         turn='b' if side=='black' else 'w'
         send('position fen 7k/8/4p3/8/8/4P3/8/K7 '+turn+' - - 0 1')
-        s=snap();check(s['schema']==1 and not s['abilities_empty'] and s['pawn_retreat']==side and s['profile']=='conservative','registered contract '+side)
+        s=snap();check(s['schema']==2 and not s['abilities_empty'] and s['pawn_retreat']==side and s['profile']=='conservative','registered contract '+side)
         check(('e6e7' if turn=='b' else 'e3e2') in s['legal'],'retreat legal '+side)
         check(('e3e2' if turn=='b' else 'e6e7') in s['other_legal'] if side=='both' else ('e3e2' if turn=='b' else 'e6e7') not in s['other_legal'],'off-turn per-side contract '+side)
         check(s['threats']['e3']==['d4','f4'] and s['threats']['e6']==['d5','f5'],'unchanged pawn attacks '+side)

@@ -16,9 +16,13 @@ public sealed class EngineUCI : IDisposable
 {
     Board board = Board.CreateBoard();
     RuleProfile requestedProfile = RuleProfile.Standard;
-    AbilityState abilities;
-    RuleProfile profile => abilities.IsEmpty ? requestedProfile : RuleProfile.Conservative;
-    MoveGenerator Generator() => new MoveGenerator { Profile=profile };
+    string legacyRetreat = "none";
+    ulong? configuredSquares;
+    bool awaitingPosition;
+    RuleProfile profile => board.StartAbilities.IsEmpty ? requestedProfile : RuleProfile.Conservative;
+    MoveGenerator Generator(Board? target = null) => new MoveGenerator { Profile=(target ?? board).StartAbilities.IsEmpty ? requestedProfile : RuleProfile.Conservative };
+    AbilityState InitialAbilities(Board target) => configuredSquares.HasValue ? AbilityState.FromSquares(configuredSquares.Value,target) : AbilityState.ParseRetreat(legacyRetreat,target);
+    void RequirePosition() { if(awaitingPosition)throw new ArgumentException("PawnRetreatSquares requires a valid position command first"); }
     Task? work;
     CancellationTokenSource? cancellation;
     readonly object outputGate = new();
@@ -45,29 +49,44 @@ public sealed class EngineUCI : IDisposable
             switch (words[0])
             {
                 case "uci":
-                    Respond("id name Knight Chess v0.7 / SebLague V2 f346d2d");
+                    Respond("id name Knight Chess v0.8 / SebLague V2 f346d2d");
                     Respond("id author Sebastian Lague; Knight Chess integration");
                     Respond("option name RulesProfile type combo default standard var standard var conservative");
                     Respond("option name PawnRetreat type combo default none var none var white var black var both");
+                    Respond("option name PawnRetreatSquares type string default none");
                     Respond("uciok"); break;
                 case "setoption":
                     StopJoin(true);
                     if(words.Length==5 && words[1]=="name" && words[2]=="RulesProfile" && words[3]=="value") requestedProfile=RuleProfile.Parse(words[4]);
                     else if(words.Length==5 && words[1]=="name" && words[2]=="PawnRetreat" && words[3]=="value") {
-                        var nextAbility=AbilityState.ParseRetreat(words[4]);
-                        if(nextAbility != abilities && board.AllGameMoves.Count != 0) throw new ArgumentException("PawnRetreat changes require ucinewgame before position replay");
-                        if(nextAbility != abilities) { board.SetAbilityStateForSetup(nextAbility); abilities=nextAbility; }
+                        string value=AbilityState.ValidateLegacy(words[4]);
+                        if((configuredSquares.HasValue || value!=legacyRetreat) && board.AllGameMoves.Count != 0) throw new ArgumentException("Ability changes require ucinewgame before position replay");
+                        if(configuredSquares.HasValue || value!=legacyRetreat) {
+                            var nextAbility=AbilityState.ParseRetreat(value,board);
+                            board.SetAbilityStateForSetup(nextAbility); legacyRetreat=value; configuredSquares=null; awaitingPosition=false;
+                        }
+                    }
+                    else if(words.Length==5 && words[1]=="name" && words[2]=="PawnRetreatSquares" && words[3]=="value") {
+                        ulong value=AbilityState.ParseSquares(words[4]);
+                        if((!configuredSquares.HasValue || value!=configuredSquares.Value) && board.AllGameMoves.Count != 0) throw new ArgumentException("Ability changes require ucinewgame before position replay");
+                        if(!configuredSquares.HasValue || value!=configuredSquares.Value) {
+                            configuredSquares=value; awaitingPosition=true;
+                        }
                     }
                     else throw new ArgumentException("Unsupported option");
                     break;
                 case "isready": Respond("readyok"); break;
                 case "stop": StopJoin(false); break;
                 case "quit": StopJoin(true); QuitRequested = true; break;
-                case "ucinewgame": StopJoin(true); board = Board.CreateBoard(); board.SetAbilityStateForSetup(abilities); break;
+                case "ucinewgame":
+                    StopJoin(true); board = Board.CreateBoard();
+                    awaitingPosition=configuredSquares.HasValue;
+                    if(!awaitingPosition) board.SetAbilityStateForSetup(InitialAbilities(board));
+                    break;
                 case "position": SetPosition(words); break;
-                case "go": Start(words); break;
+                case "go": RequirePosition(); Start(words); break;
                 case "knight":
-                    StopJoin(true);
+                    StopJoin(true); RequirePosition();
                     if (words.Length > 1 && words[1] == "profile") Respond("profile " + JsonSerializer.Serialize(profile));
                     else if (words.Length > 1 && words[1] == "snapshot") Snapshot();
                     else if (words.Length > 2 && words[1] == "divide") Divide(Math.Clamp(int.Parse(words[2]),1,4));
@@ -84,17 +103,17 @@ public sealed class EngineUCI : IDisposable
         Board next = words.Length > 1 && words[1] == "startpos" ? Board.CreateBoard()
             : words.Length >= 8 && words[1] == "fen" ? Board.CreateBoard(string.Join(" ", words.Skip(2).Take(end - 2)))
             : throw new ArgumentException("position requires startpos or six-field fen");
-        next.SetAbilityStateForSetup(abilities);
+        next.SetAbilityStateForSetup(InitialAbilities(next));
         PositionLimits.ValidatePlayableTurn(next);
         if (split >= 0)
             foreach (string text in words.Skip(split + 1))
             {
-                var candidates = Generator().GenerateMoves(next).ToArray();
+                var candidates = Generator(next).GenerateMoves(next).ToArray();
                 Move m = candidates.FirstOrDefault(m => Name(m) == text);
                 if (m.IsNull) throw new ArgumentException("Illegal position move " + text);
                 next.MakeMove(m);
             }
-        board = next; // Commit only after entire command validated.
+        board = next; awaitingPosition=false; // Commit only after entire command validated.
     }
     static int Number(string[] words, string key, int fallback)
     {
@@ -151,14 +170,14 @@ public sealed class EngineUCI : IDisposable
         });
     }
     public static string Name(Move m) => MoveUtility.GetMoveNameUCI(m).Replace("=", "").ToLowerInvariant();
-    string[] Legal(Board b) => Generator().GenerateMoves(b).ToArray().Where(m => Piece.PieceType(b.Square[m.TargetSquare]) != Piece.King).Select(Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+    string[] Legal(Board b) => Generator(b).GenerateMoves(b).ToArray().Where(m => Piece.PieceType(b.Square[m.TargetSquare]) != Piece.King).Select(Name).OrderBy(x => x, StringComparer.Ordinal).ToArray();
     void Snapshot()
     {
         var fen = FenUtility.CurrentFen(board).Split(' ');
         fen[1] = board.IsWhiteToMove ? "b" : "w";
         fen[3] = "-"; // Off-turn preview cannot inherit an en-passant opportunity.
         var other = Board.CreateBoard(string.Join(" ", fen));
-        other.SetAbilityStateForSetup(abilities);
+        other.SetAbilityStateForSetup(board.Abilities);
         var threats = new Dictionary<string, string[]>();
         for (int s = 0; s < 64; s++) if (board.Square[s] != 0)
         {
@@ -168,7 +187,7 @@ public sealed class EngineUCI : IDisposable
             threats[BoardHelper.SquareNameFromIndex(s)] = squares.OrderBy(x => x, StringComparer.Ordinal).ToArray();
         }
         Respond("knight " + JsonSerializer.Serialize(new {
-            profile = profile.Name, schema = abilities.Schema, pawn_retreat = abilities.RetreatName, legal = Legal(board), other_legal = Legal(other), threats,
+            profile = profile.Name, schema = board.Abilities.Schema, pawn_retreat = board.Abilities.RetreatName, retreat_squares = board.Abilities.RetreatSquares, legal = Legal(board), other_legal = Legal(other), threats,
             hash = board.ZobristKey.ToString("x16"), history_count = board.RepetitionPositionHistory.Count,
             repetition_count = board.RepetitionPositionHistory.Count(k => k == board.ZobristKey),
             fen = FenUtility.CurrentFen(board), abilities_empty = board.Abilities.IsEmpty
@@ -178,7 +197,7 @@ public sealed class EngineUCI : IDisposable
     {
         if(depth==0) return 1;
         long nodes=0;
-        foreach(var m in Generator().GenerateMoves(b).ToArray())
+        foreach(var m in Generator(b).GenerateMoves(b).ToArray())
         {
             b.MakeMove(m,true);
             try { nodes += Perft(b,depth-1); }

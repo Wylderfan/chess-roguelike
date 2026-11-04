@@ -1,11 +1,11 @@
-# Knight Chess v0.7 — Godot 4.6.3
+# Knight Chess v0.8 — Godot 4.6.3
 
-**v0.7 playtest package:** supplied separately with this change as `Knight-Chess-v0.7-Godot-4.6.3.zip`, containing the rebuilt self-contained Windows/Linux engines. A source checkout must build the engine with `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the v0.7 package. The older v0.6 ZIP in `dist/` does **not** contain Pawn Retreat and must not be used with v0.7 source. Native build outputs are intentionally not committed separately.
+**v0.8 playtest package:** supplied separately with this change as `Knight-Chess-v0.8-Godot-4.6.3.zip`, containing the rebuilt self-contained Windows/Linux engines. A source checkout must build the engine with `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the v0.8 package. The older v0.6 ZIP in `dist/` does **not** contain Pawn Retreat and must not be used with v0.8 source. Native build outputs are intentionally not committed separately.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
-This release supports extra pieces in the pre-game editor, fixes castling setup
-rights and stabilizes the inactive ability checkboxes. A selectable conservative
+This release adds a Piece Workshop: equip individual pawns, relocate upgraded
+pieces, and see their ability and rarity on the board. A selectable conservative
 engine profile provides a working standard-rule compatibility fallback. Dragging, the move chronicle and material tracking
 remain available. Pawn Retreat is the first experimental ability; progression remains unimplemented.
 
@@ -17,11 +17,11 @@ positional evaluation, late-move reductions (LMR) and transposition cache.
 and move ordering, but uses geometric candidate moves followed by simulated king
 safety, material-only evaluation (P100/N300/B320/R500/Q900), no LMR and no cache
 probes/stores. It will usually search less deeply and may play more weakly.
-The option is in **Your game**, independent of the setup ability checkboxes.
+The option is in **Your game**; active Pawn Retreat automatically selects Conservative.
 Changing profiles cancels the current search and rejects its stale result.
 
-Both currently play exactly the same standard rules. This is a tested fallback
-for developing future rules, **not support for arbitrary abilities**. Nonempty
+With no abilities, both profiles play exactly the same standard rules. This is a tested fallback
+for developing future rules, **not support for arbitrary abilities**. Unsupported
 runtime ability state, unknown schemas and unknown profiles fail closed. Planned
 checkboxes still do nothing. Each future contract needs candidates, geometric
 threats, reversible execution and complete state/hash/repetition semantics before
@@ -56,8 +56,8 @@ Mac binaries are not included; build the matching osx-arm64/osx-x64 target using
 Choose **New game / Setup** to edit a separate draft. Your current game pauses
 and remains untouched until **Start this position** replaces it. **Cancel**
 returns to the exact live game or historical view; pending AI work resumes only
-when appropriate. Opening Setup starts from the standard board, not the current
-midgame position. Reset standard board affects the draft only.
+when appropriate. Opening Setup starts from your original starting army, including its upgrades, not
+the current midgame position. Reset standard army affects the draft only and clears upgrades.
 
 1. Choose engine/local mode, **White** or **Black**, search budget and side to move.
    The selector is labelled Your side in engine mode or Preset beneficiary locally.
@@ -109,13 +109,15 @@ regression tests also reset to standard; history browsing is never a takeback.
 
 ## Experimental Pawn Retreat
 
-Enable **White · Pawn Retreat** and/or **Black · Pawn Retreat** in Prepare the Armies, then Start. Default is off. For an enabled side, a pawn may move **one empty square straight backward**, provided its king remains safe. It cannot capture backward, attack backward, enter rank 1/8, promote backward, or retreat two squares. Forward captures, promotions and en passant are unchanged. A pawn that retreats to its normal starting rank can use its usual forward two-square push again; this rank-based rule is intentional. Retreat resets the halfmove clock like any pawn move. Reversible pawn cycles still count toward repetition draws. Chronicle notation uses `e4-e3` for a retreat to distinguish it from a forward pawn move to e3.
+In Prepare the Armies, choose **Upgrade a piece**, click a pawn, and equip **Pawn Retreat**. Or use a White/Black Retreat pawn placement button. Only that individual pawn gains the ability; other pawns stay ordinary. Default is off. An equipped pawn may move **one empty square straight backward**, provided its king remains safe. It cannot capture backward, attack backward, enter rank 1/8, promote backward, or retreat two squares. Forward captures, promotions and en passant are unchanged. A pawn that retreats to its normal starting rank can use its usual forward two-square push again; this rank-based rule is intentional. Retreat resets the halfmove clock like any pawn move. Reversible pawn cycles still count toward repetition draws. Chronicle notation uses `e4-e3` for a retreat to distinguish it from a forward pawn move to e3.
 
-The active rule forces **Conservative** search even if the profile dropdown says Standard: simulated legality, material-only scoring, no late-move reductions or transposition cache. The live label identifies the active sides. This is a correctness-first prototype, not a strength rating. The compiled engine receives the rule before replaying the starting FEN and all moves; Godot compares both sides' complete legal sets and every piece's attacks before each engine search. A mismatch stops play visibly.
+The active rule forces **Conservative** search even if the profile dropdown says Standard: simulated legality, material-only scoring, no late-move reductions or transposition cache. The live label lists the equipped pawns. Search remains Conservative for the game even after its last upgraded pawn is captured or promoted, so initial-position replay remains consistent. This is a correctness-first prototype, not a strength rating. The compiled engine receives the rule before replaying the starting FEN and all moves; Godot compares both sides' complete legal sets and every piece's attacks before each engine search. A mismatch stops play visibly.
 
-Setup edits and Reset standard board retain the draft's ability selections. Cancel leaves the live game untouched. New standard game, mode or side changes clear active abilities. Read-only history retains the rules of that game. FEN alone does not store ability state.
+Moving an existing piece in Setup preserves its identity, rarity and ability. Replacing/erasing a piece removes its upgrades; newly placed ordinary pieces are Common. Reset and odds presets create fresh ordinary armies. Cancel leaves the live game untouched. New standard game, mode or side changes clear active abilities. Read-only history retains the graphics and rules of that position. FEN alone does not store ability state. Promotion preserves identity/rarity but removes pawn-only Retreat.
 
-A quick local test: enable White Pawn Retreat, play e2-e4, e7-e5, then e4-e3. With both abilities off, ordinary chess still passes the existing published perft matrix.
+**Slots and graphics:** Common pieces have one ability slot. Rare and Legendary pieces have two, shown by violet/gold framing and a hollow second socket. Pawn Retreat is the only implemented ability, so a second distinct ability cannot yet be equipped. Duplicate abilities are rejected. The returning-arrow medallion identifies Retreat; the renderer has a linked two-sigil layout ready for future combinations. Rarity currently changes slot capacity and graphics only, not strength or drop chances. No progression, loot or save system is implemented.
+
+A quick local test: equip only the white e2 pawn, play e2-e4, e7-e5, then e4-e3. With both abilities off, ordinary chess still passes the existing published perft matrix.
 
 ## Controls
 
@@ -203,23 +205,21 @@ not a complete tournament adjudicator. Internal FEN loading is for trusted tests
 
 - `main.gd`: medieval board, drag/click input, independent review snapshots,
   SAN chronicle, capture ledger, material display and AI lifecycle controls.
-- `rules.gd`: Godot standard rules and inspection, history transport and empty
-  ability-state placeholder.
+- `rules.gd`: Godot rules, stable piece identities, slots, metadata and history transport.
 - `setup.gd`: isolated draft, bounded extra armies, safe FEN/castling rights and
-  inactive ability intentions.
+  per-piece workshop configuration and inactive future ability intentions.
 - `engine.gd`: nonblocking UCI bridge; no GDScript search.
 - `native/engine/src/Core`: optimized compiled upstream core with targeted fixes.
-- `native/engine/src/Extensions/AbilityState.cs`: per-side Pawn Retreat rule state.
+- `native/engine/src/Extensions/AbilityState.cs`: per-piece Pawn Retreat square markers and reversible rule state.
 - `native/INTEGRATION.md`: exact source pin, changes, protocol, licenses,
   platform/build requirements and the required future ability audit.
 - `tests/` and `validation/`: reproducible suites, comparison and observed results.
 
-Future ability state must affect copies, make/unmake/null moves, hashes and
-repetition as well as bitboards. These seams are tested now but all gameplay
-hooks have zero effect. Before enabling abilities, migrate their play/inspection
-legality to the shared compiled protocol; never independently duplicate custom
-rules in Godot and the engine. Nonempty or unknown ability schemas currently fail
-closed. See the integration document for move flags and search-rule audit points.
+Future abilities need legal candidates, attack semantics, reversible execution, hashes,
+repetition and protocol agreement. The current registered ability is cross-checked
+between Godot and native before each search; unsupported state fails closed. Cosmetic
+identity and rarity do not change repetition. Add genuine distinct abilities before
+enabling the second socket. See the integration document for the complete audit.
 
 ## Re-run validation
 
@@ -238,6 +238,10 @@ godot --headless --path . --script res://tests/test_ux.gd
 godot --headless --path . --script res://tests/test_setup.gd
 godot --headless --path . --script res://tests/test_extra_armies.gd
 godot --headless --path . --script res://tests/test_reference.gd
+godot --headless --path . --script res://tests/test_piece_upgrades.gd
+godot --headless --path . --script res://tests/test_piece_bridge.gd
+godot --headless --path . --script res://tests/test_piece_reference.gd
+godot --headless --path . --script res://tests/test_retreat_ui.gd
 native/bin/win-x64/KnightEngine.exe --selftest
 ```
 
@@ -250,7 +254,7 @@ The bundled DejaVu fonts retain their original license. No external artwork.
 
 The standard abilities-off baseline passes published perft counts and per-root
 move divides at multiple depths. Both Godot and native legal/threat sets are
-compared against 541 positions generated by independent python-chess 1.11.2.
+compared against 545 positions generated by independent python-chess 1.11.2.
 See `tests/reference/README.md` for the matrix, sources, seed and reproducible
 commands. The reference library is test-only and is **not shipped** or required
 to play. Finite tests are evidence, not a guarantee of zero bugs.

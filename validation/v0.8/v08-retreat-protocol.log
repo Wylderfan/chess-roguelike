@@ -1,0 +1,23 @@
+PASS registered contract white
+PASS retreat legal white
+PASS off-turn per-side contract white
+PASS unchanged pawn attacks white
+PASS search returns legal active move white
+PASS registered contract black
+PASS retreat legal black
+PASS off-turn per-side contract black
+PASS unchanged pawn attacks black
+PASS search returns legal active move black
+PASS registered contract both
+PASS retreat legal both
+PASS off-turn per-side contract both
+PASS unchanged pawn attacks both
+PASS search returns legal active move both
+PASS inconsistent EP vacated origin rejected
+PASS midgame capability changes reject without mutation
+PASS pawn cycle repetition survives replay
+PASS newgame retains options
+PASS disabled restores standard contract
+PASS unknown ability option rejects atomically
+PASS clean process exit
+RETREAT PROTOCOL: 22 checks, 0 failures

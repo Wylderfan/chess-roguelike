@@ -1,0 +1,65 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PERFT sparse_none depth 1 = 3
+PERFT sparse_none depth 2 = 9
+PERFT sparse_none depth 3 = 54
+PERFT sparse_white depth 1 = 4
+PERFT sparse_white depth 2 = 13
+PERFT sparse_white depth 3 = 82
+PERFT sparse_black depth 1 = 3
+PERFT sparse_black depth 2 = 12
+PERFT sparse_black depth 3 = 75
+PERFT sparse_both depth 1 = 4
+PERFT sparse_both depth 2 = 17
+PERFT sparse_both depth 3 = 111
+PERFT blocked_none depth 1 = 4
+PERFT blocked_none depth 2 = 44
+PERFT blocked_none depth 3 = 257
+PERFT blocked_white depth 1 = 4
+PERFT blocked_white depth 2 = 44
+PERFT blocked_white depth 3 = 289
+PERFT blocked_black depth 1 = 4
+PERFT blocked_black depth 2 = 44
+PERFT blocked_black depth 3 = 257
+PERFT blocked_both depth 1 = 4
+PERFT blocked_both depth 2 = 44
+PERFT blocked_both depth 3 = 289
+PERFT pin_none depth 1 = 5
+PERFT pin_none depth 2 = 70
+PERFT pin_none depth 3 = 490
+PERFT pin_white depth 1 = 5
+PERFT pin_white depth 2 = 70
+PERFT pin_white depth 3 = 547
+PERFT pin_black depth 1 = 5
+PERFT pin_black depth 2 = 70
+PERFT pin_black depth 3 = 490
+PERFT pin_both depth 1 = 5
+PERFT pin_both depth 2 = 70
+PERFT pin_both depth 3 = 547
+PERFT evasion_none depth 1 = 4
+PERFT evasion_none depth 2 = 68
+PERFT evasion_none depth 3 = 383
+PERFT evasion_white depth 1 = 5
+PERFT evasion_white depth 2 = 82
+PERFT evasion_white depth 3 = 518
+PERFT evasion_black depth 1 = 4
+PERFT evasion_black depth 2 = 68
+PERFT evasion_black depth 3 = 383
+PERFT evasion_both depth 1 = 5
+PERFT evasion_both depth 2 = 82
+PERFT evasion_both depth 3 = 518
+PERFT promotion_none depth 1 = 7
+PERFT promotion_none depth 2 = 39
+PERFT promotion_none depth 3 = 351
+PERFT promotion_white depth 1 = 8
+PERFT promotion_white depth 2 = 46
+PERFT promotion_white depth 3 = 399
+PERFT promotion_black depth 1 = 7
+PERFT promotion_black depth 2 = 44
+PERFT promotion_black depth 3 = 396
+PERFT promotion_both depth 1 = 8
+PERFT promotion_both depth 2 = 52
+PERFT promotion_both depth 3 = 452
+Reference positions compared: 100
+Reference positions compared: 200
+GODOT RETREAT REFERENCE: 260 positions, 840 checks, 0 failures

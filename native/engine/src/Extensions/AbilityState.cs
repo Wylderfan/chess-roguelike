@@ -1,20 +1,65 @@
 using System;
 namespace Chess.Core;
 
-// Schema 1 registers the per-side, unlimited Pawn Retreat capability.
-// Value semantics allow cheap snapshots in GameState and exact unmake/copy.
+// Schema 2 stores per-piece Pawn Retreat markers as per-colour square bitboards.
+// Value semantics allow snapshots in GameState and exact unmake/copy.
 public readonly record struct AbilityState(ulong WhiteUsed, ulong BlackUsed,
     ulong WhiteMask, ulong BlackMask)
 {
-    public const int SchemaVersion = 1;
-    public const ulong PawnRetreat = 1;
+    public const int SchemaVersion = 2;
     public int Schema => IsEmpty ? 0 : SchemaVersion;
-    public bool IsSupported => WhiteUsed == 0 && BlackUsed == 0 && ((WhiteMask | BlackMask) & ~PawnRetreat) == 0;
-    public bool CanRetreat(bool white) => ((white ? WhiteMask : BlackMask) & PawnRetreat) != 0;
-    public string RetreatName => (WhiteMask, BlackMask) switch { (1,1) => "both", (1,0) => "white", (0,1) => "black", _ => "none" };
-    public static AbilityState ParseRetreat(string value) => value.ToLowerInvariant() switch {
-        "none" => default, "white" => new(0,0,1,0), "black" => new(0,0,0,1), "both" => new(0,0,1,1),
+    public bool IsSupported => WhiteUsed == 0 && BlackUsed == 0 && (WhiteMask & BlackMask) == 0;
+    public bool CanRetreat(int square) => (((WhiteMask | BlackMask) >> square) & 1) != 0;
+    public string RetreatName => WhiteMask != 0 ? (BlackMask != 0 ? "both" : "white") : (BlackMask != 0 ? "black" : "none");
+    public string[] RetreatSquares {
+        get {
+            var names = new System.Collections.Generic.List<string>();
+            for(int s=0;s<64;s++) if(CanRetreat(s)) names.Add(BoardHelper.SquareNameFromIndex(s));
+            names.Sort(StringComparer.Ordinal); return names.ToArray();
+        }
+    }
+    public static string ValidateLegacy(string value) => value.ToLowerInvariant() switch {
+        "none" => "none", "white" => "white", "black" => "black", "both" => "both",
         _ => throw new ArgumentException("Unknown PawnRetreat value") };
+    public static AbilityState ParseRetreat(string value, Board board)
+    {
+        value=ValidateLegacy(value); ulong white=0,black=0;
+        for(int s=0;s<64;s++) {
+            if(board.Square[s]==Piece.WhitePawn && (value=="white" || value=="both")) white|=1UL<<s;
+            if(board.Square[s]==Piece.BlackPawn && (value=="black" || value=="both")) black|=1UL<<s;
+        }
+        return new(0,0,white,black);
+    }
+    public static ulong ParseSquares(string value)
+    {
+        if(value=="none")return 0;
+        ulong mask=0;
+        foreach(string square in value.Split(',')) {
+            if(square.Length!=2 || square[0]<'a' || square[0]>'h' || square[1]<'2' || square[1]>'7') throw new ArgumentException("PawnRetreatSquares requires comma-separated squares on ranks 2-7 or none");
+            int s=(square[1]-'1')*8+square[0]-'a';ulong bit=1UL<<s;
+            if((mask&bit)!=0)throw new ArgumentException("Duplicate PawnRetreat square");
+            mask|=bit;
+        }
+        return mask;
+    }
+    public static AbilityState FromSquares(ulong squares, Board board)
+    {
+        ulong white=0,black=0;
+        for(int s=0;s<64;s++)if(((squares>>s)&1)!=0) {
+            if(board.Square[s]==Piece.WhitePawn)white|=1UL<<s;
+            else if(board.Square[s]==Piece.BlackPawn)black|=1UL<<s;
+            else throw new ArgumentException("PawnRetreat marker must identify a pawn: "+BoardHelper.SquareNameFromIndex(s));
+        }
+        return new(0,0,white,black);
+    }
+    public void Validate(Board board)
+    {
+        if(!IsSupported)throw new ArgumentException("Unsupported ability state");
+        for(int s=0;s<64;s++) {
+            if(((WhiteMask>>s)&1)!=0 && board.Square[s]!=Piece.WhitePawn || ((BlackMask>>s)&1)!=0 && board.Square[s]!=Piece.BlackPawn)
+                throw new ArgumentException("Ability marker must match pawn colour and square");
+        }
+    }
     public bool IsEmpty => (WhiteUsed | BlackUsed | WhiteMask | BlackMask) == 0;
     public ulong Hash => IsEmpty ? 0 : Mix(WhiteUsed ^ 0x517cc1b727220a95UL)
         ^ Mix(BlackUsed ^ 0x6eed0e9da4d94a4fUL)
@@ -35,12 +80,24 @@ public static class AbilityRules
     public static ulong AdditionalDestinations(Board board, int square)
     {
         int piece = board.Square[square];
-        if (Piece.PieceType(piece) != Piece.Pawn || !board.Abilities.CanRetreat(Piece.IsWhite(piece))) return 0;
+        if (Piece.PieceType(piece) != Piece.Pawn || !board.Abilities.CanRetreat(square)) return 0;
         int target = square + (Piece.IsWhite(piece) ? -8 : 8);
         return target >= 8 && target < 56 && board.Square[target] == 0 ? 1UL << target : 0;
     }
     public static ulong AdditionalThreats(Board board, int square) => 0;
-    public static AbilityState AfterStandardMove(AbilityState state, Move move) => state;
+    public static AbilityState AfterStandardMove(AbilityState state, Move move, int movedPiece)
+    {
+        ulong start=1UL<<move.StartSquare,target=1UL<<move.TargetSquare;
+        ulong clear=start|target;
+        if(move.MoveFlag==Move.EnPassantCaptureFlag)
+            clear|=1UL<<(move.TargetSquare+(Piece.IsWhite(movedPiece)?-8:8));
+        ulong white=state.WhiteMask & ~clear,black=state.BlackMask & ~clear;
+        if(!move.IsPromotion) {
+            if((state.WhiteMask&start)!=0)white|=target;
+            if((state.BlackMask&start)!=0)black|=target;
+        }
+        return new(state.WhiteUsed,state.BlackUsed,white,black);
+    }
 
     // Bit 0=a1 (unlike Godot's a8 index). Includes protected occupied endpoints.
     // Exposes the SAME precomputed knight/pawn/king and magic slider masks used

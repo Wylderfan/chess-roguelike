@@ -15,6 +15,7 @@ public sealed record RuleProfile(string Name, bool FastLegality, bool LateMoveRe
     {
         if ((schema >= 0 && schema != board.Abilities.Schema) || !board.Abilities.IsSupported || (!board.Abilities.IsEmpty && this != Conservative) || (this != Standard && this != Conservative))
             throw new ArgumentException("Unsupported rule contract or ability state/schema");
+        board.Abilities.Validate(board);
     }
 }
 

@@ -1,0 +1,19 @@
+PASS square configuration defers occupancy validation and blocks premature snapshot
+PASS per-piece contract active
+PASS only selected pawn can retreat
+PASS initial square option replays marker movement
+PASS per-piece search returns legal move
+PASS midgame marker changes reject without mutation
+PASS invalid syntax leaves state intact e3,e3
+PASS invalid syntax leaves state intact a1
+PASS invalid syntax leaves state intact z3
+PASS invalid syntax leaves state intact e3,
+PASS invalid syntax leaves state intact unknown
+PASS newgame retains initial square configuration
+PASS invalid marker occupancy blocks search until valid position
+PASS captured final marker disappears but root profile remains conservative
+PASS promotion consumes pawn-only power
+PASS EP removes victim marker and moves capturing marker
+PASS empty marker config restores orthodox baseline
+PASS clean process exit
+PIECE RETREAT PROTOCOL: 18 checks, 0 failures

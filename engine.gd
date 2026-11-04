@@ -71,14 +71,14 @@ func close_process() -> void:
 	process_id = -1
 
 func effective_profile(g: ChessRules) -> String:
-	return "conservative" if not g.ability_state.is_empty() else rules_profile
+	return "conservative" if not g.initial_retreat_squares.is_empty() or not g.ability_state.is_empty() else rules_profile
 
 func verify_snapshot(g: ChessRules, data: Dictionary) -> String:
 	if data.get("profile", "") != effective_profile(g): return "Engine rules profile mismatch."
 	if not g.supported_abilities(): return "Unsupported ability state."
 	var active = not g.ability_state.is_empty()
-	if data.get("schema", -1) != (1 if active else 0) or data.get("abilities_empty", true) == active: return "Engine ability schema mismatch."
-	if active and data.get("pawn_retreat", "none") != g.retreat_setting(): return "Engine Pawn Retreat mismatch."
+	if data.get("schema", -1) != (2 if active else 0) or data.get("abilities_empty", true) == active: return "Engine ability schema mismatch."
+	if data.get("retreat_squares", []) != g.retreat_squares(): return "Engine per-piece Pawn Retreat mismatch."
 	var ours: Array = []
 	for m in g.legal_moves(): ours.append(Rules.uci_name(m))
 	ours.sort()
@@ -129,7 +129,7 @@ func search(position: ChessRules, milliseconds: int, _max_depth: int = 64) -> Di
 	if not ready and not is_canceled(): fault = "Engine startup failed. " + fault
 	if fault == "" and not is_canceled():
 		send("setoption name RulesProfile value " + effective_profile(position))
-		send("setoption name PawnRetreat value " + position.retreat_setting())
+		send("setoption name PawnRetreatSquares value " + (",".join(position.initial_retreat_squares) if not position.initial_retreat_squares.is_empty() else "none"))
 		send("ucinewgame")
 		send(position.uci_position())
 		send("knight snapshot")
