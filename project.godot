@@ -14,6 +14,9 @@ window/size/min_width=600
 window/size/min_height=760
 window/stretch/mode="disabled"
 
+[editor]
+import/use_multiple_threads=false
+
 [rendering]
 renderer/rendering_method="gl_compatibility"
 environment/defaults/default_clear_color=Color(0.055, 0.075, 0.09, 1)

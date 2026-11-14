@@ -36,7 +36,7 @@ func run() -> void:
 	if OS.get_name() == "Windows": OS.execute("taskkill", ["/PID",str(pid),"/F"])
 	else: OS.execute("/bin/kill", ["-9",str(pid)])
 	await wait_for_turn()
-	check(ui.engine_fault != "" and ui.engine_status.text.contains("Choose Local"), "Native process failure is displayed with recovery controls")
+	check(ui.engine_fault != "" and ui.engine_status.text.contains("New Game"), "Native process failure is displayed with recovery controls")
 	check(ui.game.position_key() == before and not ui.search_active, "Failure leaves position intact and does not spin/retry")
 	ui.set_mode(0)
 	check(ui.engine_fault == "" and ui.human_can_play(), "Local mode recovers from native failure")

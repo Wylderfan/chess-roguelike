@@ -48,6 +48,7 @@ namespace Chess.Core
 		readonly MoveGenerator moveGenerator;
 		readonly MoveOrdering moveOrderer;
 		readonly Evaluation evaluation;
+        readonly AbilityEvaluation abilityEvaluation;
 		readonly Board board;
         public RuleProfile Profile { get; }
         public long Reductions { get; private set; }
@@ -56,7 +57,8 @@ namespace Chess.Core
         public long MaterialEvaluations { get; private set; }
         public long PositionalEvaluations { get; private set; }
         bool InCheck() => Profile.FastLegality ? board.IsInCheck() : SimulatedLegality.InCheck(board,board.MoveColourIndex,OrthodoxContract.Instance);
-        public int EvaluatePosition()
+        public int EvaluatePosition() => EvaluateOrdinaryPosition() + abilityEvaluation.Evaluate(board);
+        int EvaluateOrdinaryPosition()
         {
             if(Profile.PositionalEvaluation){PositionalEvaluations++;return evaluation.Evaluate(board);}
             MaterialEvaluations++;
@@ -80,9 +82,10 @@ namespace Chess.Core
             CacheStores++;transpositionTable.StoreEvaluation(depth,ply,value,bound,move);
         }
 
-		public Searcher(Board board, RuleProfile? profile = null)
+		public Searcher(Board board, RuleProfile? profile = null, AbilityEvaluation? abilityEvaluation = null)
 		{
 			this.board = board;
+            this.abilityEvaluation = abilityEvaluation ?? AbilityEvaluation.Empty;
             Profile=board.Abilities.IsEmpty ? (profile ?? RuleProfile.Standard) : RuleProfile.Conservative; Profile.Validate(board);
 
 			evaluation = new Evaluation();

@@ -85,6 +85,20 @@ var setup_level = 1
 var setup_tool = 99 # 99=move, 98=upgrade, 0=erase, signed piece=place; ±101=Retreat pawn
 var planned_abilities = {"white": [], "black": []}
 var planned_label: Label
+var check_status: Label
+var menu_panel: VBoxContainer
+var settings_panel: VBoxContainer
+var coordinates_check: CheckBox
+var screen = "menu"
+var has_match = false
+var setup_return_screen = "menu"
+var setup_profile = "standard"
+var transition_dialog: ConfirmationDialog
+var transition_action = ""
+var show_coordinates = true
+var preferences_path = "user://preferences.cfg"
+var new_game_button: Button
+var menu_button: Button
 
 
 func _ready() -> void:
@@ -101,11 +115,14 @@ func _ready() -> void:
 	eyebrow.modulate = Color("c9ad72")
 	status = label("", 27)
 	status.add_theme_font_override("font", TITLE_FONT)
-	make_button("New game / Setup", open_setup)
-	detail = label("", 15)
-	detail.custom_minimum_size.y = 92
-	material_label = label("", 17)
-	captures_label = label("", 14)
+	status.autowrap_mode = TextServer.AUTOWRAP_OFF
+	status.clip_text = true
+	status.custom_minimum_size.y = 36
+	status.add_theme_font_size_override("font_size", 23)
+	check_status = label("", 15)
+	check_status.custom_minimum_size.y = 24
+	check_status.autowrap_mode = TextServer.AUTOWRAP_OFF
+	check_status.modulate = Color("f2b7a1")
 	label("CHRONICLE", 13).modulate = Color("c9ad72")
 	history_label = label("", 13)
 	move_list = ItemList.new()
@@ -128,33 +145,21 @@ func _ready() -> void:
 	live_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	live_button.pressed.connect(return_to_live)
 	navigation.add_child(live_button)
-	var separator = HSeparator.new()
-	panel.add_child(separator)
-	label("YOUR GAME", 13).modulate = Color("c9ad72")
-	mode_choice = choice(["Challenge the engine", "Local · two players"])
-	mode_choice.item_selected.connect(func(index): set_mode(1 if index == 0 else 0))
-	side_choice = choice(["Play as White", "Play as Black"])
-	side_choice.item_selected.connect(func(index): set_side(1 if index == 0 else -1))
-	level_choice = choice(["Quick · 0.3 s", "Balanced · 1.1 s", "Deep · 2.6 s"])
-	level_choice.select(difficulty)
-	level_choice.item_selected.connect(set_difficulty)
-	profile_choice = choice(["Standard engine", "Conservative · experimental"])
-	profile_choice.tooltip_text = "Conservative: simulated legality, no LMR or transposition cache, material-only evaluation. Pawn Retreat always uses Conservative."
-	profile_choice.item_selected.connect(set_profile)
-	profile_help = label("Standard: full evaluation, LMR and cache.\nConservative: simulated legality, material only,\nno LMR or cache. Pawn Retreat forces Conservative.", 13)
-	profile_help.modulate = Color("bdb09a")
+	new_game_button = make_button("New Game", open_setup)
+	menu_button = make_button("Quit to Menu", request_return_to_menu)
+	detail = label("", 14)
+	material_label = label("", 14)
+	captures_label = label("", 13)
 	planned_label = label("", 13)
 	planned_label.modulate = Color("c9ad72")
 	engine_status = label("", 13)
 	engine_status.modulate = Color("bdb09a")
-	engine_status.custom_minimum_size.y = 36
 	claim = make_button("Claim draw", func():
 		if human_can_play() and game.claim_draw():
 			invalidate_search()
 			refresh())
 	agreement_button = make_button("Agree to a draw", func():
 		if history_index == -1 and game.result == "" and mode == 0: agreement.popup_centered())
-	label("DRAG or CLICK  ·  move\nRIGHT CLICK  ·  inspect either army\n← / →  ·  history     END  ·  live\nESC  ·  cancel drag / clear highlights", 13).modulate = Color("bdb09a")
 	promotion = ConfirmationDialog.new()
 	promotion.title = "Crown your pawn"
 	promotion.dialog_text = "Choose a piece to complete the move."
@@ -173,9 +178,14 @@ func _ready() -> void:
 		refresh())
 	add_child(agreement)
 	build_setup_panel()
+	mode_choice = setup_mode_choice
+	side_choice = setup_side_choice
+	level_choice = setup_level_choice
+	build_menu()
+	get_tree().auto_accept_quit = false
 	resized.connect(layout_board)
 	layout_board()
-	refresh()
+	show_main_menu()
 
 func build_theme() -> void:
 	var t = Theme.new()
@@ -243,6 +253,10 @@ func make_button(text: String, callback: Callable) -> Button:
 
 func layout_board() -> void:
 	cancel_drag()
+	if menu_panel != null:
+		for page in [menu_panel, settings_panel]:
+			page.position = Vector2(maxf(32, (size.x - 420) / 2), maxf(150, size.y * 0.28))
+			page.size = Vector2(minf(420, size.x - 64), 0)
 	if sidebar == null: return
 	var board_size: float
 	if size.x >= 940:
@@ -259,7 +273,7 @@ func layout_board() -> void:
 	queue_redraw()
 
 func human_can_play() -> bool:
-	return not editing and history_index == -1 and game.result == "" and (mode == 0 or game.turn == human_side)
+	return screen == "game" and transition_action == "" and not editing and history_index == -1 and game.result == "" and (mode == 0 or game.turn == human_side)
 
 func set_mode(value: int) -> void:
 	mode = value
@@ -291,6 +305,11 @@ func invalidate_search() -> void:
 	if search_active: thinker.cancel()
 
 func restart() -> void:
+	screen = "game"
+	has_match = true
+	sidebar.show()
+	menu_panel.hide()
+	settings_panel.hide()
 	if editing: show_setup(false)
 	planned_abilities = {"white": [], "black": []}
 	cancel_drag()
@@ -315,7 +334,7 @@ func _process(_delta: float) -> void:
 		var answer: Dictionary = worker.wait_to_finish()
 		search_active = false
 		# Reject stale results even if a restart recreated the same board.
-		if not editing and history_index == -1 and search_generation == generation and search_key == game.position_key() and game.result == "" and mode == 1 and game.turn != human_side:
+		if screen == "game" and transition_action == "" and not editing and history_index == -1 and search_generation == generation and search_key == game.position_key() and game.result == "" and mode == 1 and game.turn != human_side:
 			last_search = answer
 			if answer.get("error", "") != "":
 				engine_fault = answer.error
@@ -323,7 +342,7 @@ func _process(_delta: float) -> void:
 			elif answer.claim and game.claim_draw(): refresh()
 			elif not answer.move.is_empty(): finish_move(answer.move)
 			else: refresh()
-	if not editing and history_index == -1 and not search_active and engine_fault == "" and mode == 1 and game.result == "" and game.turn != human_side:
+	if screen == "game" and transition_action == "" and not editing and history_index == -1 and not search_active and engine_fault == "" and mode == 1 and game.result == "" and game.turn != human_side:
 		thinker = EngineAI.new()
 		thinker.rules_profile = rules_profile
 		worker = Thread.new()
@@ -345,6 +364,9 @@ func _exit_tree() -> void:
 		search_active = false
 
 func refresh() -> void:
+	if screen in ["menu", "settings"]:
+		queue_redraw()
+		return
 	if editing:
 		refresh_setup()
 		return
@@ -352,7 +374,9 @@ func refresh() -> void:
 	var shown = displayed_game()
 	legal = shown.legal_moves() if shown.result == "" else []
 	var side = "White" if shown.turn == 1 else "Black"
-	status.text = shown.result if shown.result != "" else side + " to move" + (" · Check" if shown.in_check(shown.turn) else "")
+	status.text = shown.result if shown.result != "" else side + " to move"
+	check_status.text = "Check" if shown.in_check(shown.turn) else ""
+	status.tooltip_text = status.text
 	detail.text = "Move %d\n" % shown.fullmove
 	if inspected != -1 and shown.board[inspected] != 0:
 		preview = shown.inspect_piece(inspected)
@@ -364,28 +388,27 @@ func refresh() -> void:
 		detail.text += "Amber diamonds: attacks/protection, not legal moves. Pins still attack; pawns attack diagonally."
 		if shown.result != "": detail.text += "\nPosition study only; the game has ended."
 	elif shown.result != "": detail.text += "The game is complete. Begin a new game to play again."
-	elif selected != -1: detail.text += "Selected: " + Rules.name_of(selected) + "\nGreen dots/rings mark legal moves.\nRight-click any piece to study it."
-	elif mode == 1 and shown.turn != human_side: detail.text += "The engine is considering its move.\nYou can right-click either army to inspect it while you wait."
-	else: detail.text += "Choose a piece from your army.\nRight-click either army to inspect moves and attacks without moving."
+	elif selected != -1: detail.text += "Selected: " + Rules.name_of(selected)
+	elif mode == 1 and shown.turn != human_side: detail.text += "Engine to move."
+	else: detail.text += "Drag or click to move · Right-click to inspect."
 	var reason = shown.claim_reason()
 	claim.disabled = reason == "" or not human_can_play()
 	claim.tooltip_text = "Claim a current threefold repetition or 50-move draw." if reason == "" else reason
 	agreement_button.visible = mode == 0
-	side_choice.visible = mode == 1
-	level_choice.visible = mode == 1
-	if engine_fault != "": engine_status.text = engine_fault + "\nChoose Local or New game to retry."
-	elif mode == 0: engine_status.text = "Both armies are controlled locally."
-	elif search_active: engine_status.text = "Thinking…  ·  %s budget\nInspection and controls remain available." % ("%.1f s" % (BUDGETS[difficulty] / 1000.0))
-	elif not last_search.is_empty(): engine_status.text = "Last search: depth %d · %d nodes · %d ms\nSebastian Lague V2 · no verified Elo" % [last_search.depth, last_search.nodes, last_search.elapsed_ms]
-	else: engine_status.text = "Sebastian Lague V2 · no verified Elo\nMode or side changes start a standard game."
+	if engine_fault != "": engine_status.text = engine_fault + "\nNew Game opens setup to retry or choose Local."
+	elif search_active: engine_status.text = "Engine thinking…"
+	else: engine_status.text = ""
+	engine_status.visible = engine_status.text != ""
 	if history_index != -1:
 		status.text = "Review · " + status.text
-		detail.text = "Read-only history. The live game is paused.\nReturn to live to continue.\nRight-click to inspect this position.\n" + (detail.text if inspected != -1 else "")
+		detail.text = "Read-only history · game paused.\n" + (detail.text if inspected != -1 else "")
 		agreement_button.disabled = true
 	else: agreement_button.disabled = false
 	planned_label.text = "Planned abilities recorded · no gameplay effect" if not planned_abilities.white.is_empty() or not planned_abilities.black.is_empty() else ""
 	if shown.retreat_setting() != "none": planned_label.text = "Retreat pieces: " + ", ".join(shown.retreat_squares()) + " · Conservative engine" + ("\n" + planned_label.text if planned_label.text != "" else "")
 	planned_label.visible = planned_label.text != ""
+	claim.visible = not claim.disabled
+	agreement_button.visible = mode == 0 and history_index == -1 and game.result == ""
 	refresh_chronicle()
 	queue_redraw()
 
@@ -402,6 +425,7 @@ func cancel_drag() -> void:
 
 # Release is handled before GUI dispatch, even over the sidebar or off-board.
 func _input(event: InputEvent) -> void:
+	if screen in ["menu", "settings"] or transition_action != "": return
 	if event is InputEventMouseMotion and drag_from != -1:
 		drag_position = get_global_transform_with_canvas().affine_inverse() * event.position
 		if event.position.distance_to(drag_start) >= 6:
@@ -436,9 +460,11 @@ func _input(event: InputEvent) -> void:
 		if event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END]: get_viewport().set_input_as_handled()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST: request_quit()
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT: cancel_drag()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if screen in ["menu", "settings"] or transition_action != "": return
 	if event is InputEventMouseButton and event.pressed:
 		var square = square_at(event.position)
 		if editing:
@@ -466,7 +492,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				drag_position = get_global_transform_with_canvas().affine_inverse() * event.position
 
 func inspect_square(s: int) -> void:
-	if editing or promotion.visible or agreement.visible: return
+	if screen != "game" or transition_action != "" or editing or promotion.visible or agreement.visible: return
 	selected = -1
 	inspected = s if displayed_game().board[s] != 0 and inspected != s else -1
 	refresh()
@@ -496,7 +522,7 @@ func promote(action: String) -> void:
 	promotion.hide()
 
 func finish_move(m: Dictionary) -> void:
-	if editing: return
+	if screen != "game" or transition_action != "" or editing: return
 	if history_index != -1: return
 	ensure_history()
 	var san = game.san(m)
@@ -534,6 +560,7 @@ func _draw() -> void:
 	draw_line(Vector2(32, 20), Vector2(size.x - 32, 20), brass, 1)
 	draw_string(TITLE_FONT, Vector2(42, 67), "Knight Chess", HORIZONTAL_ALIGNMENT_LEFT, -1, 34, Color("f0dfbc"))
 	draw_string(font, Vector2(44, 91), "A BOARD. TWO ARMIES. YOUR NEXT MOVE.", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, brass)
+	if screen in ["menu", "settings"]: return
 	var board_rect = Rect2(ORIGIN, Vector2.ONE * CELL * 8)
 	draw_rect(board_rect.grow(17), Color("131b18"))
 	draw_rect(board_rect.grow(12), Color("59432d"))
@@ -570,7 +597,7 @@ func _draw() -> void:
 				var c = rect.position + Vector2(CELL * 0.83, CELL * 0.17)
 				var r = CELL * 0.065
 				draw_colored_polygon(PackedVector2Array([c+Vector2(0,-r),c+Vector2(r,0),c+Vector2(0,r),c+Vector2(-r,0)]), Color("8c4e13"))
-	for i in 8:
+	for i in (8 if show_coordinates else 0):
 		var file = 7 - i if flipped() else i
 		var rank = i + 1 if flipped() else 8 - i
 		draw_string(font, Vector2(ORIGIN.x + i * CELL + CELL * 0.44, ORIGIN.y + CELL * 8 + 30), "abcdefgh"[file], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, brass)
@@ -608,7 +635,7 @@ func current_ply() -> int:
 	return records.size() if history_index == -1 else history_index
 
 func browse_history(ply: int) -> void:
-	if editing: return
+	if screen != "game" or transition_action != "" or editing: return
 	if promotion.visible or agreement.visible: return
 	ensure_history()
 	if records.is_empty(): return
@@ -620,7 +647,7 @@ func browse_history(ply: int) -> void:
 	refresh()
 
 func return_to_live() -> void:
-	if editing: return
+	if screen != "game" or transition_action != "" or editing: return
 	cancel_drag()
 	history_index = -1
 	selected = -1
@@ -663,8 +690,8 @@ func build_setup_panel() -> void:
 	panel = setup_panel
 	label("PREPARE THE ARMIES", 23).add_theme_font_override("font", TITLE_FONT)
 	label("Starting-army draft · current game paused.\nStart replaces it; Cancel returns unchanged.\nUp to 32 pieces per side, including one king.", 14)
-	make_button("Start this position", start_setup)
-	make_button("Cancel · return to game", cancel_setup)
+	make_button("Start this position", request_start_setup)
+	make_button("Cancel · go back", cancel_setup)
 	setup_status = label("", 15)
 	setup_summary = label("", 14)
 	label("PIECE WORKSHOP", 17).modulate = Color("83cbb7")
@@ -690,6 +717,9 @@ func build_setup_panel() -> void:
 	setup_side_choice.item_selected.connect(func(index): setup_side = 1 if index == 0 else -1; cancel_drag(); selected = -1; refresh_setup())
 	setup_level_choice = choice(["Quick · 0.3 s", "Balanced · 1.1 s", "Deep · 2.6 s"])
 	setup_level_choice.item_selected.connect(func(index): setup_level = index)
+	profile_choice = choice(["Standard engine", "Conservative · experimental"])
+	profile_choice.item_selected.connect(func(index): setup_profile = "standard" if index == 0 else "conservative")
+	profile_help = label("Standard keeps normal positional evaluation. Conservative uses material only. Pawn Retreat automatically uses Conservative.", 13)
 	setup_turn_choice = choice(["White to move", "Black to move"])
 	setup_turn_choice.item_selected.connect(func(index): setup.position.turn = 1 if index == 0 else -1; refresh_setup())
 	label("REMOVE MATERIAL · resets board and upgrades", 13).modulate = Color("c9ad72")
@@ -763,11 +793,16 @@ func build_setup_panel() -> void:
 
 func show_setup(enabled: bool) -> void:
 	editing = enabled
+	screen = "setup" if enabled else "game"
 	for widget in play_widgets: widget.visible = not enabled
 	setup_panel.visible = enabled
 	sidebar.scroll_vertical = 0
 
 func open_setup() -> void:
+	setup_return_screen = "game" if has_match else "menu"
+	sidebar.show()
+	menu_panel.hide()
+	settings_panel.hide()
 	cancel_drag()
 	invalidate_search()
 	pending.clear()
@@ -779,12 +814,15 @@ func open_setup() -> void:
 	legal = []
 	setup = Setup.new()
 	setup.planned = planned_abilities.duplicate(true)
-	setup.position.load_fen(game.initial_fen)
-	setup.position.configure_piece_data(game.initial_piece_data)
+	if has_match:
+		setup.position.load_fen(game.initial_fen)
+		setup.position.configure_piece_data(game.initial_piece_data)
 	setup_upgrade_square = -1
 	setup_mode = mode
 	setup_side = human_side
 	setup_level = difficulty
+	setup_profile = rules_profile
+	profile_choice.select(0 if setup_profile == "standard" else 1)
 	setup_mode_choice.select(0 if mode == 1 else 1)
 	setup_side_choice.select(0 if human_side == 1 else 1)
 	setup_level_choice.select(difficulty)
@@ -798,7 +836,8 @@ func cancel_setup() -> void:
 	cancel_drag()
 	selected = -1
 	show_setup(false)
-	refresh()
+	if setup_return_screen == "menu": show_main_menu()
+	else: refresh()
 
 func choose_setup_tool(piece: int) -> void:
 	cancel_drag()
@@ -890,6 +929,7 @@ func start_setup() -> bool:
 	mode = setup_mode
 	human_side = setup_side
 	difficulty = setup_level
+	rules_profile = setup_profile
 	mode_choice.select(0 if mode == 1 else 1)
 	side_choice.select(0 if human_side == 1 else 1)
 	level_choice.select(difficulty)
@@ -911,3 +951,119 @@ func checkbox_icon(checked: bool) -> ImageTexture:
 			var y = (i+5) if i < 10 else (24-i)
 			for dy in range(-1,2): pixels.set_pixel(i,y+dy,Color("eee1c7"))
 	return ImageTexture.create_from_image(pixels)
+
+# Front-end navigation owns visibility and search lifetime; match rules stay in Rules.
+func build_menu() -> void:
+	var original_panel = panel
+	menu_panel = VBoxContainer.new()
+	menu_panel.add_theme_constant_override("separation", 16)
+	add_child(menu_panel)
+	panel = menu_panel
+	label("YOUR SANDBOX", 23).add_theme_font_override("font", TITLE_FONT)
+	label("Build an army. Try a new position. Play at your own pace.", 16)
+	make_button("Create Sandbox Game", open_setup)
+	make_button("Settings", show_settings)
+	make_button("Quit", request_quit)
+	settings_panel = VBoxContainer.new()
+	settings_panel.add_theme_constant_override("separation", 16)
+	add_child(settings_panel)
+	panel = settings_panel
+	label("SETTINGS", 23).add_theme_font_override("font", TITLE_FONT)
+	coordinates_check = CheckBox.new()
+	coordinates_check.text = "Show board coordinates"
+	panel.add_child(coordinates_check)
+	var config = ConfigFile.new()
+	if config.load(preferences_path) == OK:
+		show_coordinates = bool(config.get_value("display", "coordinates", true))
+	coordinates_check.set_pressed_no_signal(show_coordinates)
+	coordinates_check.toggled.connect(set_coordinates)
+	label("Show file and rank labels around the board. Saved for your next session. Match options stay in sandbox setup.", 15)
+	make_button("Back", show_main_menu)
+	panel = original_panel
+	transition_dialog = ConfirmationDialog.new()
+	transition_dialog.title = "Leave this game?"
+	transition_dialog.confirmed.connect(confirm_transition)
+	transition_dialog.canceled.connect(func(): transition_action = ""; refresh())
+	add_child(transition_dialog)
+
+func set_coordinates(enabled: bool) -> void:
+	show_coordinates = enabled
+	var config = ConfigFile.new()
+	config.load(preferences_path)
+	config.set_value("display", "coordinates", enabled)
+	config.save(preferences_path)
+	queue_redraw()
+
+func show_settings() -> void:
+	screen = "settings"
+	menu_panel.hide()
+	settings_panel.show()
+	sidebar.hide()
+	queue_redraw()
+
+func show_main_menu() -> void:
+	screen = "menu"
+	editing = false
+	sidebar.hide()
+	setup_panel.hide()
+	settings_panel.hide()
+	menu_panel.show()
+	queue_redraw()
+
+func request_start_setup() -> void:
+	if setup.validation_error() != "": refresh_setup(); return
+	if has_match and not records.is_empty() and game.result == "":
+		request_transition("start", "Replace this game?", "Start this sandbox position? The current game and its history will be discarded.")
+	else: start_setup()
+
+func request_return_to_menu() -> void:
+	if has_match and game.result == "":
+		request_transition("menu", "Return to main menu?", "The current game is not saved. Return to the main menu and discard it?")
+	else: leave_to_menu()
+
+func request_quit() -> void:
+	if has_match and game.result == "":
+		request_transition("quit", "Quit Knight Chess?", "The current game is not saved. Quit and discard it?")
+	else:
+		stop_search()
+		get_tree().quit()
+
+func request_transition(action: String, title: String, message: String) -> void:
+	cancel_drag()
+	invalidate_search()
+	transition_action = action
+	transition_dialog.title = title
+	transition_dialog.dialog_text = message
+	transition_dialog.popup_centered(Vector2i(mini(440, int(size.x) - 40), 0))
+
+func confirm_transition() -> void:
+	var action = transition_action
+	transition_action = ""
+	transition_dialog.hide()
+	if action == "start": start_setup()
+	elif action == "menu": leave_to_menu()
+	elif action == "quit":
+		stop_search()
+		get_tree().quit()
+
+func stop_search() -> void:
+	invalidate_search()
+	if search_active:
+		worker.wait_to_finish()
+		search_active = false
+
+func leave_to_menu() -> void:
+	stop_search()
+	cancel_drag()
+	promotion.hide()
+	agreement.hide()
+	pending.clear()
+	has_match = false
+	game = Rules.new()
+	positions.clear()
+	records.clear()
+	history_index = -1
+	selected = -1
+	inspected = -1
+	planned_abilities = {"white": [], "black": []}
+	show_main_menu()
