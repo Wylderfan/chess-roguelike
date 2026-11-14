@@ -4,3 +4,5 @@ native/engine/obj/
 native/bin/
 .DS_Store
 Thumbs.db
+toolchain/
+build/

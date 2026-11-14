@@ -1,6 +1,6 @@
 # Knight Chess v0.8 — Godot 4.6.3
 
-**v0.8 playtest package:** supplied separately with this change as `Knight-Chess-v0.8-Godot-4.6.3.zip`, containing the rebuilt self-contained Windows/Linux engines. A source checkout must build the engine with `native/build.ps1` or `native/build.sh`, or copy `native/bin` from the v0.8 package. The older v0.6 ZIP in `dist/` does **not** contain Pawn Retreat and must not be used with v0.8 source. Native build outputs are intentionally not committed separately.
+**Integrated playtest packages:** `Knight-Chess-Playtest-Windows-x64.zip` is a standalone Windows game; extract all files and double-click `KnightChess.exe`. `Knight-Chess-Playtest-Godot-4.6.3.zip` is the editable project fallback with matching Windows/Linux native engines. `Knight-Chess-Playtest-Linux-x64.zip` is the standalone Linux build. All include a `BUILD.json` with the source commit and file hashes. Never mix an old `dist/` archive or engine with the new source. A GitHub source checkout alone still requires `native/build.ps1` or `native/build.sh`.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
@@ -27,7 +27,17 @@ checkboxes still do nothing. Each future contract needs candidates, geometric
 threats, reversible execution and complete state/hash/repetition semantics before
 it can be registered; enabling a profile alone cannot make an ability correct.
 
-## Windows: extract, import, play
+## Windows: standalone playtest
+
+1. Extract **all** of `Knight-Chess-Playtest-Windows-x64.zip` into a writable folder.
+2. Double-click `KnightChess.exe`. Keep the `native` directory beside it.
+3. Choose your side and difficulty. Use **New game / Setup** for the Piece Workshop.
+
+No Godot editor or .NET installation is required. This is an unsigned x64 export,
+cross-built on Linux. Its Windows PE architecture and bundled files were checked;
+Windows execution has not been verified in this environment. Do not run inside a ZIP viewer.
+
+## Godot 4.6.3 project fallback
 
 1. Extract the entire ZIP into a writable folder. Keep the `native` folder beside
    `project.godot`; do not run the project from inside the ZIP viewer.
@@ -41,8 +51,8 @@ it can be registered; enabling a profile alone cannot make an ability correct.
 
 The included `native/bin/win-x64/KnightEngine.exe` is self-contained. It was
 cross-built and its Windows x64 executable format checked on Linux; actual
-Windows execution has not yet been tested here. This is a source project to
-run in Godot, not an exported/signed Windows application or an in-browser game.
+Windows execution has not yet been tested here. This fallback is an editable
+source project; the separate Windows ZIP above contains the standalone export.
 Windows ARM-native Godot requires a separately built win-arm64 engine; see
 `native/INTEGRATION.md`. No architecture is silently emulated by the bridge.
 
@@ -260,3 +270,27 @@ commands. The reference library is test-only and is **not shipped** or required
 to play. Finite tests are evidence, not a guarantee of zero bugs.
 
 Pawn Retreat is active when selected. The other planned checkboxes remain inactive. Abilities off retain the standard-chess reference path.
+
+## Rebuild integrated playtest packages
+
+Use Godot 4.6.3 Standard, its matching official export templates and .NET 10 SDK.
+From a clean checkout, run `sh native/build.sh linux-x64` and
+`sh native/build.sh win-x64` (or `native/build.ps1` on Windows). Then:
+
+```sh
+mkdir -p build/windows build/linux
+godot --headless --editor --path . --import
+godot --headless --path . --export-release "Windows x64"
+godot --headless --path . --export-release "Linux x64"
+curl -fsSL https://raw.githubusercontent.com/godotengine/godot/4.6.3-stable/COPYRIGHT.txt -o build/GODOT-COPYRIGHT.txt
+python3 scripts/package_playtest.py
+python3 scripts/verify_packages.py
+```
+
+Packaging writes only under ignored `build/`; it never publishes a release.
+The packager records the current Git commit, so commit intended source changes first.
+The exported game loads its engine relative to the game executable, independent of
+working directory. Native engines stay outside the embedded PCK. Export resources
+include scripts and fonts explicitly through the all-resources filter; test fixtures,
+previous ZIPs, SDKs and validation logs are excluded from the game executable.
+See `validation/integration/README.md` for measured checks and limitations.

@@ -1,0 +1,392 @@
+ARCHIVE PASS Knight-Chess-Playtest-Godot-4.6.3.zip 68185786
+ARCHIVE PASS Knight-Chess-Playtest-Linux-x64.zip 60262014
+ARCHIVE PASS Knight-Chess-Playtest-Windows-x64.zip 69108791
+PASS start perft 8902 plus every move/hash/unmake roundtrip
+PASS Kiwipete perft 2039 roundtrips
+PASS en passant perft 2812 roundtrips
+PASS all four promotion flags
+PASS promotion hash/unmake roundtrips
+PASS reserved flag 8 is neither promotion nor playable
+PASS empty ability state leaves standard hash unchanged
+PASS nonempty setup state contributes to identity
+PASS nonempty unregistered rule state fails closed
+PASS ability snapshot make/unmake roundtrips remain exact
+PASS copy retains state and hash
+PASS null move hash includes state
+PASS null unmake restores state/hash
+PASS extension masks inactive
+PASS terminal root safe no-move
+PASS shared move bound covers any supported army
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS independent 221 legal move stress fixture exceeds old 218
+PASS independent 129 capture fixture exceeds old q buffer
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS repetition history/search safely exceed 256 entries
+PASS dynamic repetition push/pop preserves original history
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS multiple same-color bishops recognized dead
+PASS two knights not automatically dead
+PASS opposite-color bishops not dead
+PASS king capture rejected before mutation
+PASS native rejects over-cap inventory before piece-list construction
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS profile generation restores board/hash
+PASS profile search returns legal move
+PASS profile search restores board/hash
+PASS LMR profile gate honored
+PASS TT profile gate honored
+PASS evaluation profile gate honored
+PASS profile cancellation retains legal fallback and original state
+PASS unregistered ability schema fails closed in both profiles
+PASS profile generation restores board/hash
+PASS profile search returns legal move
+PASS profile search restores board/hash
+PASS LMR profile gate honored
+PASS TT profile gate honored
+PASS evaluation profile gate honored
+PASS profile cancellation retains legal fallback and original state
+PASS unregistered ability schema fails closed in both profiles
+PASS per-side retreat generated through conservative safety path
+PASS retreat is quiet, not a capture or attack
+PASS retreat capability participates in hash
+PASS retreat tree incremental hashes and every unmake restore state
+PASS retreat resets halfmove clock and never creates en passant
+PASS reversible pawn move preserves repetition history
+PASS copy replays active retreat history
+PASS active ability forces conservative search
+PASS active search returns legal move and restores board
+PASS per-side retreat generated through conservative safety path
+PASS retreat is quiet, not a capture or attack
+PASS retreat capability participates in hash
+PASS retreat tree incremental hashes and every unmake restore state
+PASS retreat resets halfmove clock and never creates en passant
+PASS reversible pawn move preserves repetition history
+PASS copy replays active retreat history
+PASS active ability forces conservative search
+PASS active search returns legal move and restores board
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS forward/backward pawn cycles retain threefold identity
+PASS disabled side cannot retreat
+PASS return to starting rank restores rank-based double advance
+PASS retreat can block check when king-safe
+PASS synthetic retreat onto EP target classified quiet
+PASS synthetic EP target retreat preserves opposing pawn
+PASS only marked pawn gains retreat
+PASS per-piece state follows every move and hash/unmake in tree
+PASS search restores per-piece markers
+PASS marker follows retreat and two-square advance
+PASS copy replay reconstructs current individual location
+PASS capture/EP/promotion updates per-piece state and hash e2d3
+PASS capture/EP/promotion unmake restores marker e2d3
+PASS capture/EP/promotion updates per-piece state and hash e2e3
+PASS capture/EP/promotion unmake restores marker e2e3
+PASS capture/EP/promotion updates per-piece state and hash e5d6
+PASS capture/EP/promotion unmake restores marker e5d6
+PASS capture/EP/promotion updates per-piece state and hash e4d3
+PASS capture/EP/promotion unmake restores marker e4d3
+PASS capture/EP/promotion updates per-piece state and hash a7a8q
+PASS capture/EP/promotion unmake restores marker a7a8q
+PASS capture/EP/promotion updates per-piece state and hash a2a1n
+PASS capture/EP/promotion unmake restores marker a2a1n
+PASS invalid per-piece marker syntax rejected a1
+PASS invalid per-piece marker syntax rejected a8
+PASS invalid per-piece marker syntax rejected e3,e3
+PASS invalid per-piece marker syntax rejected E3
+PASS invalid per-piece marker syntax rejected e9
+PASS invalid per-piece marker syntax rejected e3,
+PASS invalid per-piece marker syntax rejected unknown
+PASS non-pawn marker rejected a2
+PASS non-pawn marker rejected h7
+PASS marker wrong colour fails closed
+NATIVE: 141 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (26 steps)
+[   0% ] update_scripts_classes | BaselineChessEngine
+[   3% ] update_scripts_classes |
+[   7% ] update_scripts_classes |
+[  11% ] update_scripts_classes |
+[  14% ] update_scripts_classes |
+[  18% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  25% ] update_scripts_classes |
+[  29% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  37% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  77% ] update_scripts_classes | ChessEngine
+[  81% ] update_scripts_classes |
+[  85% ] update_scripts_classes | ChessRules
+[  88% ] update_scripts_classes | ChessSetup
+[  92% ] update_scripts_classes | UpgradeArt
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (3 steps)
+[   0% ] _update_scan_actions | pawn_retreat.svg
+[  25% ] _update_scan_actions | pieces.ttf
+[  50% ] _update_scan_actions | title.ttf
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (3 steps)
+[   0% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | pieces.ttf
+[  25% ] reimport | title.ttf
+[  50% ] reimport | pawn_retreat.svg
+[  75% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (3 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout
+
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Every original piece has unique metadata
+PASS: Default one slot; rare and legendary have two
+PASS: New pieces are common and unupgraded
+PASS: Unknown rarity, ineligible piece and unavailable ability rejected
+PASS: Empty square cannot receive upgrades
+PASS: Equipping existing ability is idempotent, never duplicate
+PASS: Current and initial marker state are canonical
+PASS: Rarity change keeps equipped ability without inventing a second one
+PASS: Downgrade and ability removal keep legal empty state
+PASS: Same-side ordinary pawn cannot borrow equipped pawn's retreat
+PASS: Markers sorted by square; legacy summary reports affected sides
+PASS: Black's mixed pawn upgrades are independent too
+PASS: Retreat carries complete identity, rarity and abilities
+PASS: Move updates current markers without changing replay origin
+PASS: Composition APIs cannot alter a game after its first move
+PASS: History copy keeps current and initial metadata and repetition
+PASS: Copied current and initial nested ability arrays are isolated
+PASS: Inspection getter cannot mutate the position
+PASS: Editor relocation preserves upgraded piece
+PASS: Overwrite removes destination identity and transfers source upgrade
+PASS: New palette pawn has new identity and no inherited side upgrade
+PASS: Replacing identical type still creates a new piece
+PASS: Moving an empty source does not erase the destination
+PASS: Erase removes identity and equipped ability
+PASS: Legacy convenience applies only to currently placed pawn instances
+PASS: Start transfers exact composed metadata and replay start
+PASS: Composed start has fresh correct repetition history
+PASS: Live game does not share mutable metadata with editor draft
+PASS: Original prepared army can be reopened without side-wide reconstruction
+PASS: Reset replaces army with new common identities and clears upgrades
+PASS: Material preset creates a clean replacement army without stale upgrades
+PASS: Pawn capture carries attacker's upgrade and removes captured upgrade
+PASS: Captured piece identity is absent
+PASS: Ordinary capture removes last effective marker but retains replay configuration
+PASS: En passant removes captured metadata behind destination and carries capturer
+PASS: Retreat onto EP target does not erase behind-target pawn metadata
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8q
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8r
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8b
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8n
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1q
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1r
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1b
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1n
+PASS: Castling carries both king and rook identities: e1g1
+PASS: Castling carries both king and rook identities: e1c1
+PASS: Castling carries both king and rook identities: e8g8
+PASS: Castling carries both king and rook identities: e8c8
+PASS: Repeatable equipped-pawn move: e4e3
+PASS: Repeatable equipped-pawn move: e5e6
+PASS: Repeatable equipped-pawn move: e3e4
+PASS: Repeatable equipped-pawn move: e6e5
+PASS: Repeatable equipped-pawn move: e4e3
+PASS: Repeatable equipped-pawn move: e5e6
+PASS: Repeatable equipped-pawn move: e3e4
+PASS: Repeatable equipped-pawn move: e6e5
+PASS: Rule-effective marker cycles count toward threefold repetition
+PASS: Visual-only identity/rarity never split equivalent positions
+PASS: Same board with different equipped pawn has different legality and key
+PASS: Unequipped metadata preserves orthodox position key
+PASS: Over-capacity state rejected atomically
+PASS: Duplicate ability rejected even with second slot
+PASS: Imported pawn ability on king rejected
+PASS: Unimplemented imported ability rejected
+PASS: Duplicate piece identity rejected
+PASS: Upgrade on empty square rejected
+PASS: Missing occupied-square metadata rejected
+PASS: Effective-state mismatch fails closed
+PASS: Unknown ability-state schema fails closed
+PASS: Corrupt initial replay markers fail closed
+PASS: Editor validates capacity before starting
+PASS: Editor validates duplicate ability separately from capacity
+PASS: FEN import starts clean, with no stale upgrades
+PIECE UPGRADES: 73 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Capture last upgrade: equip e4
+PASS: Capture last upgrade: exact nonempty move history retained
+PASS: Capture last upgrade: immutable original FEN and upgrades retained
+PASS: Capture last upgrade: current effective markers correct
+PASS: Capture last upgrade: original upgrades force Conservative after replay
+PASS: Capture last upgrade: real engine returns legal move;
+PASS: Capture last upgrade: actual native handshake observed
+PASS: Capture last upgrade: actual native profile remains Conservative
+PASS: Capture last upgrade: actual native current schema/empty flag correct
+PASS: Capture last upgrade: actual native current marker squares match
+PASS: Capture last upgrade: exact both-side legality and all threats agree after replay
+PASS: Capture last upgrade: engine search leaves original game untouched
+PASS: Promotion removes last upgrade: equip a7
+PASS: Promotion removes last upgrade: exact nonempty move history retained
+PASS: Promotion removes last upgrade: immutable original FEN and upgrades retained
+PASS: Promotion removes last upgrade: current effective markers correct
+PASS: Promotion removes last upgrade: original upgrades force Conservative after replay
+PASS: Promotion removes last upgrade: real engine returns legal move;
+PASS: Promotion removes last upgrade: actual native handshake observed
+PASS: Promotion removes last upgrade: actual native profile remains Conservative
+PASS: Promotion removes last upgrade: actual native current schema/empty flag correct
+PASS: Promotion removes last upgrade: actual native current marker squares match
+PASS: Promotion removes last upgrade: exact both-side legality and all threats agree after replay
+PASS: Promotion removes last upgrade: engine search leaves original game untouched
+PASS: EP removes last upgrade: equip d6
+PASS: EP removes last upgrade: exact nonempty move history retained
+PASS: EP removes last upgrade: immutable original FEN and upgrades retained
+PASS: EP removes last upgrade: current effective markers correct
+PASS: EP removes last upgrade: original upgrades force Conservative after replay
+PASS: EP removes last upgrade: real engine returns legal move;
+PASS: EP removes last upgrade: actual native handshake observed
+PASS: EP removes last upgrade: actual native profile remains Conservative
+PASS: EP removes last upgrade: actual native current schema/empty flag correct
+PASS: EP removes last upgrade: actual native current marker squares match
+PASS: EP removes last upgrade: exact both-side legality and all threats agree after replay
+PASS: EP removes last upgrade: engine search leaves original game untouched
+PASS: EP preserves capturing upgrade: equip d5
+PASS: EP preserves capturing upgrade: equip e5
+PASS: EP preserves capturing upgrade: exact nonempty move history retained
+PASS: EP preserves capturing upgrade: immutable original FEN and upgrades retained
+PASS: EP preserves capturing upgrade: current effective markers correct
+PASS: EP preserves capturing upgrade: original upgrades force Conservative after replay
+PASS: EP preserves capturing upgrade: real engine returns legal move;
+PASS: EP preserves capturing upgrade: actual native handshake observed
+PASS: EP preserves capturing upgrade: actual native profile remains Conservative
+PASS: EP preserves capturing upgrade: actual native current schema/empty flag correct
+PASS: EP preserves capturing upgrade: actual native current marker squares match
+PASS: EP preserves capturing upgrade: exact both-side legality and all threats agree after replay
+PASS: EP preserves capturing upgrade: engine search leaves original game untouched
+PASS: Mixed pawns on both sides: equip d6
+PASS: Mixed pawns on both sides: equip e4
+PASS: Mixed pawns on both sides: exact nonempty move history retained
+PASS: Mixed pawns on both sides: immutable original FEN and upgrades retained
+PASS: Mixed pawns on both sides: current effective markers correct
+PASS: Mixed pawns on both sides: original upgrades force Conservative after replay
+PASS: Mixed pawns on both sides: real engine returns legal move;
+PASS: Mixed pawns on both sides: actual native handshake observed
+PASS: Mixed pawns on both sides: actual native profile remains Conservative
+PASS: Mixed pawns on both sides: actual native current schema/empty flag correct
+PASS: Mixed pawns on both sides: actual native current marker squares match
+PASS: Mixed pawns on both sides: exact both-side legality and all threats agree after replay
+PASS: Mixed pawns on both sides: engine search leaves original game untouched
+PASS: Ordinary game still searches successfully:
+PASS: Fresh ordinary game does not inherit previous Conservative/upgrade configuration
+PIECE BRIDGE: 64 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+RETREAT UI: 15 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PERFT start depth 1 = 20
+PERFT start depth 2 = 400
+PERFT start depth 3 = 8902
+PERFT start depth 4 = 197281
+PERFT kiwipete depth 1 = 48
+PERFT kiwipete depth 2 = 2039
+PERFT kiwipete depth 3 = 97862
+PERFT ep-endgame depth 1 = 14
+PERFT ep-endgame depth 2 = 191
+PERFT ep-endgame depth 3 = 2812
+PERFT ep-endgame depth 4 = 43238
+PERFT promotions depth 1 = 6
+PERFT promotions depth 2 = 264
+PERFT promotions depth 3 = 9467
+PERFT check-evasions depth 1 = 44
+PERFT check-evasions depth 2 = 1486
+PERFT check-evasions depth 3 = 62379
+Reference positions compared: 100
+Reference positions compared: 200
+Reference positions compared: 300
+Reference positions compared: 400
+Reference positions compared: 500
+GODOT REFERENCE: 545 positions, 1652 checks, 0 failures
+
+CLEAN EXTRACTION: all archives, hashes, executable modes, exported startup, source import, native selftest and source bridge/oracle PASS

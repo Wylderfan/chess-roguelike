@@ -33,7 +33,11 @@ static func executable_path() -> String:
 	if platform == "Windows": rid = "win-arm64" if arch == "arm64" else "win-x64"
 	elif platform == "Linux": rid = "linux-x64" if arch == "x86_64" else "linux-arm64"
 	elif platform == "macOS": rid = "osx-arm64" if arch == "arm64" else "osx-x64"
-	return ProjectSettings.globalize_path("res://native/bin/" + rid + "/KnightEngine" + (".exe" if platform == "Windows" else ""))
+	# Native processes must live outside the exported PCK. Source projects use res://.
+	var relative = "native/bin/" + rid + "/KnightEngine" + (".exe" if platform == "Windows" else "")
+	if OS.has_feature("standalone"):
+		return OS.get_executable_path().get_base_dir().path_join(relative)
+	return ProjectSettings.globalize_path("res://" + relative)
 
 func send(text: String) -> void:
 	pipe.store_buffer((text + "\n").to_utf8_buffer())
