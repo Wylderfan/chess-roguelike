@@ -1,0 +1,40 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Initial perft depth 1: 20
+PASS: Initial perft depth 2: 400
+PASS: Initial perft depth 3: 8902
+PASS: Kiwipete depth 1: 48
+PASS: Kiwipete depth 2: 2039
+PASS: Endgame/en-passant perft depth 3: 2812
+PASS: Both castles available
+PASS: Castling relocates rook and removes rights
+PASS: Cannot castle across attacked f1
+PASS: Cannot castle into check
+PASS: Cannot castle out of check
+PASS: Rook return does not restore castling rights
+PASS: En passant removes captured pawn
+PASS: Pinned en passant is illegal
+PASS: Illegal en passant does not alter repetition identity
+PASS: En passant cannot expose horizontal rook check
+PASS: Legal en passant changes repetition identity
+PASS: En passant expires after one turn
+PASS: Four promotion choices and knight underpromotion
+PASS: Black promotion
+PASS: Fool's mate
+PASS: No moves after game end
+PASS: Stalemate
+PASS: King may capture an unprotected checking rook
+PASS: King cannot capture protected piece
+PASS: Reject illegal move
+PASS: Threefold is claimable, not automatic
+PASS: Threefold claim ends game
+PASS: Fivefold is automatic
+PASS: 50-move claim threshold
+PASS: 75-move automatic threshold
+PASS: Checkmate takes precedence over 75-move draw
+PASS: Recognized dead material: 4k3/8/8/8/8/8/8/4K3 w - - 0 1
+PASS: Recognized dead material: 4k3/8/8/8/8/8/8/2B1K3 w - - 0 1
+PASS: Recognized dead material: 4k3/8/8/8/8/8/8/2N1K3 w - - 0 1
+PASS: Recognized dead material: 4kb2/8/8/8/8/8/8/2B1K3 w - - 0 1
+PASS: Two knights are not automatically dead
+RULES: 37 checks, 0 failures

@@ -1,0 +1,76 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Every original piece has unique metadata
+PASS: Default one slot; rare and legendary have two
+PASS: New pieces are common and unupgraded
+PASS: Unknown rarity, ineligible piece and unavailable ability rejected
+PASS: Empty square cannot receive upgrades
+PASS: Equipping existing ability is idempotent, never duplicate
+PASS: Current and initial marker state are canonical
+PASS: Rarity change keeps equipped ability without inventing a second one
+PASS: Downgrade and ability removal keep legal empty state
+PASS: Same-side ordinary pawn cannot borrow equipped pawn's retreat
+PASS: Markers sorted by square; legacy summary reports affected sides
+PASS: Black's mixed pawn upgrades are independent too
+PASS: Retreat carries complete identity, rarity and abilities
+PASS: Move updates current markers without changing replay origin
+PASS: Composition APIs cannot alter a game after its first move
+PASS: History copy keeps current and initial metadata and repetition
+PASS: Copied current and initial nested ability arrays are isolated
+PASS: Inspection getter cannot mutate the position
+PASS: Editor relocation preserves upgraded piece
+PASS: Overwrite removes destination identity and transfers source upgrade
+PASS: New palette pawn has new identity and no inherited side upgrade
+PASS: Replacing identical type still creates a new piece
+PASS: Moving an empty source does not erase the destination
+PASS: Erase removes identity and equipped ability
+PASS: Legacy convenience applies only to currently placed pawn instances
+PASS: Start transfers exact composed metadata and replay start
+PASS: Composed start has fresh correct repetition history
+PASS: Live game does not share mutable metadata with editor draft
+PASS: Original prepared army can be reopened without side-wide reconstruction
+PASS: Reset replaces army with new common identities and clears upgrades
+PASS: Material preset creates a clean replacement army without stale upgrades
+PASS: Pawn capture carries attacker's upgrade and removes captured upgrade
+PASS: Captured piece identity is absent
+PASS: Ordinary capture removes last effective marker but retains replay configuration
+PASS: En passant removes captured metadata behind destination and carries capturer
+PASS: Retreat onto EP target does not erase behind-target pawn metadata
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8q
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8r
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8b
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a7a8n
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1q
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1r
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1b
+PASS: Promotion retains identity/rarity and drops pawn-only ability: a2a1n
+PASS: Castling carries both king and rook identities: e1g1
+PASS: Castling carries both king and rook identities: e1c1
+PASS: Castling carries both king and rook identities: e8g8
+PASS: Castling carries both king and rook identities: e8c8
+PASS: Repeatable equipped-pawn move: e4e3
+PASS: Repeatable equipped-pawn move: e5e6
+PASS: Repeatable equipped-pawn move: e3e4
+PASS: Repeatable equipped-pawn move: e6e5
+PASS: Repeatable equipped-pawn move: e4e3
+PASS: Repeatable equipped-pawn move: e5e6
+PASS: Repeatable equipped-pawn move: e3e4
+PASS: Repeatable equipped-pawn move: e6e5
+PASS: Rule-effective marker cycles count toward threefold repetition
+PASS: Visual-only identity/rarity never split equivalent positions
+PASS: Same board with different equipped pawn has different legality and key
+PASS: Unequipped metadata preserves orthodox position key
+PASS: Over-capacity state rejected atomically
+PASS: Duplicate ability rejected even with second slot
+PASS: Imported pawn ability on king rejected
+PASS: Unimplemented imported ability rejected
+PASS: Duplicate piece identity rejected
+PASS: Upgrade on empty square rejected
+PASS: Missing occupied-square metadata rejected
+PASS: Effective-state mismatch fails closed
+PASS: Unknown ability-state schema fails closed
+PASS: Corrupt initial replay markers fail closed
+PASS: Editor validates capacity before starting
+PASS: Editor validates duplicate ability separately from capacity
+PASS: FEN import starts clean, with no stale upgrades
+PIECE UPGRADES: 73 checks, 0 failures

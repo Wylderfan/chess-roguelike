@@ -1,0 +1,48 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=g6g7 depth=1 nodes=47 elapsed_ms=138 score=99999
+PASS: Find mate in one
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=f6g6 depth=3 nodes=940 elapsed_ms=162 score=99997
+PASS: See forced mate in two
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=d2d4 depth=15 nodes=2661044 elapsed_ms=1242 score=662
+PASS: Capture hanging queen
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=d2e2 depth=10 nodes=2835768 elapsed_ms=1240 score=364
+PASS: Avoid poisoned pawn / immediate recapture
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=d8e7 depth=10 nodes=5455186 elapsed_ms=2835 score=20
+PASS: Avoid immediate mate when defense exists
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=a7a8q depth=12 nodes=3832943 elapsed_ms=1200 score=1126
+PASS: Choose ordinary queen promotion
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=c7c8r depth=4 nodes=777 elapsed_ms=153 score=99997
+PASS: Rook underpromotion avoids stalemate and forces mate
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=b1c3 depth=7 nodes=147313 elapsed_ms=492 score=11
+PASS: Search respects budget with bounded node completion
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=e2e4 depth=10 nodes=2095403 elapsed_ms=1305 score=38
+PASS: Search respects budget with bounded node completion
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=e2e4 depth=11 nodes=5833798 elapsed_ms=2791 score=32
+PASS: Search respects budget with bounded node completion
+PASS: Pre-canceled search exits promptly
+PASS: Search preserves all live position state
+PASS: Search returns a legal move
+BENCH move=none depth=0 nodes=0 elapsed_ms=0 score=0
+PASS: No move in stalemate
+ENGINE: 34 checks, 0 failures

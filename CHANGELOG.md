@@ -1,5 +1,20 @@
 # Changes
 
+## v0.8 — 2026-11-04
+
+- Piece Workshop equips individual pawns, preserves identity when relocating, and validates starting armies.
+- Common one-slot and Rare/Legendary two-slot metadata; only Pawn Retreat exists, so no duplicate or invented second ability.
+- Original returning-arrow sigil, rarity frames, empty second socket and extensible linked-sigil renderer.
+- Per-piece native replay, move/capture/EP/promotion, undo and repetition semantics; initial marker transport and fail-closed protocol.
+- Independent mixed-piece oracle, lifecycle regressions and Linux graphical playtesting.
+
+## v0.7 — 2026-11-04
+
+- First active ability: per-side Pawn Retreat, one empty square backward with king safety and unchanged attacks.
+- Automatic conservative engine compatibility, protocol schema gate, replay and repetition-cycle support.
+- Source-explicit retreat notation, live active-rule label, isolated setup/cancel/history handling.
+- Independent test-only variant oracle and standard-chess regressions.
+
 ## v0.6 follow-up — compatibility profiles and EP input correction
 - Standard/conservative engine selector with real LMR/cache/evaluation controls.
 - Conservative standard-rule geometric candidates and simulate/check legality.
