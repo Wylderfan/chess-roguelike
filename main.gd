@@ -1,4 +1,5 @@
 extends Control
+const Art = preload("res://art_direction.gd")
 const Rules = preload("res://rules.gd")
 const Setup = preload("res://setup.gd")
 const Upgrades = preload("res://upgrade_art.gd")
@@ -195,11 +196,11 @@ func build_theme() -> void:
 	for type in ["Button", "OptionButton"]:
 		for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 			var box = StyleBoxFlat.new()
-			box.bg_color = Color("3d3930") if state == "normal" else Color("514835")
-			if state == "disabled": box.bg_color = Color("292923")
-			box.border_color = Color("83704b") if state != "focus" else Color("e0bf77")
+			box.bg_color = Color("2b4148") if state == "normal" else Color("744d3e")
+			if state == "disabled": box.bg_color = Color("23373d")
+			box.border_color = Color("8b8a70") if state != "focus" else Color("e0bf77")
 			box.set_border_width_all(1 if state != "focus" else 2)
-			box.set_corner_radius_all(4)
+			box.set_corner_radius_all(0)
 			box.content_margin_left = 12
 			box.content_margin_right = 12
 			box.content_margin_top = 10
@@ -211,10 +212,10 @@ func build_theme() -> void:
 	# Button styles may otherwise have different widths/margins, shifting the text.
 	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 		var box = StyleBoxFlat.new()
-		box.bg_color = Color("3d3930") if state == "normal" else Color("514835")
-		box.border_color = Color("e0bf77") if state == "focus" else Color("83704b")
+		box.bg_color = Color("2b4148") if state == "normal" else Color("744d3e")
+		box.border_color = Color("e0bf77") if state == "focus" else Color("8b8a70")
 		box.set_border_width_all(1)
-		box.set_corner_radius_all(4)
+		box.set_corner_radius_all(0)
 		box.content_margin_left = 12
 		box.content_margin_right = 12
 		box.content_margin_top = 10
@@ -226,6 +227,18 @@ func build_theme() -> void:
 			t.set_icon(("checked" if checked else "unchecked") + suffix, "CheckBox", icon)
 	t.set_constant("h_separation", "CheckBox", 8)
 	t.set_constant("check_v_offset", "CheckBox", 0)
+	var history_paper = StyleBoxFlat.new()
+	history_paper.bg_color = Color("172e36")
+	history_paper.border_color = Color("738581")
+	history_paper.set_border_width_all(1)
+	history_paper.set_content_margin_all(6)
+	t.set_stylebox("panel", "ItemList", history_paper)
+	var history_selection = StyleBoxFlat.new()
+	history_selection.bg_color = Color("80513e")
+	history_selection.border_color = Color("d6b885")
+	history_selection.border_width_left = 3
+	t.set_stylebox("selected", "ItemList", history_selection)
+	t.set_stylebox("selected_focus", "ItemList", history_selection)
 	theme = t
 
 func label(text: String, font_size: int) -> Label:
@@ -255,8 +268,8 @@ func layout_board() -> void:
 	cancel_drag()
 	if menu_panel != null:
 		for page in [menu_panel, settings_panel]:
-			page.position = Vector2(maxf(32, (size.x - 420) / 2), maxf(150, size.y * 0.28))
-			page.size = Vector2(minf(420, size.x - 64), 0)
+			page.position = Vector2(64, 353) if size.x >= 940 else Vector2(40, 405)
+			page.size = Vector2(360 if size.x >= 940 else size.x - 80, 0)
 	if sidebar == null: return
 	var board_size: float
 	if size.x >= 940:
@@ -547,52 +560,41 @@ func square_rect(s: int) -> Rect2:
 	return Rect2(ORIGIN + Vector2(view % 8, view / 8) * CELL, Vector2.ONE * CELL)
 
 func marker(center: Vector2, capture: bool, color: Color) -> void:
-	if capture: draw_arc(center, CELL * 0.42, 0, TAU, 40, color, maxf(2, CELL * 0.04), true)
-	else: draw_circle(center, CELL * 0.10, color, true, -1, true)
+	if capture:
+		draw_arc(center, CELL * 0.42, 0, TAU, 40, Color("15313a"), maxf(4, CELL * 0.08), true)
+		draw_arc(center, CELL * 0.42, 0, TAU, 40, color, maxf(2, CELL * 0.04), true)
+	else:
+		draw_circle(center, CELL * 0.13, Color("15313a"), true, -1, true)
+		draw_circle(center, CELL * 0.10, color, true, -1, true)
 
 func _draw() -> void:
 	var shown = displayed_game()
 	var highlighted = {} if editing else (last_move if history_index == -1 else (records[history_index - 1].move if history_index > 0 else {}))
 	var font = PIECE_FONT
 	var brass = Color("b99a61")
-	draw_rect(Rect2(Vector2.ZERO, size), Color("202622"))
-	# Restrained brass border and title, all original procedural drawing.
-	draw_line(Vector2(32, 20), Vector2(size.x - 32, 20), brass, 1)
-	draw_string(TITLE_FONT, Vector2(42, 67), "Knight Chess", HORIZONTAL_ALIGNMENT_LEFT, -1, 34, Color("f0dfbc"))
-	draw_string(font, Vector2(44, 91), "A BOARD. TWO ARMIES. YOUR NEXT MOVE.", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, brass)
+	Art.backdrop(self, size, screen, TITLE_FONT, PIECE_FONT)
 	if screen in ["menu", "settings"]: return
 	var board_rect = Rect2(ORIGIN, Vector2.ONE * CELL * 8)
-	draw_rect(board_rect.grow(17), Color("131b18"))
-	draw_rect(board_rect.grow(12), Color("59432d"))
-	draw_rect(board_rect.grow(13), brass, false, 1)
-	draw_rect(board_rect.grow(3), Color("322b22"))
+	Art.frame(self, board_rect)
 	for s in 64:
 		var rect = square_rect(s)
 		var light = (s % 8 + s / 8) % 2 == 0
-		draw_rect(rect, Color("decba5") if light else Color("78806a"))
+		Art.square(self, rect, light)
 		if not highlighted.is_empty() and s in [highlighted.from, highlighted.to]: draw_rect(rect, Color(0.89,0.67,0.20,0.36))
 		if abs(shown.board[s]) == Rules.KING and shown.in_check(sign(shown.board[s])): draw_rect(rect, Color(0.78,0.19,0.17,0.58))
-		if s == selected: draw_rect(rect.grow(-3), Color("39765b"), false, 4)
+		if s == selected: draw_rect(rect.grow(-3), Color("61bb8a"), false, 4)
 		if s == inspected:
 			draw_rect(rect, Color(0.18,0.55,0.75,0.25))
-			draw_rect(rect.grow(-3), Color("377da6"), false, 4)
+			draw_rect(rect.grow(-3), Color("49a9db"), false, 4)
 		var piece: int = shown.board[s]
 		if piece != 0 and not (dragging and s == drag_from):
-			var symbol: String = SYMBOLS[abs(piece)]
-			var fs = int(CELL * 0.77)
-			var width = PIECE_FONT.get_string_size(symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-			var pos = rect.position + Vector2((CELL - width)/2, CELL * 0.78)
-			var ink = Color("fff1d3") if piece > 0 else Color("25332d")
-			var edge = Color("59432d") if piece > 0 else Color("d9c59b")
-			draw_string_outline(PIECE_FONT, pos + Vector2(1,2), symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 3, Color(0.12,0.12,0.09,0.35))
-			draw_string_outline(PIECE_FONT, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 2, edge)
-			draw_string(PIECE_FONT, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, ink)
+			Art.piece(self, rect, piece)
 			Upgrades.draw_upgrade(self, rect, shown.get_piece_data(s))
 		for m in legal:
-			if m.from == selected and m.to == s: marker(rect.get_center(), piece != 0, Color("276247"))
+			if m.from == selected and m.to == s: marker(rect.get_center(), piece != 0, Color("6bc492"))
 		if inspected != -1 and not preview.is_empty():
 			for m in preview.moves:
-				if m.to == s: marker(rect.get_center(), piece != 0, Color("206c9a"))
+				if m.to == s: marker(rect.get_center(), piece != 0, Color("4eace0"))
 			if s in preview.attacks:
 				var c = rect.position + Vector2(CELL * 0.83, CELL * 0.17)
 				var r = CELL * 0.065
@@ -608,12 +610,7 @@ func _draw() -> void:
 
 	if dragging and drag_from != -1:
 		var piece: int = shown.board[drag_from]
-		var symbol: String = SYMBOLS[abs(piece)]
-		var fs = int(CELL * 0.85)
-		var width = font.get_string_size(symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-		var pos = drag_position + Vector2(-width / 2, CELL * 0.28)
-		draw_string_outline(font, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 3, Color("59432d") if piece > 0 else Color("d9c59b"))
-		draw_string(font, pos, symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color("fff1d3") if piece > 0 else Color("25332d"))
+		Art.piece(self, Rect2(drag_position-Vector2.ONE*CELL*.5,Vector2.ONE*CELL), piece)
 		Upgrades.draw_upgrade(self,Rect2(drag_position-Vector2.ONE*CELL*.5,Vector2.ONE*CELL),shown.get_piece_data(drag_from))
 
 func snapshot(source: ChessRules) -> ChessRules:
@@ -979,6 +976,8 @@ func build_menu() -> void:
 	coordinates_check.toggled.connect(set_coordinates)
 	label("Show file and rank labels around the board. Saved for your next session. Match options stay in sandbox setup.", 15)
 	make_button("Back", show_main_menu)
+	Art.menu_skin(menu_panel)
+	Art.menu_skin(settings_panel)
 	panel = original_panel
 	transition_dialog = ConfirmationDialog.new()
 	transition_dialog.title = "Leave this game?"
