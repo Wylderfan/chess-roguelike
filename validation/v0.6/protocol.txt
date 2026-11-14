@@ -1,0 +1,38 @@
+PASS startup UCI handshake
+PASS safe terminal root 7k/5Q2/6K1/8/8/8/8/8 b - - 0 1
+PASS safe terminal root 7k/6Q1/5K2/8/8/8/8/8 b - - 0 1
+PASS 20 initial legal moves
+PASS full move sequence retains threefold history
+PASS isolated FEN correctly differs from repeated history
+PASS special legal set {'e1c1', 'e1g1'}
+PASS special legal set {'e5d6'}
+PASS special legal set {'a7a8r', 'a7a8q', 'a7a8b', 'a7a8n'}
+PASS rapid stop returns one legal move 0
+PASS new position cannot receive old result 0
+PASS rapid stop returns one legal move 1
+PASS new position cannot receive old result 1
+PASS rapid stop returns one legal move 2
+PASS new position cannot receive old result 2
+PASS rapid stop returns one legal move 3
+PASS new position cannot receive old result 3
+PASS rapid stop returns one legal move 4
+PASS new position cannot receive old result 4
+PASS rapid stop returns one legal move 5
+PASS new position cannot receive old result 5
+PASS rapid stop returns one legal move 6
+PASS new position cannot receive old result 6
+PASS rapid stop returns one legal move 7
+PASS new position cannot receive old result 7
+PASS rapid stop returns one legal move 8
+PASS new position cannot receive old result 8
+PASS rapid stop returns one legal move 9
+PASS new position cannot receive old result 9
+PASS rapid stop returns one legal move 10
+PASS new position cannot receive old result 10
+PASS rapid stop returns one legal move 11
+PASS new position cannot receive old result 11
+PASS old short timer cannot stop new search
+PASS go depth supported explicitly
+PASS clean quit joins active worker
+PASS no native stderr/runtime errors
+PROTOCOL: 37 checks, 0 failures

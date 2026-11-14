@@ -1,5 +1,20 @@
 # Changes
 
+## v0.6 follow-up — compatibility profiles and EP input correction
+- Standard/conservative engine selector with real LMR/cache/evaluation controls.
+- Conservative standard-rule geometric candidates and simulate/check legality.
+- Profile/schema gates, search-generation cancellation and independent perft parity.
+- Reject inconsistent external EP targets while accepting targets without capturers.
+
+## v0.6 — 2026-10-29
+
+- Simplified side choices to White/Black and fixed checkbox icon/padding geometry across all states.
+- Allowed extra standard pieces up to 32 per side; hardened native list/move/search/repetition/evaluation bounds and rebuilt Windows/Linux engines.
+- Fixed setup castling: unrelated edits retain rights, touched king/rook rights clear, and four explicit valid-pair toggles replace the aggregate control.
+- Added native input/king-capture guards, bounded cancellable search without constructor warm-up, and extra-bishop draw parity.
+- Added independent python-chess legal/threat comparisons over 541 positions and 17 published perft/divides; added capacity, promotion, checkbox and castling regressions.
+- Planned abilities remain inactive; documented future extension gates and test-only reference licensing.
+
 ## v0.5 — 2026-10-29
 
 - Added a pre-game editor with move/place/erase tools, side-to-move selection and material-odds presets for either human color.

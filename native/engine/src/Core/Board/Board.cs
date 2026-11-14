@@ -89,6 +89,7 @@ namespace Chess.Core
 			int movedPieceType = Piece.PieceType(movedPiece);
 			int capturedPiece = isEnPassant ? Piece.MakePiece(Piece.Pawn, OpponentColour) : Square[targetSquare];
 			int capturedPieceType = Piece.PieceType(capturedPiece);
+			if (capturedPieceType == Piece.King) throw new System.ArgumentException("Kings cannot be captured");
 
 			int prevCastleState = CurrentGameState.castlingRights;
 			int prevEnPassantFile = CurrentGameState.enPassantFile;
@@ -439,12 +440,14 @@ namespace Chess.Core
 
 		public void LoadPosition(string fen)
 		{
+			PositionLimits.ValidateFen(fen);
 			FenUtility.PositionInfo posInfo = FenUtility.PositionFromFen(fen);
 			LoadPosition(posInfo);
 		}
 
 		public void LoadPosition(FenUtility.PositionInfo posInfo)
 		{
+			PositionLimits.ValidateInventory(posInfo);
 			StartAbilities = default;
 			StartPositionInfo = posInfo;
 			Initialize();
@@ -582,11 +585,11 @@ namespace Chess.Core
 			CurrentGameState = new GameState();
 			PlyCount = 0;
 
-			Knights = new PieceList[] { new PieceList(10), new PieceList(10) };
-			Pawns = new PieceList[] { new PieceList(8), new PieceList(8) };
-			Rooks = new PieceList[] { new PieceList(10), new PieceList(10) };
-			Bishops = new PieceList[] { new PieceList(10), new PieceList(10) };
-			Queens = new PieceList[] { new PieceList(9), new PieceList(9) };
+			Knights = new PieceList[] { new PieceList(PositionLimits.MaxPiecesPerSide), new PieceList(PositionLimits.MaxPiecesPerSide) };
+			Pawns = new PieceList[] { new PieceList(PositionLimits.MaxPiecesPerSide), new PieceList(PositionLimits.MaxPiecesPerSide) };
+			Rooks = new PieceList[] { new PieceList(PositionLimits.MaxPiecesPerSide), new PieceList(PositionLimits.MaxPiecesPerSide) };
+			Bishops = new PieceList[] { new PieceList(PositionLimits.MaxPiecesPerSide), new PieceList(PositionLimits.MaxPiecesPerSide) };
+			Queens = new PieceList[] { new PieceList(PositionLimits.MaxPiecesPerSide), new PieceList(PositionLimits.MaxPiecesPerSide) };
 
 			allPieceLists = new PieceList[Piece.MaxPieceIndex + 1];
 			allPieceLists[Piece.WhitePawn] = Pawns[WhiteIndex];

@@ -1,4 +1,4 @@
-﻿namespace Chess.Core
+namespace Chess.Core
 {
 	using System.Linq;
 
@@ -92,12 +92,18 @@
 				return true;
 			}
 
-			// Bishop vs bishop: is insufficient when bishops are same colour complex
-			if (numMinors == 2 && numWhiteBishops == 1 && numBlackBishops == 1)
+			// Any number of bishops on one colour complex, with no knights.
+			if (numWhiteKnights + numBlackKnights == 0)
 			{
-				bool whiteBishopIsLightSquare = BoardHelper.LightSquare(board.Bishops[Board.WhiteIndex][0]);
-				bool blackBishopIsLightSquare = BoardHelper.LightSquare(board.Bishops[Board.BlackIndex][0]);
-				return whiteBishopIsLightSquare == blackBishopIsLightSquare;
+				bool? colour = null;
+				foreach (var bishops in board.Bishops)
+					for (int i=0;i<bishops.Count;i++)
+					{
+						bool squareColour = BoardHelper.LightSquare(bishops[i]);
+						if (colour.HasValue && colour.Value != squareColour) return false;
+						colour = squareColour;
+					}
+				return true;
 			}
 
 			return false;
