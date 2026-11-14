@@ -1,0 +1,279 @@
+  Determining projects to restore...
+  Restored /workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj (in 259 ms).
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'KingSquare' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'PieceBitboards' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'ColourBitboards' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Rooks' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Bishops' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Queens' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Knights' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'Pawns' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'RepetitionPositionHistory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'AllGameMoves' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'allPieceLists' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Board/Board.cs(70,10): warning CS8618: Non-nullable field 'gameStateHistory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Evaluation/Evaluation.cs(17,9): warning CS8618: Non-nullable field 'board' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Search/Searcher.cs(85,10): warning CS8618: Non-nullable field 'searchIterationTimer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Search/Searcher.cs(85,10): warning CS8618: Non-nullable field 'searchTotalTimer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Search/Searcher.cs(85,10): warning CS8618: Non-nullable field 'debugInfo' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Helpers/PGNCreator.cs(40,47): warning CS9336: The pattern is redundant. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Opening Book/OpeningBook.cs(46,80): warning CS8600: Converting null literal or possible null value to non-nullable type. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/src/Core/Move Generation/MoveGenerator.cs(38,9): warning CS8618: Non-nullable field 'board' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [/workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/Chess-Coding-Adventure.csproj]
+  Chess-Coding-Adventure -> /workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/engine/bin/Release/net10.0/linux-x64/KnightEngine.dll
+  Chess-Coding-Adventure -> /workspace/scratch/c8a1aa3aaf8c/chess-menu-work/build/clean-checkout/native/bin/linux-x64/
+PASS empty ability evaluation preserves standard
+PASS empty ability evaluation preserves conservative
+PASS registered contributions default disabled
+PASS active evaluator gives no bonus to ordinary pawns
+PASS only the equipped pawn contributes; automatic Conservative retained
+PASS disabling evaluation does not disable the ability rule
+PASS existing searcher retains immutable evaluator snapshot
+PASS evaluation toggle leaves selective legal moves unchanged
+PASS equal White and Black upgrades cancel evaluation contribution
+PASS Black contribution converts once to side-to-move score
+PASS remove contribution by id without changing rule registration
+PASS remove restores baseline, legal moves and board identity
+PASS enabled no-op preserves baseline exactly
+PASS search with optional evaluator preserves legal output and make/unmake
+PASS duplicate evaluator ids rejected
+PASS start perft 8902 plus every move/hash/unmake roundtrip
+PASS Kiwipete perft 2039 roundtrips
+PASS en passant perft 2812 roundtrips
+PASS all four promotion flags
+PASS promotion hash/unmake roundtrips
+PASS reserved flag 8 is neither promotion nor playable
+PASS empty ability state leaves standard hash unchanged
+PASS nonempty setup state contributes to identity
+PASS nonempty unregistered rule state fails closed
+PASS ability snapshot make/unmake roundtrips remain exact
+PASS copy retains state and hash
+PASS null move hash includes state
+PASS null unmake restores state/hash
+PASS extension masks inactive
+PASS terminal root safe no-move
+PASS shared move bound covers any supported army
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS extra-army evaluation finite and below mate range
+PASS extra-army perft + full hash/unmake restoration
+PASS constructor performs no unbudgeted search
+PASS budgeted extra-army search restores board and hash
+PASS cancelled search leaves original state intact
+PASS independent 221 legal move stress fixture exceeds old 218
+PASS independent 129 capture fixture exceeds old q buffer
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS maximum inventory promotion headroom and hash
+PASS maximum promotion unmake restores list
+PASS repetition history/search safely exceed 256 entries
+PASS dynamic repetition push/pop preserves original history
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS malformed/native castling input rejected before board mutation
+PASS multiple same-color bishops recognized dead
+PASS two knights not automatically dead
+PASS opposite-color bishops not dead
+PASS king capture rejected before mutation
+PASS native rejects over-cap inventory before piece-list construction
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS inconsistent external en passant rejected
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS valid external en passant retained with or without capturer
+PASS profile generation restores board/hash
+PASS profile search returns legal move
+PASS profile search restores board/hash
+PASS LMR profile gate honored
+PASS TT profile gate honored
+PASS evaluation profile gate honored
+PASS profile cancellation retains legal fallback and original state
+PASS unregistered ability schema fails closed in both profiles
+PASS profile generation restores board/hash
+PASS profile search returns legal move
+PASS profile search restores board/hash
+PASS LMR profile gate honored
+PASS TT profile gate honored
+PASS evaluation profile gate honored
+PASS profile cancellation retains legal fallback and original state
+PASS unregistered ability schema fails closed in both profiles
+PASS per-side retreat generated through conservative safety path
+PASS retreat is quiet, not a capture or attack
+PASS retreat capability participates in hash
+PASS retreat tree incremental hashes and every unmake restore state
+PASS retreat resets halfmove clock and never creates en passant
+PASS reversible pawn move preserves repetition history
+PASS copy replays active retreat history
+PASS active ability forces conservative search
+PASS active search returns legal move and restores board
+PASS per-side retreat generated through conservative safety path
+PASS retreat is quiet, not a capture or attack
+PASS retreat capability participates in hash
+PASS retreat tree incremental hashes and every unmake restore state
+PASS retreat resets halfmove clock and never creates en passant
+PASS reversible pawn move preserves repetition history
+PASS copy replays active retreat history
+PASS active ability forces conservative search
+PASS active search returns legal move and restores board
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS retreat rejects occupied/end-rank/king-exposing destinations
+PASS forward/backward pawn cycles retain threefold identity
+PASS disabled side cannot retreat
+PASS return to starting rank restores rank-based double advance
+PASS retreat can block check when king-safe
+PASS synthetic retreat onto EP target classified quiet
+PASS synthetic EP target retreat preserves opposing pawn
+PASS only marked pawn gains retreat
+PASS per-piece state follows every move and hash/unmake in tree
+PASS search restores per-piece markers
+PASS marker follows retreat and two-square advance
+PASS copy replay reconstructs current individual location
+PASS capture/EP/promotion updates per-piece state and hash e2d3
+PASS capture/EP/promotion unmake restores marker e2d3
+PASS capture/EP/promotion updates per-piece state and hash e2e3
+PASS capture/EP/promotion unmake restores marker e2e3
+PASS capture/EP/promotion updates per-piece state and hash e5d6
+PASS capture/EP/promotion unmake restores marker e5d6
+PASS capture/EP/promotion updates per-piece state and hash e4d3
+PASS capture/EP/promotion unmake restores marker e4d3
+PASS capture/EP/promotion updates per-piece state and hash a7a8q
+PASS capture/EP/promotion unmake restores marker a7a8q
+PASS capture/EP/promotion updates per-piece state and hash a2a1n
+PASS capture/EP/promotion unmake restores marker a2a1n
+PASS invalid per-piece marker syntax rejected a1
+PASS invalid per-piece marker syntax rejected a8
+PASS invalid per-piece marker syntax rejected e3,e3
+PASS invalid per-piece marker syntax rejected E3
+PASS invalid per-piece marker syntax rejected e9
+PASS invalid per-piece marker syntax rejected e3,
+PASS invalid per-piece marker syntax rejected unknown
+PASS non-pawn marker rejected a2
+PASS non-pawn marker rejected h7
+PASS marker wrong colour fails closed
+NATIVE: 156 checks, 0 failures
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (27 steps)
+[   0% ] update_scripts_classes | BaselineChessEngine
+[   3% ] update_scripts_classes |
+[   7% ] update_scripts_classes |
+[  10% ] update_scripts_classes |
+[  14% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  25% ] update_scripts_classes |
+[  28% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  78% ] update_scripts_classes | ChessEngine
+[  82% ] update_scripts_classes |
+[  85% ] update_scripts_classes | ChessRules
+[  89% ] update_scripts_classes | ChessSetup
+[  92% ] update_scripts_classes | UpgradeArt
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (3 steps)
+[   0% ] _update_scan_actions | pawn_retreat.svg
+[  25% ] _update_scan_actions | pieces.ttf
+[  50% ] _update_scan_actions | title.ttf
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (3 steps)
+[   0% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | pieces.ttf
+ERROR: /root: The caller thread can't call the function `propagate_notification()` on this node. Use `call_deferred()` or `call_deferred_thread_group()` instead.
+   at: propagate_notification (scene/main/node.cpp:2597)
+
+================================================================
+handle_crash: Program crashed with signal 11
+Engine version: Godot Engine v4.6.3.stable.official (7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+ERROR: /root: The caller thread can't call the function `propagate_notification()` on this node. Use `call_deferred()` or `call_deferred_thread_group()` instead.
+   at: propagate_notification (scene/main/node.cpp:2597)
+
+================================================================
+handle_crash: Program crashed with signal 11
+Engine version: Godot Engine v4.6.3.stable.official (7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+[1] /lib/x86_64-linux-gnu/libc.so.6(+0x3fd70) [0x7f4a8d9a5d70] (??:0)
+[1] /lib/x86_64-linux-gnu/libc.so.6(+0x3fd70) [0x7f4a8d9a5d70] (??:0)
+[2] godot() [0x47a8978] (??:0)
+[2] godot() [0x47a8978] (??:0)
+[3] godot() [0x4cf448e] (??:0)
+[3] godot() [0x4cf448e] (??:0)
+[4] godot() [0x44f0146] (??:0)
+[4] godot() [0x44f0146] (??:0)
+[5] godot() [0x448c73e] (??:0)
+[5] godot() [0x448c73e] (??:0)
+[6] godot() [0x1d7396e] (??:0)
+[6] godot() [0x1d7396e] (??:0)
+[7] godot() [0x1bdc234] (??:0)
+[7] godot() [0x1bdc234] (??:0)
+[8] godot() [0x1bde87a] (??:0)
+[8] godot() [0x1bde87a] (??:0)
+[9] godot() [0x481422d] (??:0)
+[10] godot() [0x481495c] (??:0)
+[9] godot() [0x481422d] (??:0)
+[11] godot() [0x430b2b5] (??:0)
+[10] godot() [0x481495c] (??:0)
+[12] godot() [0x51c25a3] (??:0)
+[11] godot() [0x430b2b5] (??:0)
+[13] /lib/x86_64-linux-gnu/libc.so.6(+0x928bb) [0x7f4a8d9f88bb] (??:0)
+[14] /lib/x86_64-linux-gnu/libc.so.6(+0x110538) [0x7f4a8da76538] (??:0)
+-- END OF C++ BACKTRACE --
+================================================================
+[12] godot() [0x51c25a3] (??:0)
+[13] /lib/x86_64-linux-gnu/libc.so.6(+0x928bb) [0x7f4a8d9f88bb] (??:0)
+[14] /lib/x86_64-linux-gnu/libc.so.6(+0x110538) [0x7f4a8da76538] (??:0)
+-- END OF C++ BACKTRACE --
+================================================================

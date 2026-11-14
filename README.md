@@ -1,6 +1,6 @@
-# Knight Chess v0.8 — Godot 4.6.3
+# Knight Chess v0.9 — Godot 4.6.3
 
-**Integrated playtest packages:** `Knight-Chess-Playtest-Windows-x64.zip` is a standalone Windows game; extract all files and double-click `KnightChess.exe`. `Knight-Chess-Playtest-Godot-4.6.3.zip` is the editable project fallback with matching Windows/Linux native engines. `Knight-Chess-Playtest-Linux-x64.zip` is the standalone Linux build. All include a `BUILD.json` with the source commit and file hashes. Never mix an old `dist/` archive or engine with the new source. A GitHub source checkout alone still requires `native/build.ps1` or `native/build.sh`.
+**Integrated playtest packages:** `Knight-Chess-Sandbox-v0.9-Windows-x64.zip` is a standalone Windows game; extract all files and double-click `KnightChess.exe`. `Knight-Chess-Sandbox-v0.9-Godot-4.6.3.zip` is the editable project fallback with matching Windows/Linux native engines. `Knight-Chess-Sandbox-v0.9-Linux-x64.zip` is the standalone Linux build. All include a `BUILD.json` with the source commit and file hashes. Never mix an old `dist/` archive or engine with the new source. A GitHub source checkout alone still requires `native/build.ps1` or `native/build.sh`.
 
 Normal chess with Sebastian Lague's compiled C# engine, a medieval-inspired board,
 and right-click inspection of either army. Local two-player mode remains available.
@@ -17,8 +17,8 @@ positional evaluation, late-move reductions (LMR) and transposition cache.
 and move ordering, but uses geometric candidate moves followed by simulated king
 safety, material-only evaluation (P100/N300/B320/R500/Q900), no LMR and no cache
 probes/stores. It will usually search less deeply and may play more weakly.
-The option is in **Your game**; active Pawn Retreat automatically selects Conservative.
-Changing profiles cancels the current search and rejects its stale result.
+Choose the profile in sandbox setup; active Pawn Retreat automatically selects Conservative.
+Match options are fixed during play. New Game opens an isolated replacement draft.
 
 With no abilities, both profiles play exactly the same standard rules. This is a tested fallback
 for developing future rules, **not support for arbitrary abilities**. Unsupported
@@ -29,9 +29,10 @@ it can be registered; enabling a profile alone cannot make an ability correct.
 
 ## Windows: standalone playtest
 
-1. Extract **all** of `Knight-Chess-Playtest-Windows-x64.zip` into a writable folder.
+1. Extract **all** of `Knight-Chess-Sandbox-v0.9-Windows-x64.zip` into a writable folder.
 2. Double-click `KnightChess.exe`. Keep the `native` directory beside it.
-3. Choose your side and difficulty. Use **New game / Setup** for the Piece Workshop.
+3. Choose **Create Sandbox Game**, then your side, difficulty and Piece Workshop upgrades.
+4. Select **Start this position**. Settings on the main menu saves the board-coordinate preference.
 
 No Godot editor or .NET installation is required. This is an unsigned x64 export,
 cross-built on Linux. Its Windows PE architecture and bundled files were checked;
@@ -63,7 +64,7 @@ Mac binaries are not included; build the matching osx-arm64/osx-x64 target using
 
 ## Set up a material advantage
 
-Choose **New game / Setup** to edit a separate draft. Your current game pauses
+Choose **Create Sandbox Game** from the main menu, or **New Game** during play, to edit a separate draft. Your current game pauses
 and remains untouched until **Start this position** replaces it. **Cancel**
 returns to the exact live game or historical view; pending AI work resumes only
 when appropriate. Opening Setup starts from your original starting army, including its upgrades, not
@@ -112,10 +113,10 @@ record session-only configuration intent; they change no legal moves, attacks,
 captures, evaluation, hash or native runtime ability state. Intent is kept apart
 from the active `ChessRules.ability_state`, and the native protocol rejects unknown ability state. These three planned options remain inactive. Pawn Retreat is separate and functional; no save system is enabled.
 
-Changing mode or human side using the regular play controls starts a fresh
-**standard** game (the existing behavior), clearing setup intent. To choose
-custom odds again, use New game / Setup. The internal restart method and normal
-regression tests also reset to standard; history browsing is never a takeback.
+Mode, human side, difficulty and profile are pre-match options in sandbox setup.
+New Game pauses the live match; Cancel restores it. Starting a replacement asks
+for confirmation if an unfinished match has moves. Quit to Menu also confirms
+before discarding an unfinished match and cancels native search. History is read-only.
 
 ## Experimental Pawn Retreat
 
@@ -123,7 +124,7 @@ In Prepare the Armies, choose **Upgrade a piece**, click a pawn, and equip **Paw
 
 The active rule forces **Conservative** search even if the profile dropdown says Standard: simulated legality, material-only scoring, no late-move reductions or transposition cache. The live label lists the equipped pawns. Search remains Conservative for the game even after its last upgraded pawn is captured or promoted, so initial-position replay remains consistent. This is a correctness-first prototype, not a strength rating. The compiled engine receives the rule before replaying the starting FEN and all moves; Godot compares both sides' complete legal sets and every piece's attacks before each engine search. A mismatch stops play visibly.
 
-Moving an existing piece in Setup preserves its identity, rarity and ability. Replacing/erasing a piece removes its upgrades; newly placed ordinary pieces are Common. Reset and odds presets create fresh ordinary armies. Cancel leaves the live game untouched. New standard game, mode or side changes clear active abilities. Read-only history retains the graphics and rules of that position. FEN alone does not store ability state. Promotion preserves identity/rarity but removes pawn-only Retreat.
+Moving an existing piece in Setup preserves its identity, rarity and ability. Replacing/erasing a piece removes its upgrades; newly placed ordinary pieces are Common. Reset and odds presets create fresh ordinary armies. Cancel leaves the live game untouched. Reset standard army clears upgrades; applying a setup keeps that draft's upgrades regardless of chosen side or mode. Read-only history retains the graphics and rules of that position. FEN alone does not store ability state. Promotion preserves identity/rarity but removes pawn-only Retreat.
 
 **Slots and graphics:** Common pieces have one ability slot. Rare and Legendary pieces have two, shown by violet/gold framing and a hollow second socket. Pawn Retreat is the only implemented ability, so a second distinct ability cannot yet be equipped. Duplicate abilities are rejected. The returning-arrow medallion identifies Retreat; the renderer has a linked two-sigil layout ready for future combinations. Rarity currently changes slot capacity and graphics only, not strength or drop chances. No progression, loot or save system is implemented.
 
@@ -160,9 +161,8 @@ A quick local test: equip only the white e2 pawn, play e2-e4, e7-e5, then e4-e3.
   an inspection destination alone never executes a move.
 - Inspection remains responsive while the engine thinks and after game end.
   Right-click the same piece again, or Esc, to clear.
-- Play as Black rotates the board, including the setup editor. Mode or side
-  changes reset to a standard game; New game / Setup opens an isolated draft.
-  Changing the time budget keeps the position and cancels/replaces pending work.
+- Play as Black rotates the board, including the setup editor. **New Game**
+  opens an isolated draft; side and mode choices are available there.
 - Narrow windows stack the board and scrollable controls. Local mode supports
   two players and agreed draws. Claim draw appears for qualifying current positions.
 
@@ -190,7 +190,7 @@ move sequences and measured logs are in `validation/`.
 The UI validates the engine's full legal-move sets and piece threat masks before
 each search, preserves repetition history, and revalidates each returned move.
 A process failure or rules disagreement pauses engine play with a visible error;
-choose Local or New game to recover. There is no network engine dependency.
+choose New Game to retry or select Local in setup. There is no network engine dependency.
 
 ## Normal-chess scope
 
@@ -294,3 +294,22 @@ working directory. Native engines stay outside the embedded PCK. Export resource
 include scripts and fonts explicitly through the all-resources filter; test fixtures,
 previous ZIPs, SDKs and validation logs are excluded from the game executable.
 See `validation/integration/README.md` for measured checks and limitations.
+
+## Main menu and streamlined match view (v0.9)
+
+Boot opens **Create Sandbox Game**, **Settings**, and **Quit**. Settings contains
+one persistent display preference: **Show board coordinates**. It toggles file/rank
+labels only, saving to `user://preferences.cfg`; it does not affect rules, engine
+strength, board input, difficulty or match options. Default is on.
+
+During a match the sidebar keeps status, a reserved Check row, chronicle and
+Previous/Next/Return to live, New Game, Quit to Menu, compact material/engine/variant
+feedback and contextual inspection/draw actions. There are no live mode/side/
+difficulty/profile editors. Check does not reflow the history controls. Narrow
+layouts retain the board above a scrollable sidebar.
+
+The native optional evaluation registry is documented in
+`native/ABILITY-EVALUATION.md`. It has **no enabled production terms**; ordinary
+scores, Retreat legal rules, automatic Conservative compatibility and default
+Balanced difficulty are unchanged. Evaluation registration alone cannot implement
+a legal-move ability. See `validation/menu/README.md` for test evidence and limits.

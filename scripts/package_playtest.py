@@ -27,7 +27,7 @@ def fresh(name):
     return stage
 results=[]
 for platform,rid,exe in [('Windows','win-x64','KnightChess.exe'),('Linux','linux-x64','KnightChess.x86_64')]:
-    stage=fresh('Knight-Chess-Playtest-'+platform+'-x64')
+    stage=fresh('Knight-Chess-Sandbox-v0.9-'+platform+'-x64')
     shutil.copy2(root/'build'/platform.lower()/exe,stage/exe)
     target=stage/'native/bin'/rid;target.mkdir(parents=True)
     engine='KnightEngine.exe' if platform=='Windows' else 'KnightEngine'
@@ -35,10 +35,10 @@ for platform,rid,exe in [('Windows','win-x64','KnightChess.exe'),('Linux','linux
     licenses=stage/'licenses';licenses.mkdir()
     for p in [root/'build/GODOT-COPYRIGHT.txt',root/'assets/FONT-LICENSE.txt',*sorted((root/'native').glob('LICENSE*')),root/'native/THIRD-PARTY-DOTNET.txt']:
         shutil.copy2(p,licenses/p.name)
-    (stage/'START-HERE.txt').write_text('Knight Chess integrated playtest\n\nExtract the entire ZIP before playing. Keep native beside the game.\n'+('Double-click KnightChess.exe. No Godot or .NET installation required.\nWindows x64 only; cross-built on Linux, not executed on Windows.\n' if platform=='Windows' else 'Launch ./KnightChess.x86_64. ZIP retains executable bits; if your extractor drops them, chmod +x KnightChess.x86_64 native/bin/linux-x64/KnightEngine.\n')+'\nRight-click either army to inspect. New game / Setup opens the Piece Workshop.\nChoose Upgrade a piece, click a pawn, then equip Pawn Retreat. Rare/Legendary\nhave two slots, but only Pawn Retreat is implemented; the other stays empty.\nNo progression, loot or second ability. See README.md for controls and limits.\n')
+    (stage/'START-HERE.txt').write_text('Knight Chess integrated playtest\n\nExtract the entire ZIP before playing. Keep native beside the game.\n'+('Double-click KnightChess.exe. No Godot or .NET installation required.\nWindows x64 only; cross-built on Linux, not executed on Windows.\n' if platform=='Windows' else 'Launch ./KnightChess.x86_64. ZIP retains executable bits; if your extractor drops them, chmod +x KnightChess.x86_64 native/bin/linux-x64/KnightEngine.\n')+'\nRight-click either army to inspect. New Game opens sandbox setup; Quit to Menu confirms before discarding a match.\nChoose Create Sandbox Game, then Upgrade a piece, click a pawn and equip Pawn Retreat. Rare/Legendary\nhave two slots, but only Pawn Retreat is implemented; the other stays empty.\nNo progression, loot or second ability. See README.md for controls and limits.\n')
     shutil.copy2(root/'README.md',stage/'README.md')
     results.append(finish(stage))
-stage=fresh('Knight-Chess-Playtest-Godot-4.6.3')
+stage=fresh('Knight-Chess-Sandbox-v0.9-Godot-4.6.3')
 files=subprocess.check_output(['git','ls-files','-z'],cwd=root).decode().split('\0')
 for name in filter(None,files):
     if name.startswith(('dist/','.github/')): continue

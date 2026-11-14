@@ -142,7 +142,7 @@ func run() -> void:
 	ui.promote("4")
 	check(ui.records[0].san == "a8=R+", "Custom-start promotion SAN preserved")
 	ui.open_setup(); ui.setup.position.load_fen("k3r3/8/8/8/8/8/8/4K3 w - - 0 1"); ui.refresh_setup()
-	check(ui.start_setup() and ui.game.in_check(1) and ui.status.text.contains("Check"), "Legal side-to-move check accepted and displayed")
+	check(ui.start_setup() and ui.game.in_check(1) and ui.check_status.text == "Check", "Legal side-to-move check accepted and displayed")
 	# Eight actual native replies: every preset and both human colours.
 	for human in [1,-1]:
 		for piece in [Rules.PAWN,Rules.KNIGHT,Rules.ROOK,Rules.QUEEN]:

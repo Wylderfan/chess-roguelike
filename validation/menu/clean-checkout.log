@@ -1,0 +1,223 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (27 steps)
+[   0% ] update_scripts_classes | BaselineChessEngine
+[   3% ] update_scripts_classes |
+[   7% ] update_scripts_classes |
+[  10% ] update_scripts_classes |
+[  14% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  25% ] update_scripts_classes |
+[  28% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  78% ] update_scripts_classes | ChessEngine
+[  82% ] update_scripts_classes |
+[  85% ] update_scripts_classes | ChessRules
+[  89% ] update_scripts_classes | ChessSetup
+[  92% ] update_scripts_classes | UpgradeArt
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (3 steps)
+[   0% ] _update_scan_actions | pawn_retreat.svg
+[  25% ] _update_scan_actions | pieces.ttf
+[  50% ] _update_scan_actions | title.ttf
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (3 steps)
+[   0% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | pieces.ttf
+[  25% ] reimport | title.ttf
+[  50% ] reimport | pawn_retreat.svg
+[  75% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (3 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Boot opens main menu without a live match
+PASS: Default difficulty and profile unchanged
+PASS: Menu cannot launch native search or accept board moves
+PASS: Settings coordinate toggle is functional
+PASS: Coordinate preference reloads in a fresh scene
+PASS: Create Sandbox Game opens full setup with default difficulty
+PASS: Cancel first sandbox returns to menu
+PASS: Start enters a real sandbox match
+PASS: Live sidebar contains no per-match editing controls
+PASS: Regression fixture includes Qh5+ then a check evasion
+PASS: Next reaches checking position (1100, 812)
+PASS: All history button rects fixed on check (1100, 812)
+PASS: Previous clears check without moving controls (1100, 812)
+PASS: Next reaches checking position (1100, 812)
+PASS: All history button rects fixed on check (1100, 812)
+PASS: Previous clears check without moving controls (1100, 812)
+PASS: Next reaches checking position (1100, 812)
+PASS: All history button rects fixed on check (1100, 812)
+PASS: Previous clears check without moving controls (1100, 812)
+PASS: Next reaches checking position (1100, 812)
+PASS: All history button rects fixed on check (1100, 812)
+PASS: Previous clears check without moving controls (1100, 812)
+FIXED HISTORY (1100, 812) previous=[P: (686.0, 411.0), S: (99.0, 38.0)] next=[P: (789.0, 411.0), S: (70.0, 38.0)] live=[P: (863.0, 411.0), S: (203.0, 38.0)]
+PASS: Next reaches checking position (1180, 812)
+PASS: All history button rects fixed on check (1180, 812)
+PASS: Previous clears check without moving controls (1180, 812)
+PASS: Next reaches checking position (1180, 812)
+PASS: All history button rects fixed on check (1180, 812)
+PASS: Previous clears check without moving controls (1180, 812)
+PASS: Next reaches checking position (1180, 812)
+PASS: All history button rects fixed on check (1180, 812)
+PASS: Previous clears check without moving controls (1180, 812)
+PASS: Next reaches checking position (1180, 812)
+PASS: All history button rects fixed on check (1180, 812)
+PASS: Previous clears check without moving controls (1180, 812)
+FIXED HISTORY (1180, 812) previous=[P: (686.0, 411.0), S: (99.0, 38.0)] next=[P: (789.0, 411.0), S: (70.0, 38.0)] live=[P: (863.0, 411.0), S: (283.0, 38.0)]
+PASS: Next reaches checking position (1000, 800)
+PASS: All history button rects fixed on check (1000, 800)
+PASS: Previous clears check without moving controls (1000, 800)
+PASS: Next reaches checking position (1000, 800)
+PASS: All history button rects fixed on check (1000, 800)
+PASS: Previous clears check without moving controls (1000, 800)
+PASS: Next reaches checking position (1000, 800)
+PASS: All history button rects fixed on check (1000, 800)
+PASS: Previous clears check without moving controls (1000, 800)
+PASS: Next reaches checking position (1000, 800)
+PASS: All history button rects fixed on check (1000, 800)
+PASS: Previous clears check without moving controls (1000, 800)
+FIXED HISTORY (1000, 800) previous=[P: (654.0, 411.0), S: (99.0, 38.0)] next=[P: (757.0, 411.0), S: (70.0, 38.0)] live=[P: (831.0, 411.0), S: (135.0, 38.0)]
+PASS: Next reaches checking position (700, 820)
+PASS: All history button rects fixed on check (700, 820)
+PASS: Previous clears check without moving controls (700, 820)
+PASS: Next reaches checking position (700, 820)
+PASS: All history button rects fixed on check (700, 820)
+PASS: Previous clears check without moving controls (700, 820)
+PASS: Next reaches checking position (700, 820)
+PASS: All history button rects fixed on check (700, 820)
+PASS: Previous clears check without moving controls (700, 820)
+PASS: Next reaches checking position (700, 820)
+PASS: All history button rects fixed on check (700, 820)
+PASS: Previous clears check without moving controls (700, 820)
+FIXED HISTORY (700, 820) previous=[P: (40.0, 858.6), S: (99.0, 38.0)] next=[P: (143.0, 858.6), S: (70.0, 38.0)] live=[P: (217.0, 858.6), S: (435.0, 38.0)]
+PASS: Next reaches checking position (600, 760)
+PASS: All history button rects fixed on check (600, 760)
+PASS: Previous clears check without moving controls (600, 760)
+PASS: Next reaches checking position (600, 760)
+PASS: All history button rects fixed on check (600, 760)
+PASS: Previous clears check without moving controls (600, 760)
+PASS: Next reaches checking position (600, 760)
+PASS: All history button rects fixed on check (600, 760)
+PASS: Previous clears check without moving controls (600, 760)
+PASS: Next reaches checking position (600, 760)
+PASS: All history button rects fixed on check (600, 760)
+PASS: Previous clears check without moving controls (600, 760)
+FIXED HISTORY (600, 760) previous=[P: (40.0, 829.8), S: (99.0, 38.0)] next=[P: (143.0, 829.8), S: (70.0, 38.0)] live=[P: (217.0, 829.8), S: (335.0, 38.0)]
+PASS: New Game draft cancel preserves current position/history
+PASS: Starting replacement asks before discarding live match
+PASS: Quit to Menu protects unfinished match
+PASS: Cancel return-to-menu keeps match
+PASS: Confirmed return discards match and stops search
+PASS: Sandbox retains Workshop and reserved second slot
+PASS: Start upgraded engine sandbox
+PASS: Native engine starts during match
+PASS: Pending exit confirmation cancels search and rejects stale reply
+PASS: Cancel exit resumes exactly one legal engine reply
+PASS: No native reply can cross confirmed menu transition
+MENU AND CHECK HISTORY: 81 checks, 0 failures
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: Capture last upgrade: equip e4
+PASS: Capture last upgrade: exact nonempty move history retained
+PASS: Capture last upgrade: immutable original FEN and upgrades retained
+PASS: Capture last upgrade: current effective markers correct
+PASS: Capture last upgrade: original upgrades force Conservative after replay
+PASS: Capture last upgrade: real engine returns legal move;
+PASS: Capture last upgrade: actual native handshake observed
+PASS: Capture last upgrade: actual native profile remains Conservative
+PASS: Capture last upgrade: actual native current schema/empty flag correct
+PASS: Capture last upgrade: actual native current marker squares match
+PASS: Capture last upgrade: exact both-side legality and all threats agree after replay
+PASS: Capture last upgrade: engine search leaves original game untouched
+PASS: Promotion removes last upgrade: equip a7
+PASS: Promotion removes last upgrade: exact nonempty move history retained
+PASS: Promotion removes last upgrade: immutable original FEN and upgrades retained
+PASS: Promotion removes last upgrade: current effective markers correct
+PASS: Promotion removes last upgrade: original upgrades force Conservative after replay
+PASS: Promotion removes last upgrade: real engine returns legal move;
+PASS: Promotion removes last upgrade: actual native handshake observed
+PASS: Promotion removes last upgrade: actual native profile remains Conservative
+PASS: Promotion removes last upgrade: actual native current schema/empty flag correct
+PASS: Promotion removes last upgrade: actual native current marker squares match
+PASS: Promotion removes last upgrade: exact both-side legality and all threats agree after replay
+PASS: Promotion removes last upgrade: engine search leaves original game untouched
+PASS: EP removes last upgrade: equip d6
+PASS: EP removes last upgrade: exact nonempty move history retained
+PASS: EP removes last upgrade: immutable original FEN and upgrades retained
+PASS: EP removes last upgrade: current effective markers correct
+PASS: EP removes last upgrade: original upgrades force Conservative after replay
+PASS: EP removes last upgrade: real engine returns legal move;
+PASS: EP removes last upgrade: actual native handshake observed
+PASS: EP removes last upgrade: actual native profile remains Conservative
+PASS: EP removes last upgrade: actual native current schema/empty flag correct
+PASS: EP removes last upgrade: actual native current marker squares match
+PASS: EP removes last upgrade: exact both-side legality and all threats agree after replay
+PASS: EP removes last upgrade: engine search leaves original game untouched
+PASS: EP preserves capturing upgrade: equip d5
+PASS: EP preserves capturing upgrade: equip e5
+PASS: EP preserves capturing upgrade: exact nonempty move history retained
+PASS: EP preserves capturing upgrade: immutable original FEN and upgrades retained
+PASS: EP preserves capturing upgrade: current effective markers correct
+PASS: EP preserves capturing upgrade: original upgrades force Conservative after replay
+PASS: EP preserves capturing upgrade: real engine returns legal move;
+PASS: EP preserves capturing upgrade: actual native handshake observed
+PASS: EP preserves capturing upgrade: actual native profile remains Conservative
+PASS: EP preserves capturing upgrade: actual native current schema/empty flag correct
+PASS: EP preserves capturing upgrade: actual native current marker squares match
+PASS: EP preserves capturing upgrade: exact both-side legality and all threats agree after replay
+PASS: EP preserves capturing upgrade: engine search leaves original game untouched
+PASS: Mixed pawns on both sides: equip d6
+PASS: Mixed pawns on both sides: equip e4
+PASS: Mixed pawns on both sides: exact nonempty move history retained
+PASS: Mixed pawns on both sides: immutable original FEN and upgrades retained
+PASS: Mixed pawns on both sides: current effective markers correct
+PASS: Mixed pawns on both sides: original upgrades force Conservative after replay
+PASS: Mixed pawns on both sides: real engine returns legal move;
+PASS: Mixed pawns on both sides: actual native handshake observed
+PASS: Mixed pawns on both sides: actual native profile remains Conservative
+PASS: Mixed pawns on both sides: actual native current schema/empty flag correct
+PASS: Mixed pawns on both sides: actual native current marker squares match
+PASS: Mixed pawns on both sides: exact both-side legality and all threats agree after replay
+PASS: Mixed pawns on both sides: engine search leaves original game untouched
+PASS: Ordinary game still searches successfully:
+PASS: Fresh ordinary game does not inherit previous Conservative/upgrade configuration
+PIECE BRIDGE: 64 checks, 0 failures

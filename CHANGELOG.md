@@ -1,5 +1,13 @@
 # Changes
 
+## v0.9 — Sandbox menu and stable history
+
+- Startup menu, persistent board-coordinate setting and protected menu/quit transitions.
+- Pre-match controls stay in sandbox setup; live sidebar focuses on history and status.
+- Fixed check-status space prevents history navigation from jumping.
+- Optional immutable native ability-evaluation registry; no default balance terms.
+
+
 ## v0.8 — 2026-11-04
 
 - Piece Workshop equips individual pawns, preserves identity when relocating, and validates starting armies.

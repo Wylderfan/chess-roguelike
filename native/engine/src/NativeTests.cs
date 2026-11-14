@@ -6,6 +6,55 @@ public static class NativeTests
 {
     static int checks;
     static void Check(bool ok, string label) { checks++; if (!ok) throw new Exception(label); Console.WriteLine("PASS " + label); }
+    static void AbilityEvaluationTests()
+    {
+        var registry = new AbilityEvaluationRegistry();
+        foreach (var profile in new[] { RuleProfile.Standard, RuleProfile.Conservative })
+        {
+            var ordinary = Board.CreateBoard();
+            var baseline = new Searcher(ordinary, profile).EvaluatePosition();
+            Check(new Searcher(ordinary, profile, registry.Snapshot()).EvaluatePosition() == baseline, "empty ability evaluation preserves " + profile.Name);
+        }
+        int calls = 0;
+        // TEST ONLY: 25cp per marked pawn, not a shipped balance adjustment.
+        registry.Register("test.retreat", position => {
+            calls++;
+            int score = 0;
+            for (int square = 0; square < 64; square++)
+                if (position.CanRetreat(square)) score += Piece.IsWhite(position.PieceAt(square)) ? 25 : -25;
+            return score;
+        });
+        var board = Board.CreateBoard("7k/8/3pp3/8/8/3PP3/8/K7 w - - 0 1");
+        var plain = new Searcher(board, RuleProfile.Conservative).EvaluatePosition();
+        Check(new Searcher(board, RuleProfile.Conservative, registry.Snapshot()).EvaluatePosition() == plain && calls == 0, "registered contributions default disabled");
+        registry.SetEnabled("test.retreat", true);
+        Check(new Searcher(board, RuleProfile.Conservative, registry.Snapshot()).EvaluatePosition() == plain && calls == 1, "active evaluator gives no bonus to ordinary pawns");
+        board.SetAbilityStateForSetup(AbilityState.FromSquares(AbilityState.ParseSquares("e3"), board));
+        string[] Legal() => new MoveGenerator().GenerateMoves(board).ToArray().Select(EngineUCI.Name).OrderBy(x => x).ToArray();
+        var legal = Legal(); var key = board.ZobristKey; var fen = FenUtility.CurrentFen(board);
+        var enabled = new Searcher(board, RuleProfile.Standard, registry.Snapshot());
+        plain = new Searcher(board, RuleProfile.Standard).EvaluatePosition();
+        Check(enabled.EvaluatePosition() == plain + 25 && enabled.Profile == RuleProfile.Conservative, "only the equipped pawn contributes; automatic Conservative retained");
+        registry.SetEnabled("test.retreat", false);
+        Check(new Searcher(board, null, registry.Snapshot()).EvaluatePosition() == plain, "disabling evaluation does not disable the ability rule");
+        Check(enabled.EvaluatePosition() == plain + 25, "existing searcher retains immutable evaluator snapshot");
+        Check(legal.SequenceEqual(Legal()) && legal.Contains("e3e2") && !legal.Contains("d3d2"), "evaluation toggle leaves selective legal moves unchanged");
+        registry.SetEnabled("test.retreat", true);
+        board.SetAbilityStateForSetup(AbilityState.FromSquares(AbilityState.ParseSquares("e3,d6"), board));
+        Check(new Searcher(board, null, registry.Snapshot()).EvaluatePosition() == new Searcher(board).EvaluatePosition(), "equal White and Black upgrades cancel evaluation contribution");
+        var black = Board.CreateBoard("7k/8/3pp3/8/8/3PP3/8/K7 b - - 0 1");
+        black.SetAbilityStateForSetup(AbilityState.FromSquares(AbilityState.ParseSquares("d6"), black));
+        Check(new Searcher(black, null, registry.Snapshot()).EvaluatePosition() == new Searcher(black).EvaluatePosition() + 25, "Black contribution converts once to side-to-move score");
+        board.SetAbilityStateForSetup(AbilityState.FromSquares(AbilityState.ParseSquares("e3"), board));
+        Check(registry.Remove("test.retreat") && !registry.Remove("test.retreat"), "remove contribution by id without changing rule registration");
+        Check(new Searcher(board, null, registry.Snapshot()).EvaluatePosition() == plain && legal.SequenceEqual(Legal()) && key == board.ZobristKey && fen == FenUtility.CurrentFen(board), "remove restores baseline, legal moves and board identity");
+        registry.Register("test.zero", _ => 0, true);
+        Check(new Searcher(board, null, registry.Snapshot()).EvaluatePosition() == plain, "enabled no-op preserves baseline exactly");
+        var search = new Searcher(board, null, registry.Snapshot()); search.StartSearch(50, default, 2);
+        Check(legal.Contains(EngineUCI.Name(search.BestMoveSoFar)) && board.ZobristKey == key, "search with optional evaluator preserves legal output and make/unmake");
+        bool duplicate = false; try { registry.Register("test.zero", _ => 0); } catch (ArgumentException) { duplicate = true; }
+        Check(duplicate, "duplicate evaluator ids rejected");
+    }
     static long Perft(Board b, int depth)
     {
         if (depth == 0) return 1;
@@ -27,6 +76,7 @@ public static class NativeTests
     {
         try
         {
+            AbilityEvaluationTests();
             var b = Board.CreateBoard();
             Check(Perft(b,3) == 8902, "start perft 8902 plus every move/hash/unmake roundtrip");
             b = Board.CreateBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
