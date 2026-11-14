@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="700" viewBox="0 0 600 700">
+<!-- Original linocut-inspired composition: the watch knight in an imagined room. -->
+<path d="M40 675 L36 240 Q36 32 300 24 Q563 38 565 240 L560 675 Z" fill="#243840"/>
+<path d="M55 655 L53 243 Q58 53 300 42 Q544 58 548 244 L544 655" fill="none" stroke="#bd8e59" stroke-width="3"/>
+<path d="M80 620 L80 254 Q80 77 300 67 Q521 80 521 254 L521 620" fill="none" stroke="#52676a" stroke-width="2"/>
+<!-- Chisel cuts in the arch, intentionally placed rather than random texture. -->
+<g stroke="#bd8e59" stroke-width="2" fill="none"><path d="M70 201 L94 207 M90 148 L113 160 M127 105 L148 124 M175 74 L189 97 M232 54 L238 80 M300 44 L300 69 M367 56 L360 80 M424 79 L411 101 M473 113 L452 132 M506 157 L482 171 M530 211 L505 216"/></g>
+<!-- High window and narrow moon. -->
+<path d="M352 300 L352 185 Q352 107 418 103 Q481 110 481 185 L481 300 Z" fill="#b98a55"/>
+<path d="M365 285 L365 187 Q366 125 418 116 Q468 127 468 187 L468 285 Z" fill="#152830"/>
+<circle cx="422" cy="179" r="31" fill="#e9cf9a"/><path d="M431 149 Q399 182 433 207 Q454 193 453 174 Z" fill="#152830"/>
+<path d="M417 116 L417 286 M365 229 L469 229" stroke="#b98a55" stroke-width="8"/>
+<path d="M363 302 L477 302 L520 493 L206 493 Z" fill="#9a7952" opacity=".18"/>
+<!-- Masonry joints and small repairs. -->
+<g fill="none" stroke="#52676a" stroke-width="2"><path d="M86 300 L190 300 M96 403 L163 403 M486 365 L517 365 M455 427 L517 427 M132 300 L132 350 M490 427 L490 458 M100 518 L144 518 M100 527 L126 527"/></g>
+<!-- Table perspective, screen-printed alternating inlays. -->
+<path d="M82 488 L426 470 L552 602 L47 624 Z" fill="#bd8e59" stroke="#13262d" stroke-width="5"/>
+<path d="M82 488 L426 470 L444 489 L76 510 Z M69 533 L463 509 L484 531 L62 557 Z M54 582 L507 555 L532 582 L47 607 Z" fill="#e1c699"/>
+<path d="M128 486 L166 484 L152 620 L93 622 Z M213 482 L252 480 L273 615 L213 618 Z M300 477 L341 475 L394 610 L334 613 Z M387 473 L426 470 L523 604 L462 607 Z" fill="#243840" opacity=".82"/>
+<path d="M47 624 L552 602 L550 637 L50 666 Z" fill="#754539" stroke="#142a31" stroke-width="5"/>
+<path d="M60 641 L536 620 M80 654 L220 647" fill="none" stroke="#bd8e59" stroke-width="2"/>
+<!-- Hero: a carved knight, not a borrowed game emblem. -->
+<path d="M174 527 L251 433 L327 455 L447 567 L294 581 Z" fill="#152830" opacity=".75"/>
+<g fill="#e8cfa0" stroke="#132a32" stroke-width="7" stroke-linejoin="round">
+<path d="M158 491 Q206 435 184 371 L148 381 L122 351 L174 268 L174 229 L219 252 L260 242 Q338 304 302 403 L290 490 Z"/>
+<path d="M151 489 L301 489 L319 516 L137 516 Z"/><path d="M137 516 L319 516 L327 538 L130 538 Z"/>
+</g>
+<path d="M207 303 L184 332 L224 317 M266 272 Q308 338 260 434 L251 470 M159 350 L182 354 M151 503 L301 503" fill="none" stroke="#754539" stroke-width="5" stroke-linecap="round"/>
+<path d="M188 263 L193 288 M201 250 L205 275 M278 302 L294 313 M282 324 L300 335 M282 350 L298 360 M276 374 L291 383 M264 402 L278 411 M250 430 L265 438 M238 455 L254 463" stroke="#754539" stroke-width="3"/>
+<path d="M194 289 L207 285" stroke="#142b32" stroke-width="4"/><circle cx="201" cy="294" r="4" fill="#142b32"/>
+<path d="M181 270 L162 293 L145 324" fill="none" stroke="#f7e6be" stroke-width="4"/>
+<!-- A modest candle and an abandoned score slip bring human presence. -->
+<path d="M427 484 L439 490 L464 495 L453 502 L423 494 Z" fill="#132a32"/>
+<path d="M426 463 L439 464 L439 489 L425 488 Z" fill="#e9cf9a" stroke="#172c34" stroke-width="3"/>
+<path d="M433 437 Q445 455 433 462 Q422 456 433 437" fill="#cd6e48"/>
+<path d="M340 544 L389 538 L413 561 L359 567 Z" fill="#ead3a8" stroke="#754539" stroke-width="2"/>
+<path d="M353 549 L385 546 M361 554 L393 552 M367 559 L382 557" stroke="#754539" stroke-width="2"/>
+<path d="M123 573 L161 569 M131 580 L150 578 M473 583 L495 582" stroke="#e8cfa0" stroke-width="2"/>
+</svg>

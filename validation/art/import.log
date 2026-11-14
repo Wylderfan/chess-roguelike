@@ -1,0 +1,106 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (28 steps)
+[   0% ] update_scripts_classes | BaselineChessEngine
+[   3% ] update_scripts_classes |
+[   6% ] update_scripts_classes |
+[  10% ] update_scripts_classes |
+[  13% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  20% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  27% ] update_scripts_classes |
+[  31% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  37% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  75% ] update_scripts_classes | CastlePrint
+[  79% ] update_scripts_classes | ChessEngine
+[  82% ] update_scripts_classes |
+[  86% ] update_scripts_classes | ChessRules
+[  89% ] update_scripts_classes | ChessSetup
+[  93% ] update_scripts_classes | UpgradeArt
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (16 steps)
+[   0% ] _update_scan_actions | pawn_retreat.svg
+[   5% ] _update_scan_actions | black-bishop.svg
+[  11% ] _update_scan_actions | black-king.svg
+[  17% ] _update_scan_actions | black-knight.svg
+[  23% ] _update_scan_actions | black-pawn.svg
+[  29% ] _update_scan_actions | black-queen.svg
+[  35% ] _update_scan_actions | black-rook.svg
+[  41% ] _update_scan_actions | knight-room.svg
+[  47% ] _update_scan_actions | white-bishop.svg
+[  52% ] _update_scan_actions | white-king.svg
+[  58% ] _update_scan_actions | white-knight.svg
+[  64% ] _update_scan_actions | white-pawn.svg
+[  70% ] _update_scan_actions | white-queen.svg
+[  76% ] _update_scan_actions | white-rook.svg
+[  82% ] _update_scan_actions | pieces.ttf
+[  88% ] _update_scan_actions | title.ttf
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (16 steps)
+[   0% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[  11% ] reimport | Preparing files to reimport...
+[  17% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  29% ] reimport | Preparing files to reimport...
+[  35% ] reimport | Preparing files to reimport...
+[  41% ] reimport | Preparing files to reimport...
+[  47% ] reimport | Preparing files to reimport...
+[  52% ] reimport | Preparing files to reimport...
+[  58% ] reimport | Preparing files to reimport...
+[  64% ] reimport | Preparing files to reimport...
+[  70% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  82% ] reimport | Preparing files to reimport...
+[  88% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | pieces.ttf
+[   5% ] reimport | title.ttf
+[  11% ] reimport | pawn_retreat.svg
+[  17% ] reimport | black-bishop.svg
+[  23% ] reimport | black-king.svg
+[  29% ] reimport | black-knight.svg
+[  35% ] reimport | black-pawn.svg
+[  41% ] reimport | black-queen.svg
+[  47% ] reimport | black-rook.svg
+[  52% ] reimport | knight-room.svg
+[  58% ] reimport | white-bishop.svg
+[  64% ] reimport | white-king.svg
+[  70% ] reimport | white-knight.svg
+[  76% ] reimport | white-pawn.svg
+[  82% ] reimport | white-queen.svg
+[  88% ] reimport | white-rook.svg
+[  94% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (16 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout

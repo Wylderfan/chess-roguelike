@@ -1,0 +1,169 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (28 steps)
+[   0% ] update_scripts_classes | BaselineChessEngine
+[   3% ] update_scripts_classes |
+[   6% ] update_scripts_classes |
+[  10% ] update_scripts_classes |
+[  13% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  20% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  27% ] update_scripts_classes |
+[  31% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  37% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  75% ] update_scripts_classes | CastlePrint
+[  79% ] update_scripts_classes | ChessEngine
+[  82% ] update_scripts_classes |
+[  86% ] update_scripts_classes | ChessRules
+[  89% ] update_scripts_classes | ChessSetup
+[  93% ] update_scripts_classes | UpgradeArt
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (16 steps)
+[   0% ] _update_scan_actions | pawn_retreat.svg
+[   5% ] _update_scan_actions | black-bishop.svg
+[  11% ] _update_scan_actions | black-king.svg
+[  17% ] _update_scan_actions | black-knight.svg
+[  23% ] _update_scan_actions | black-pawn.svg
+[  29% ] _update_scan_actions | black-queen.svg
+[  35% ] _update_scan_actions | black-rook.svg
+[  41% ] _update_scan_actions | knight-room.svg
+[  47% ] _update_scan_actions | white-bishop.svg
+[  52% ] _update_scan_actions | white-king.svg
+[  58% ] _update_scan_actions | white-knight.svg
+[  64% ] _update_scan_actions | white-pawn.svg
+[  70% ] _update_scan_actions | white-queen.svg
+[  76% ] _update_scan_actions | white-rook.svg
+[  82% ] _update_scan_actions | pieces.ttf
+[  88% ] _update_scan_actions | title.ttf
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (16 steps)
+[   0% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[  11% ] reimport | Preparing files to reimport...
+[  17% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  29% ] reimport | Preparing files to reimport...
+[  35% ] reimport | Preparing files to reimport...
+[  41% ] reimport | Preparing files to reimport...
+[  47% ] reimport | Preparing files to reimport...
+[  52% ] reimport | Preparing files to reimport...
+[  58% ] reimport | Preparing files to reimport...
+[  64% ] reimport | Preparing files to reimport...
+[  70% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  82% ] reimport | Preparing files to reimport...
+[  88% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | pieces.ttf
+[   5% ] reimport | title.ttf
+[  11% ] reimport | pawn_retreat.svg
+[  17% ] reimport | black-bishop.svg
+[  23% ] reimport | black-king.svg
+[  29% ] reimport | black-knight.svg
+[  35% ] reimport | black-pawn.svg
+[  41% ] reimport | black-queen.svg
+[  47% ] reimport | black-rook.svg
+[  52% ] reimport | knight-room.svg
+[  58% ] reimport | white-bishop.svg
+[  64% ] reimport | white-king.svg
+[  70% ] reimport | white-knight.svg
+[  76% ] reimport | white-pawn.svg
+[  82% ] reimport | white-queen.svg
+[  88% ] reimport | white-rook.svg
+[  94% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (16 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] savepack | Started Packing (102 steps)
+[   1% ] savepack | Storing File: res://.godot/imported/pawn_retreat.svg-c93e130972ada40348ef189ed9fa9046.ctex
+[   1% ] savepack | Storing File: res://assets/abilities/pawn_retreat.svg.import
+[   5% ] savepack | Storing File: res://.godot/imported/black-bishop.svg-a6be1c9a6608a0eb49d99df16d8d73cf.ctex
+[   5% ] savepack | Storing File: res://assets/art/black-bishop.svg.import
+[   9% ] savepack | Storing File: res://.godot/imported/black-king.svg-d592c134e27c6f19ca7b93396bd7486b.ctex
+[   9% ] savepack | Storing File: res://assets/art/black-king.svg.import
+[  14% ] savepack | Storing File: res://.godot/imported/black-knight.svg-dddb409413a0180641160dea1265f933.ctex
+[  14% ] savepack | Storing File: res://assets/art/black-knight.svg.import
+[  18% ] savepack | Storing File: res://.godot/imported/black-pawn.svg-60d79516fc88a2da06fc692014f731f3.ctex
+[  18% ] savepack | Storing File: res://assets/art/black-pawn.svg.import
+[  22% ] savepack | Storing File: res://.godot/imported/black-queen.svg-dfde858f2f4ce87f56564407fd46e8f0.ctex
+[  22% ] savepack | Storing File: res://assets/art/black-queen.svg.import
+[  27% ] savepack | Storing File: res://.godot/imported/black-rook.svg-3c55acd9bf4209ec276109666fd25192.ctex
+[  27% ] savepack | Storing File: res://assets/art/black-rook.svg.import
+[  31% ] savepack | Storing File: res://.godot/imported/knight-room.svg-86042489d451d5aa750484fb03a91d16.ctex
+[  31% ] savepack | Storing File: res://assets/art/knight-room.svg.import
+[  34% ] savepack | Storing File: res://.godot/imported/white-bishop.svg-64373f62c288e0f18dceb8f4b7230f93.ctex
+[  34% ] savepack | Storing File: res://assets/art/white-bishop.svg.import
+[  39% ] savepack | Storing File: res://.godot/imported/white-king.svg-a2a25285c714b07764637682b138d014.ctex
+[  39% ] savepack | Storing File: res://assets/art/white-king.svg.import
+[  43% ] savepack | Storing File: res://.godot/imported/white-knight.svg-f9db726fbdbe29b49a19eff1f3ad9ab5.ctex
+[  43% ] savepack | Storing File: res://assets/art/white-knight.svg.import
+[  47% ] savepack | Storing File: res://.godot/imported/white-pawn.svg-b066f828150e7ab99a6e135d0c950c71.ctex
+[  47% ] savepack | Storing File: res://assets/art/white-pawn.svg.import
+[  52% ] savepack | Storing File: res://.godot/imported/white-queen.svg-973865295d563e0c3250602b21e1c848.ctex
+[  52% ] savepack | Storing File: res://assets/art/white-queen.svg.import
+[  56% ] savepack | Storing File: res://.godot/imported/white-rook.svg-5419b2116090d01a5b51ddc865081521.ctex
+[  56% ] savepack | Storing File: res://assets/art/white-rook.svg.import
+[  60% ] savepack | Storing File: res://.godot/imported/pieces.ttf-a483f98f59372271dc14299cb02b3e3d.fontdata
+[  60% ] savepack | Storing File: res://assets/pieces.ttf.import
+[  65% ] savepack | Storing File: res://.godot/imported/title.ttf-aec7ffdfe8d0b2bb7fef6778776e6783.fontdata
+[  65% ] savepack | Storing File: res://assets/title.ttf.import
+[  68% ] savepack | Storing File: res://upgrade_art.gdc
+[  72% ] savepack | Storing File: res://engine.gdc
+[  77% ] savepack | Storing File: res://.godot/exported/133200997/export-3070c538c03ee49b7677ff960a3f5195-main.scn
+[  81% ] savepack | Storing File: res://rules.gdc
+[  85% ] savepack | Storing File: res://art_direction.gdc
+[  90% ] savepack | Storing File: res://setup.gdc
+[  94% ] savepack | Storing File: res://main.gdc
+[  94% ] savepack | Storing File: res://upgrade_art.gd.remap
+[  94% ] savepack | Storing File: res://engine.gd.remap
+[  94% ] savepack | Storing File: res://main.tscn.remap
+[  94% ] savepack | Storing File: res://rules.gd.remap
+[  94% ] savepack | Storing File: res://art_direction.gd.remap
+[  94% ] savepack | Storing File: res://setup.gd.remap
+[  94% ] savepack | Storing File: res://main.gd.remap
+[  94% ] savepack | Storing File: res://.godot/global_script_class_cache.cfg
+[  94% ] savepack | Storing File: res://.godot/uid_cache.bin
+[  94% ] savepack | Storing File: res://project.binary
+[ DONE ] savepack
